@@ -1,0 +1,5 @@
+DataFile: /home/splitpole/GWM_EventBuilder/rootfiles/analyzed/run_89.root
+HistogramFile: /home/splitpole/GWM_EventBuilder/rootfiles/histograms/thick_10B_target_10B_cuts_run89.root
+AlphaCutFile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/10BalphaCut.root
+3HeCutFile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/10B3heCut.root
+x1x2CutFile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/10Bx1x2Cut.root

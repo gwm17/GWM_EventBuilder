@@ -1,0 +1,15 @@
+###directories to ignore###
+./rootfiles/
+./pics/
+
+###file types to ignore###
+*.swp
+*.o
+*.cxx
+*.root
+*.pcm
+*.jpg
+*.png
+
+###include this###
+!.gitignore

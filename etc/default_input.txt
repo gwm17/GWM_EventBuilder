@@ -1,0 +1,10 @@
+Ztarget: 6 Atarget: 12 Zproj: 2 Aproj: 3 Zeject: 1 Aeject: 2
+BeamE: 16.7 Angle: 3 Bfield: 10000
+x1a2cutfile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/junk1.root
+x1x2cutfile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/junk2.root
+s1a2cutfile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/junk3.root
+DataDir: /home/splitpole/Compass/gwm_9b_test/DAQ/prerun_241Amalpha_01152020/UNFILTERED/
+RunName: compass_prerun_241Amalpha
+RawFile: ./rootfiles/raw/compass_test_premush.root
+SortedFile: ./rootfiles/sorted/test_premush_sorted.root
+AnalyzedFile: ./rootfiles/analyzed/test_premush_analyzed.root

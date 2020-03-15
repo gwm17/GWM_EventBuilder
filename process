@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./bin/processBinaryRun.py $1
+./bin/analyzer analyzer_input.txt
+./bin/cleaner cleaner_input.txt
