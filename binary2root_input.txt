@@ -1,0 +1,2 @@
+DataFile: /data1/gwm17/10B3He/binary2root_test/Feb2020_run175.tar.gz
+OutputFile: /data1/gwm17/10B3He/binary2root_test/run175_test.root
