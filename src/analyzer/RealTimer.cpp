@@ -61,7 +61,11 @@ void RealTimer::Run(string in, string out) {
     }
     gchan = hit.Board*16+hit.Channel;
     if(smap[gchan].side_pos.first=="FRONT" || smap[gchan].side_pos.first=="BACK"){
-      hit.Timestamp += SI_OFFSET;
+      if(hit.Board == 3) { /*GWM temporary measure to account for board offsets... these should be for each board, not just scint & si*/
+        hit.Timestamp += (SI_OFFSET-3e5);
+      } else {
+        hit.Timestamp += SI_OFFSET;
+      }
     } else if (hit.Board == 8 && (hit.Channel == 0 || hit.Channel == 1)) {/*Scint*/
       hit.Timestamp += SCINT_OFFSET;
     }

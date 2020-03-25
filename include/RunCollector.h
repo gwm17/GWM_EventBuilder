@@ -32,6 +32,7 @@ class RunCollector {
     int Merge(string outname);
     int GrabAllFiles();
     int GrabFilesInRange();
+    bool CheckExistance(string dirname, string filename);
     vector<TString> filelist;
 
   private:

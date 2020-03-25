@@ -87,21 +87,27 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
     pevent.scintLeft = cevent.scintLongL;
     pevent.scintRight = cevent.scintLongR;
     pevent.cathode = cevent.cathodeLong;
-    pevent.sabreFrontE = cevent.sabreLongF;
-    pevent.sabreBackE = cevent.sabreLongB;
-    pevent.sabreChannelFront = cevent.sabreChF;
-    pevent.sabreChannelBack = cevent.sabreChB;
+    if(cevent.sabreFrontData.size() != 0) {
+      pevent.sabreFrontE = cevent.sabreFrontData[0].Long;
+      pevent.sabreChannelFront = cevent.sabreFrontData[0].Ch;
+      pevent.sabreFrontTime = cevent.sabreFrontData[0].Time;
+    }
+    if(cevent.sabreBackData.size() != 0) {
+      pevent.sabreBackE = cevent.sabreBackData[0].Long;
+      pevent.sabreChannelBack = cevent.sabreBackData[0].Ch;
+      pevent.sabreBackTime = cevent.sabreBackData[0].Time;
+    }
     pevent.delayFrontRightE = cevent.delayLongFR;
     pevent.delayFrontLeftE = cevent.delayLongFL;
     pevent.delayBackRightE = cevent.delayLongBR;
     pevent.delayBackLeftE = cevent.delayLongBL;
 
-    pevent.sabreFrontTime = cevent.sabreTimeF;
-    pevent.sabreBackTime = cevent.sabreTimeB;
     pevent.anodeFrontTime = cevent.anodeTimeF;
     pevent.anodeBackTime = cevent.anodeTimeB;
     pevent.scintLeftTime = cevent.scintTimeL;
     pevent.scintRightTime = cevent.scintTimeR;
+    pevent.sabreFrontMult = cevent.sabreFrontMult;
+    pevent.sabreBackMult = cevent.sabreBackMult;
 
     if(pevent.anodeBack != -1 && pevent.scintLeft != -1) {
       MyFill("anodeBack vs scintLeft",512,0,4096,pevent.scintLeft,512,0,4096,pevent.anodeBack);

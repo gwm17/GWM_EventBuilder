@@ -14,10 +14,11 @@ SFPCleaner::SFPCleaner() {
   rootObj->SetOwner(false);//THashTable doesnt own members; avoid double delete
   event_address = new ProcessedEvent();
   treeFlag = false;
-  afile = NULL;
-  hefile = NULL;
-  xfile = NULL;
-  alphaCut = NULL, he3Cut = NULL, x1x2Cut = NULL;
+  edefile = NULL;
+  dexfile = NULL;
+  exfile = NULL;
+  xxfile = NULL;
+  EdECut = NULL, ExCut = NULL, dExCut = NULL, x1x2Cut = NULL;
   chain = new TChain("SPSTree");
 }
 
@@ -27,17 +28,19 @@ SFPCleaner::SFPCleaner(bool tf) {
   rootObj->SetOwner(false);
   event_address = new ProcessedEvent();
   treeFlag = tf;
-  afile = NULL;
-  hefile = NULL;
-  xfile = NULL;
-  alphaCut = NULL, he3Cut = NULL, x1x2Cut = NULL;
+  edefile = NULL;
+  dexfile = NULL;
+  exfile = NULL;
+  xxfile = NULL;
+  EdECut = NULL, ExCut = NULL, dExCut = NULL, x1x2Cut = NULL;
 }
 
 SFPCleaner::~SFPCleaner() {
   delete event_address;
-  if(afile != NULL && afile->IsOpen()) afile->Close();
-  if(hefile != NULL && hefile->IsOpen()) hefile->Close();
-  if(xfile != NULL && xfile->IsOpen()) xfile->Close();
+  if(edefile != NULL && edefile->IsOpen()) edefile->Close();
+  if(dexfile != NULL && dexfile->IsOpen()) dexfile->Close();
+  if(exfile != NULL && exfile->IsOpen()) exfile->Close();
+  if(xxfile != NULL && xxfile->IsOpen()) xxfile->Close();
 }
 
 /*2D histogram fill wrapper*/
@@ -73,26 +76,32 @@ void SFPCleaner::Reset() {
  *has to be used in current design!
  *User will probably want to change number of cuts and their names
  */
-int SFPCleaner::SetCuts(string alphaname, string he3name, string x1x2name) {
-  afile = new TFile(alphaname.c_str(), "READ");
-  if(afile->IsOpen()) {
-    alphaCut = (TCutG*) afile->Get("CUTG");
-    alphaCut->SetName("alphaCut");
-    rootObj->Add(alphaCut);
+int SFPCleaner::SetCuts(string edename, string dexname, string exname, string xxname) {
+  edefile = new TFile(edename.c_str(), "READ");
+  if(edefile->IsOpen()) {
+    EdECut = (TCutG*) edefile->Get("CUTG");
+    EdECut->SetName("EdECut");
+    rootObj->Add(EdECut);
   }
-  hefile = new TFile(he3name.c_str(), "READ");
-  if(hefile->IsOpen()) {
-    he3Cut = (TCutG*) hefile->Get("CUTG");
-    he3Cut->SetName("he3Cut");
-    rootObj->Add(he3Cut);
+  dexfile = new TFile(dexname.c_str(), "READ");
+  if(dexfile->IsOpen()) {
+    dExCut = (TCutG*) dexfile->Get("CUTG");
+    dExCut->SetName("dExCut");
+    rootObj->Add(dExCut);
   }
-  xfile = new TFile(x1x2name.c_str(), "READ");
-  if(xfile->IsOpen()) {
-    x1x2Cut = (TCutG*) xfile->Get("CUTG");
+  exfile = new TFile(exname.c_str(), "READ");
+  if(exfile->IsOpen()) {
+    ExCut = (TCutG*) exfile->Get("CUTG");
+    ExCut->SetName("ExCut");
+    rootObj->Add(ExCut);
+  }
+  xxfile = new TFile(xxname.c_str(), "READ");
+  if(xxfile->IsOpen()) {
+    x1x2Cut = (TCutG*) xxfile->Get("CUTG");
     x1x2Cut->SetName("x1x2Cut");
     rootObj->Add(x1x2Cut);
   }
-  if(alphaCut != NULL && he3Cut != NULL && x1x2Cut != NULL) {
+  if(EdECut != NULL && dExCut != NULL && x1x2Cut != NULL && ExCut != NULL) {
     return 1;
   } else {
     return 0;
@@ -109,6 +118,7 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
     MyFill("x1_delayBackRightE_NoCuts",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
     MyFill("x2_delayBackRightE_NoCuts",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
     MyFill("xavg_delayBackRightE_NoCuts",600,-300,300,ev.xavg,512,0,4096,ev.delayBackRightE);
+    MyFill("x1_x2_NoCuts",600,-300,300,ev.x1,600,-300,300,ev.x2);
 
     Double_t delayBackAvgE = (ev.delayBackRightE+ev.delayBackLeftE)/2.0;
     MyFill("x1_delayBackAvgE_NoCuts",600,-300,300,ev.x1,512,0,4096,delayBackAvgE);
@@ -121,27 +131,33 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
 
     MyFill("scintLeft_anodeBack_NoCuts",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
     MyFill("scintLeft_anodeFront_NoCuts",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
+    MyFill("sabreFrontMult_NoCuts",10,0,10,ev.sabreFrontMult);
+    MyFill("sabreBackMult_NoCuts",10,0,10,ev.sabreBackMult);
 
     /****Timing relative to back anode****/
-    if(ev.anodeBackTime != -1) {
+    if(ev.anodeBackTime != -1 && ev.scintLeftTime != -1) {
       Double_t sabreRelFT = ev.sabreFrontTime - ev.anodeBackTime;
       Double_t sabreRelBT = ev.sabreBackTime - ev.anodeBackTime;
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
-      Double_t anodeRelBT = ev.anodeBackTime - ev.anodeBackTime;
       MyFill("sabreRelFrontTime_NoCuts",1000,-3000,3500, sabreRelFT);
       MyFill("sabreRelBackTime_NoCuts",1000,-3000,3500, sabreRelBT);
-      MyFill("anodeRelBackTime_NoCuts",1000,-3000,3500, anodeRelBT);
       MyFill("anodeRelFrontTime_NoCuts",1000,-3000,3500, anodeRelFT);
       if(ev.sabreFrontE != -1 && sabreRelFT<1.0 && sabreRelFT>-1.0) {
         MyFill("xavg_sabrefcoinc_NoCuts",600,-300,300, ev.xavg);
       }
-      if(ev.scintLeftTime != -1) {
-        Double_t sabreRelFT_toScint = ev.sabreFrontTime - ev.scintLeftTime;
-        Double_t anodeRelT = ev.anodeBackTime - ev.scintLeftTime;
-        MyFill("sabreRelFrontTime_toScint",1000,-3000,3500,sabreRelFT_toScint);
-        MyFill("sabreRelFTScint_sabreRelFTAnode",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,sabreRelFT);
-        MyFill("sabreRelFTScint_anodeRelT",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,anodeRelT);
-      }
+      Double_t sabreRelFT_toScint = ev.sabreFrontTime - ev.scintLeftTime;
+      Double_t sabreRelBT_toScint = ev.sabreBackTime - ev.scintLeftTime;
+      Double_t anodeRelT = ev.anodeBackTime - ev.scintLeftTime;
+      MyFill("anodeRelTime_toScint",1000,-3000,3500,anodeRelT);
+      MyFill("sabreRelFrontTime_toScint",1000,-3000,3500,sabreRelFT_toScint);
+      MyFill("sabreRelBackTime_toScint",1000,-3000,3500,sabreRelBT_toScint);
+      MyFill("sabreRelFTScint_sabreRelFTAnode",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,sabreRelFT);
+      MyFill("sabreRelFTScint_sabreFrontChannel",500,-3000,3500,sabreRelFT_toScint,144,0,144,ev.sabreChannelFront);
+      MyFill("sabreRelFTAnode_sabreFrontChannel",500,-3000,3500,sabreRelFT,144,0,144,ev.sabreChannelFront);
+      MyFill("sabreRelBTScint_sabreBackChannel",500,-3000,3500,sabreRelBT_toScint,144,0,144,ev.sabreChannelBack);
+      MyFill("sabreRelFT_sabreRelBT",500,-3000,3500,sabreRelFT,500,-3000,3500,sabreRelBT);
+      MyFill("sabreRelFT_sabreRelBT_scint",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,sabreRelBT_toScint);
+      MyFill("sabreRelFTScint_anodeRelT",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,anodeRelT);
     } else {
       MyFill("noscinttime_counter_NoCuts",2,0,1,1);
     }
@@ -165,26 +181,29 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
 
 /*Makes histograms with cuts & gates implemented*/
 void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
-  if(alphaCut->IsInside(ev.x1, ev.delayBackRightE) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
-    MyFill("x1_bothplanes_acut",600,-300,300,ev.x2);
-    MyFill("x2_bothplanes_acut",600,-300,300,ev.x2);
-    MyFill("xavg_bothplanes_acut",600,-300,300,ev.xavg);
+  if(EdECut->IsInside(ev.scintLeft, ev.delayBackRightE) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
+    MyFill("x1_bothplanes_edecut",600,-300,300,ev.x2);
+    MyFill("x2_bothplanes_edecut",600,-300,300,ev.x2);
+    MyFill("xavg_bothplanes_edecut",600,-300,300,ev.xavg);
+    MyFill("x1_x2_edecut",600,-300,300,ev.x1, 600,-300,300,ev.x2);
     
-    MyFill("x1_delayBackRightE_acut",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
-    MyFill("x2_delayBackRightE_acut",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
-    MyFill("xavg_delayBackRightE_acut",600,-300,300,ev.xavg,512,0,4096,ev.delayBackRightE);
+    MyFill("x1_delayBackRightE_edecut",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
+    MyFill("x2_delayBackRightE_edecut",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
+    MyFill("xavg_delayBackRightE_edecut",600,-300,300,ev.xavg,512,0,4096,ev.delayBackRightE);
 
     Double_t delayBackAvgE = (ev.delayBackRightE+ev.delayBackLeftE)/2.0;
-    MyFill("x1_delayBackAvgE_acut",600,-300,300,ev.x1,512,0,4096,delayBackAvgE);
-    MyFill("x2_delayBackAvgE_acut",600,-300,300,ev.x2,512,0,4096,delayBackAvgE);
-    MyFill("xavg_delayBackAvgE_acut",600,-300,300,ev.xavg,512,0,4096,delayBackAvgE);
+    MyFill("x1_delayBackAvgE_edecut",600,-300,300,ev.x1,512,0,4096,delayBackAvgE);
+    MyFill("x2_delayBackAvgE_edecut",600,-300,300,ev.x2,512,0,4096,delayBackAvgE);
+    MyFill("xavg_delayBackAvgE_edecut",600,-300,300,ev.xavg,512,0,4096,delayBackAvgE);
     Double_t delayFrontAvgE = (ev.delayFrontRightE+ev.delayFrontLeftE)/2.0;
-    MyFill("x1_delayFrontAvgE_acut",600,-300,300,ev.x1,512,0,4096,delayFrontAvgE);
-    MyFill("x2_delayFrontAvgE_acut",600,-300,300,ev.x2,512,0,4096,delayFrontAvgE);
-    MyFill("xavg_delayFrontAvgE_acut",600,-300,300,ev.xavg,512,0,4096,delayFrontAvgE);
+    MyFill("x1_delayFrontAvgE_edecut",600,-300,300,ev.x1,512,0,4096,delayFrontAvgE);
+    MyFill("x2_delayFrontAvgE_edecut",600,-300,300,ev.x2,512,0,4096,delayFrontAvgE);
+    MyFill("xavg_delayFrontAvgE_edecut",600,-300,300,ev.xavg,512,0,4096,delayFrontAvgE);
 
-    MyFill("scintLeft_anodeBack_acut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
-    MyFill("scintLeft_anodeFront_acut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
+    MyFill("scintLeft_anodeBack_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
+    MyFill("scintLeft_anodeFront_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
+    MyFill("sabreFrontMult_edecut",10,0,10,ev.sabreFrontMult);
+    MyFill("sabreBackMult_edecut",10,0,10,ev.sabreBackMult);
 
     /****Timing relative to back anode****/
     if(ev.anodeBackTime != -1) {
@@ -192,66 +211,27 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
       Double_t sabreRelBT = ev.sabreBackTime - ev.anodeBackTime;
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
       Double_t anodeRelBT = ev.anodeBackTime - ev.anodeBackTime;
-      MyFill("sabreRelFrontTime_acut",1000,-3000,3500, sabreRelFT);
-      MyFill("sabreRelBackTime_acut",1000,-3000,3500, sabreRelBT);
-      MyFill("anodeRelBackTime_acut",1000,-3000,3500, anodeRelBT);
-      MyFill("anodeRelFrontTime_acut",1000,-3000,3500, anodeRelFT);
+      MyFill("sabreRelFrontTime_edecut",1000,-3000,3500, sabreRelFT);
+      MyFill("sabreRelBackTime_edecut",1000,-3000,3500, sabreRelBT);
+      MyFill("anodeRelBackTime_edecut",1000,-3000,3500, anodeRelBT);
+      MyFill("anodeRelFrontTime_edecut",1000,-3000,3500, anodeRelFT);
+      Double_t anodeRelFT_toScint = ev.anodeFrontTime-ev.scintLeftTime;
+      MyFill("anodeRelTime_toScint_edecut",1000,-3000,3500,anodeRelFT_toScint);
       if(ev.sabreFrontE != -1 && sabreRelFT<1.0 && sabreRelFT>-1.0) {
-        MyFill("xavg_acut_sabrefcoinc_strict",600,-300,300, ev.xavg);
+        MyFill("xavg_edecut_sabrefcoinc_strict",600,-300,300, ev.xavg);
       }
     } else {
-      MyFill("noscinttime_counter_acut",2,0,1,1);
+      MyFill("noscinttime_counter_edecut",2,0,1,1);
     }
     
     if(ev.sabreFrontE != -1) {
-      MyFill("sabreFrontE_acut",4096,0,4096,ev.sabreFrontE);
-      MyFill("xavg_acut_sabrefcoinc",600,-300,300,ev.xavg);
-      MyFill("xavg_sabreFrontE_acut",600,-300,300,ev.xavg,512,0,4096,ev.sabreFrontE);
+      MyFill("sabreFrontE_edecut",4096,0,4096,ev.sabreFrontE);
+      MyFill("xavg_edecut_sabrefcoinc",600,-300,300,ev.xavg);
+      MyFill("xavg_sabreFrontE_edecut",600,-300,300,ev.xavg,512,0,4096,ev.sabreFrontE);
     }
     if(ev.sabreBackE != -1) {
-      MyFill("sabreBackE_acut",4096,0,4096,ev.sabreBackE);
-      MyFill("xavg_sabreBackE_acut",600,-300,300,ev.xavg,512,0,4096,ev.sabreBackE);
-    }
-  } else if (he3Cut->IsInside(ev.x1, ev.delayBackRightE) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
-    MyFill("x1_bothplanes_hcut",600,-300,300,ev.x2);
-    MyFill("x2_bothplanes_hcut",600,-300,300,ev.x2);
-    MyFill("xavg_bothplanes_hcut",600,-300,300,ev.xavg);
-    
-    MyFill("x1_delayBackRightE_hcut",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
-    MyFill("x2_delayBackRightE_hcut",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
-    MyFill("xavg_delayBackRightE_hcut",600,-300,300,ev.xavg,512,0,4096,ev.delayBackRightE);
-
-    Double_t delayBackAvgE = (ev.delayBackRightE+ev.delayBackLeftE)/2.0;
-    MyFill("x1_delayBackAvgE_hcut",600,-300,300,ev.x1,512,0,4096,delayBackAvgE);
-    MyFill("x2_delayBackAvgE_hcut",600,-300,300,ev.x2,512,0,4096,delayBackAvgE);
-    MyFill("xavg_delayBackAvgE_hcut",600,-300,300,ev.xavg,512,0,4096,delayBackAvgE);
-    Double_t delayFrontAvgE = (ev.delayFrontRightE+ev.delayFrontLeftE)/2.0;
-    MyFill("x1_delayFrontAvgE_hcut",600,-300,300,ev.x1,512,0,4096,delayFrontAvgE);
-    MyFill("x2_delayFrontAvgE_hcut",600,-300,300,ev.x2,512,0,4096,delayFrontAvgE);
-    MyFill("xavg_delayFrontAvgE_hcut",600,-300,300,ev.xavg,512,0,4096,delayFrontAvgE);
-
-    MyFill("scintLeft_anodeBack_hcut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
-    MyFill("scintLeft_anodeFront_hcut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
-
-    /****Timing relative to back anode****/
-    if(ev.scintLeftTime != -1) {
-      Double_t sabreRelFT = ev.sabreFrontTime - ev.anodeBackTime;
-      Double_t sabreRelBT = ev.sabreBackTime - ev.anodeBackTime;
-      Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
-      Double_t anodeRelBT = ev.anodeBackTime - ev.anodeBackTime;
-      MyFill("sabreRelFrontTime_hcut",1000,-3000,3500, sabreRelFT);
-      MyFill("sabreRelBackTime_hcut",1000,-3000,3500, sabreRelBT);
-      MyFill("anodeRelBackTime_hcut",1000,-3000,3500, anodeRelBT);
-      MyFill("anodeRelFrontTime_hcut",1000,-3000,3500, anodeRelFT);
-    } else {
-      MyFill("noscinttime_counter_hcut",2,0,1,1);
-    }
-    
-    if(ev.sabreFrontE != -1) {
-      MyFill("sabreFrontE_hcut",4096,0,4096,ev.sabreFrontE);
-    }
-    if(ev.sabreBackE != -1) {
-      MyFill("sabreBackE_hcut",4096,0,4096,ev.sabreBackE);
+      MyFill("sabreBackE_edecut",4096,0,4096,ev.sabreBackE);
+      MyFill("xavg_sabreBackE_edecut",600,-300,300,ev.xavg,512,0,4096,ev.sabreBackE);
     }
   }
 }

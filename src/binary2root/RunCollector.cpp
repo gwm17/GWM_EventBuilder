@@ -12,14 +12,14 @@ using namespace std;
 
 RunCollector::RunCollector(string dirname) {
   dir = dirname.c_str();
-  run = "compass"; 
+  run = ""; 
   cout<<"Searching directory: "<<dir.Data()<<" for segments of run: "<<run.Data()<<endl; 
   MinRun = 0; MaxRun = LITERALMAX; //if max and min not specified, the class limit is used
 }
 
 RunCollector::RunCollector(string dirname, int min, int max) {
   dir = dirname.c_str();
-  run = "compass";
+  run = ""; 
   cout<<"Searching directory "<<dir.Data()<<" for segments of run: "<<run.Data();
   MinRun = min; MaxRun = max;
   cout<<" from run no. "<<MinRun<<" to run no. "<<MaxRun<<endl;
@@ -38,7 +38,7 @@ int RunCollector::GrabAllFiles() {
     TIter next_element(flist); //List iterator
     while((file = (TSystemFile*)next_element())) {
       temp = file->GetName();
-      if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(".root")) {
+      if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(".tar.gz")) {
         counter++;
         fname = dir+temp; //need fullpath for other functions /*no longer true, just useful for cout*/
         cout<<"Found file: "<<fname.Data()<<endl;
@@ -71,7 +71,7 @@ int RunCollector::GrabFilesInRange() {
     string runno;
     for(int i=MinRun; i<=MaxRun; i++) {//loop over range
       TIter next_element(flist);//list iterator
-      runno = to_string(i) + ".root"; //suffix is now #.root
+      runno = to_string(i) + ".tar.gz"; //suffix is now #.tar.gz
       while((file = (TSystemFile*)next_element())) {//look through directory until file found
         temp = file->GetName();
         if(!file->IsDirectory()&&temp.BeginsWith(run.Data())&&temp.EndsWith(runno.c_str())){
@@ -127,31 +127,4 @@ int RunCollector::Merge(string outname) {
     }
   }
   return 0;
-}
-
-bool RunCollector::CheckExistance(string dirname, string filename) {
-  TString local_dir = dirname.c_str();
-  TString this_file = filename.c_str();
-
-  TSystemDirectory sysdir(local_dir.Data(), local_dir.Data());
-  TList *flist = sysdir.GetListOfFiles();
-  if(flist) { //Make sure list is real. If not, means no directory
-    TSystemFile *file;
-    TString temp;
-    TIter next_element(flist); //List iterator
-    while((file = (TSystemFile*)next_element())) {
-      temp = file->GetName();
-      if(!file->IsDirectory() && temp == this_file) {
-        delete flist;
-        return true;
-      } 
-    }
-    delete flist;
-    return false;
-  } else {
-    cerr<<"Unable to find any files in directory; check name given to the input.txt"<<endl;
-    delete flist;
-    return 0;
-  } 
-  
 }

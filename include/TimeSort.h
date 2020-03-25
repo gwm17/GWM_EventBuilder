@@ -47,6 +47,7 @@ class TimeSort {
     DPPChannel hit;
     CoincEvent event;
     CoincEvent blank;
+    SabreHit shit, sblank;
   
     ULong64_t startTime, previousHitTime;    
     unordered_map<int, sabrechan> smap;
@@ -65,6 +66,18 @@ class TimeSort {
       cath_id = 16*8+7
     };
     
+    /****** Data Counters *******/
+    /*Use these for statistics on the event building*/
+    int totalEvents;
+    int completeFP;
+    int completeFP_SABRE;
+    int SABREorphans;
+    int SABREorphans_noscint;
+    int FPorphans;
+    int FPorphans_partial;
+    int FPorphans_noscint;
+    int FPorphans_nogas;
+    int FPextras;
 };
 
 #endif

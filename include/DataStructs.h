@@ -18,6 +18,11 @@ struct DPPChannel {
   UInt_t Flags = -1;
 };
 
+struct SabreHit {
+  Double_t Long=-1, Time=-1;
+  Int_t Ch=-1;
+};
+
 struct CoincEvent {
   Double_t delayTimeFL=-1, delayTimeFR=-1, delayTimeBL=-1, delayTimeBR=-1;
   Double_t anodeTimeF=-1, anodeTimeB=-1, scintTimeL=-1, scintTimeR=-1, 
@@ -28,8 +33,9 @@ struct CoincEvent {
   Double_t delayShortFL=-1, delayShortFR=-1, delayShortBL=-1, delayShortBR=-1;
   Double_t anodeShortF=-1, anodeShortB=-1, scintShortL=-1, scintShortR=-1,
            cathodeShort=-1;
-  Double_t sabreLongF=-1, sabreLongB=-1, sabreTimeF=-1, sabreTimeB=-1;
-  Double_t sabreChF=-1, sabreChB=-1;
+  vector<SabreHit> sabreFrontData;
+  vector<SabreHit> sabreBackData;
+  Int_t sabreFrontMult = -1, sabreBackMult = -1;
 };
 
 struct ProcessedEvent {
@@ -47,6 +53,7 @@ struct ProcessedEvent {
   Double_t sabreFrontTime = -1, sabreBackTime = -1;
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
+  Int_t sabreFrontMult = -1, sabreBackMult = -1;
 };
 
 #endif

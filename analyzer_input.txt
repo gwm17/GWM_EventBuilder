@@ -1,9 +1,11 @@
 Ztarget: 5 Atarget: 10 Zproj: 2 Aproj: 3 Zeject: 2 Aeject: 4
 BeamE: 24 Angle: 20 Bfield: 9500
-Si_offset: 1e6 Scint_offset: 1e6
-coincidence_window: 3e6
-DataDir: /home/splitpole/GWM_EventBuilder/rootfiles/raw/
-MinRun: 89 MaxRun: 89
-Timeshifted: /home/splitpole/GWM_EventBuilder/rootfiles/shifted/
-SortedFile: /home/splitpole/GWM_EventBuilder/rootfiles/sorted/
-AnalyzedFile: /home/splitpole/GWM_EventBuilder/rootfiles/analyzed/
+Si_offset: 0 Scint_offset: 0.5e6
+coincidence_window: 2.5e6
+fast_coincidence_window: 0.2e6
+DataDir: /data1/gwm17/10B3He/March2020/raw_root/
+MinRun: 9 MaxRun: -1
+TimeshiftedDir: /data1/gwm17/10B3He/March2020/shifted/
+SortedDir: /data1/gwm17/10B3He/March2020/sorted/
+FastDir: /data1/gwm17/10B3He/March2020/fast/
+AnalyzedDir: /data1/gwm17/10B3He/March2020/analyzed/

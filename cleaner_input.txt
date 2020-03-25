@@ -1,5 +1,7 @@
-DataFile: /home/splitpole/GWM_EventBuilder/rootfiles/analyzed/run_89.root
-HistogramFile: /home/splitpole/GWM_EventBuilder/rootfiles/histograms/thick_10B_target_10B_cuts_run89.root
-AlphaCutFile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/10BalphaCut.root
-3HeCutFile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/10B3heCut.root
-x1x2CutFile: /home/splitpole/GWM_EventBuilder/rootfiles/cuts/10Bx1x2Cut.root
+DataDir: /data1/gwm17/10B3He/March2020/analyzed/
+MinRun: 9 MaxRun: -1
+HistogramFile: /data1/gwm17/10B3He/March2020/9b_histograms/9b_spectra_fulldata_including_garbage_testing_fasttime_si0_sc0.5_cw2.5.root
+E_dE_CutFile: /data1/gwm17/10B3He/March2020/cuts/alphaCut_dbr_sl.root
+x1_x2_CutFile: /data1/gwm17/10B3He/March2020/cuts/x1x2Cut.root
+E_positon_CutFile: /data1/gwm17/10B3He/March2020/cuts/scintXavgCut.root
+dE_position_CutFile: /data1/gwm17/10B3He/March2020/cuts/delayEXavgCut.root

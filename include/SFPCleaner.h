@@ -32,7 +32,7 @@ class SFPCleaner {
     SFPCleaner();
     SFPCleaner(bool tf);
     ~SFPCleaner();
-    int SetCuts(string alphaname, string he3name, string x1x2name);
+    int SetCuts(string edename, string dexname, string exname, string xxname);
     void Run(string input, string output);
     void Run(vector<TString> files, string output);
 
@@ -56,8 +56,8 @@ class SFPCleaner {
     /*Files containing cuts, and actaul cuts... Names should be customized for
      *each individual experiment
      */
-    TFile *afile, *hefile, *xfile;
-    TCutG *alphaCut, *he3Cut, *x1x2Cut;
+    TFile *edefile, *dexfile, *exfile, *xxfile;
+    TCutG *EdECut, *dExCut, *x1x2Cut, *ExCut;
 
     TChain *chain;
 

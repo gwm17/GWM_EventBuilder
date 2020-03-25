@@ -18,6 +18,7 @@
 #include "RealTimer.h"
 #include "RunCollector.h"
 #include "TimeSort.h"
+#include "FastSort.h"
 #include <chrono>
 
 using namespace std;
@@ -28,16 +29,16 @@ int main(int argc, char *argv[]) {
     char *name = app.Argv(1);
     ifstream input(name);
     if(input.is_open()) {
-      string dir, shifted, sorted, analyzed, junk;
+      string dir, shifted, sorted, analyzed, junk, fast;
       int zt, at, zp, ap, ze, ae;
       double ep, angle, b;
-      float si, scint, cw;
+      float si, scint, cw, fcw;
       int min, max;
       input>>junk>>zt>>junk>>at>>junk>>zp>>junk>>ap>>junk>>ze>>junk>>ae;
       input>>junk>>ep>>junk>>angle>>junk>>b;
-      input>>junk>>si>>junk>>scint>>junk>>cw;
+      input>>junk>>si>>junk>>scint>>junk>>cw>>junk>>fcw;
       input>>junk>>dir>>junk>>min>>junk>>max;
-      input>>junk>>shifted>>junk>>sorted>>junk>>analyzed;
+      input>>junk>>shifted>>junk>>sorted>>junk>>fast>>junk>>analyzed;
       input.close();
       cout<<"--------------------------------------------------"<<endl;
       cout<<"|~~~~~~~~~~~~ GWM SPS-SABRE Analyzer ~~~~~~~~~~~~|"<<endl;
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) {
       cout<<"Data Directory: "<<dir<<endl;
       cout<<"Timeshifted File: "<<shifted+"run*.root"<<endl;
       cout<<"Sorted File: "<<sorted+"run*.root"<<endl;
+      cout<<"Fast Coincidence File: "<<fast+"run*.root"<<endl;
       cout<<"Analyzed File: "<<analyzed+"run*.root"<<endl;
       cout<<"Zt: "<<zt<<" At: "<<at<<" Ze: "<<ze<<" Ae: "<<ae
           <<" Zp: "<<zp<<" Ap: "<<ap<<" E: "<<ep<<" angle: "
@@ -74,7 +76,7 @@ int main(int argc, char *argv[]) {
         filelist = grabber.filelist;
       }
       if(validity) {
-        string raw, this_shifted, this_sorted, this_analyzed;
+        string raw, this_shifted, this_sorted, this_analyzed, this_fast;
         for(unsigned int i=0; i<filelist.size(); i++) {
           gROOT->Reset();
           string raw = filelist[i].Data();
@@ -90,25 +92,24 @@ int main(int argc, char *argv[]) {
             if(test == dir+"compass_") { //skip the path & the underscore after compass
               if(!endflag) {
                 endflag++;
-                i+=2;
               }
             }
           }
           this_shifted = shifted+suffix;
           this_sorted = sorted+suffix;
+          this_fast = fast+suffix;
           this_analyzed = analyzed+suffix;
           RealTimer rt(si, scint);
           rt.Run(raw, this_shifted);
           TimeSort no_hope(cw);
+          FastSort help_me(fcw);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
-          auto start = chrono::high_resolution_clock::now();
           cout<<"Sorting the file by timestamp..."<<endl;
           no_hope.Run(this_shifted.c_str(), this_sorted.c_str());
-          auto stop = chrono::high_resolution_clock::now();
-          auto duration = chrono::duration_cast<chrono::milliseconds>(stop-start);
-          cout<<"Elapsed time for Time Sort: "<<duration.count()<<" milliseconds"<<endl;
+          cout<<"Sorting by fast coincidence..."<<endl;
+          help_me.Run(this_sorted.c_str(), this_fast.c_str());
           cout<<"Performing basic analysis..."<<endl;
-          doa.Run(this_sorted.c_str(), this_analyzed.c_str());
+          doa.Run(this_fast.c_str(), this_analyzed.c_str());
           cout<<"--------------------------------------------------"<<endl;
         }
       }

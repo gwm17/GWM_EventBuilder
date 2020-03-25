@@ -64,7 +64,7 @@ int RunMusher::GrabFilesInRange() {
     TSystemFile *file;
     TString fname, temp;
     string runno;
-    for(int i=MinRun; i<MaxRun; i++) {
+    for(int i=MinRun; i<=MaxRun; i++) {
       TIter next_element(flist);
       runno = to_string(i) + ".root";
       while((file = (TSystemFile*)next_element())) {
