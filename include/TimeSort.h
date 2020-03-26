@@ -32,6 +32,20 @@ class TimeSort {
     TimeSort(float windowSize);
     ~TimeSort();
     void Run(const char *infile_name, const char *outfile_name);
+
+    /****** Data Counters *******/
+    /*Use these for statistics on the event building*/
+    int totalEvents;
+    int completeFP;
+    int completeFP_SABRE;
+    int SABREorphans;
+    int SABREorphans_noscint;
+    int FPorphans;
+    int FPorphans_partial;
+    int FPorphans_noscint;
+    int FPorphans_nogas;
+    int FPextras;
+
   private:
     void Reset();
     void StartEvent();
@@ -66,18 +80,6 @@ class TimeSort {
       cath_id = 16*8+7
     };
     
-    /****** Data Counters *******/
-    /*Use these for statistics on the event building*/
-    int totalEvents;
-    int completeFP;
-    int completeFP_SABRE;
-    int SABREorphans;
-    int SABREorphans_noscint;
-    int FPorphans;
-    int FPorphans_partial;
-    int FPorphans_noscint;
-    int FPorphans_nogas;
-    int FPextras;
 };
 
 #endif

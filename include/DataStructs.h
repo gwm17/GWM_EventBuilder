@@ -54,6 +54,7 @@ struct ProcessedEvent {
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
   Int_t sabreFrontMult = -1, sabreBackMult = -1;
+  Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;
 };
 
 #endif
