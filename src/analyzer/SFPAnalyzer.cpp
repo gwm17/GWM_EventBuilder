@@ -116,8 +116,9 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
       pevent.fp1_tdiff = (cevent.delayTimeFL-cevent.delayTimeFR)*0.5;
       pevent.fp1_tsum = (cevent.delayTimeFL+cevent.delayTimeFR);
       pevent.fp1_tcheck = (pevent.fp1_tsum)/2.0-cevent.anodeTimeF;
-      //pevent.x1 = pevent.fp1_tdiff*1.0/1.83; //position from time, based on total delay
-      pevent.x1 = 0.52*pevent.fp1_tdiff - 0.128; //position from time, based on delay chips
+      pevent.delayFrontMaxTime = max(cevent.delayTimeFL, cevent.delayTimeFR);
+      pevent.x1 = pevent.fp1_tdiff*1.0/1.83; //position from time, based on total delay
+      //pevent.x1 = 0.52*pevent.fp1_tdiff - 0.128; //position from time, based on delay chips
       MyFill("x1",1200,-300,300,pevent.x1);
       MyFill("x1 vs anodeBack",600,-300,300,pevent.x1,512,0,4096,pevent.anodeBack);
     }
@@ -125,8 +126,9 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
       pevent.fp2_tdiff = (cevent.delayTimeBL-cevent.delayTimeBR)*0.5;
       pevent.fp2_tsum = (cevent.delayTimeBL+cevent.delayTimeBR);
       pevent.fp2_tcheck = (pevent.fp2_tsum)/2.0-pevent.anodeBackTime;
-      //pevent.x2 = pevent.fp1_tdiff*1.0/1.96; //position from time, based on total delay
-      pevent.x2 = 0.48*pevent.fp2_tdiff - 2.365; //position from time, based on delay chips
+      pevent.delayBackMaxTime = max(cevent.delayTimeBL, cevent.delayTimeBR);
+      pevent.x2 = pevent.fp2_tdiff*1.0/1.96; //position from time, based on total delay
+      //pevent.x2 = 0.48*pevent.fp2_tdiff - 2.365; //position from time, based on delay chips
       MyFill("x2",1200,-300,300,pevent.x2);
       MyFill("x2 vs anodeBack",600,-300,300,pevent.x2,512,0,4096,pevent.anodeBack);
     }

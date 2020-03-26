@@ -149,13 +149,14 @@ bool TimeSort::ProcessEvent() {
     if(dflFlag>1 || dfrFlag>1 || dblFlag>1 || dbrFlag>1 || afFlag>1 || abFlag>1 || sLFlag>1 || sRFlag>1) {
       FPextras++;
     }
-  } else if (saBFlag || saFFlag) {
-    SABREorphans++;
-    if(!(sLFlag || sRFlag)) {
-      SABREorphans_noscint++;
-    }
   } else {
     FPorphans++;
+    if (saBFlag || saFFlag) {
+      SABREorphans++;
+      if(!(sLFlag || sRFlag)) {
+        SABREorphans_noscint++;
+      }
+    }
     if((dflFlag || dfrFlag || dblFlag || dbrFlag || afFlag || abFlag) && (sLFlag || sRFlag)) {
       FPorphans_partial++;
     } else if(!(sLFlag || sRFlag)) {
@@ -234,16 +235,6 @@ void TimeSort::Run(const char *infile_name, const char *outfile_name) {
     previousHitTime = hit.Timestamp;
   }
   cout<<endl;
-  cout<<"Event Building Statistics"<<endl;
-  cout<<"Total Coincidence Events: "<<totalEvents<<endl;
-  cout<<"SABRE-Focal Plane Coincidences: "<<completeFP_SABRE<<endl;
-  cout<<"Complete Focal Plane Events Sans SABRE: "<<completeFP<<endl;
-  cout<<"Orphaned SABRE Events: "<<SABREorphans<<endl;
-  cout<<"Orphaned SABRE Events Sans Scint: "<<SABREorphans_noscint<<endl;
-  cout<<"Orphaned Focal Plane Data: "<<FPorphans<<endl;
-  cout<<"Orphaned FP with Partial: "<<FPorphans_partial<<endl;
-  cout<<"Orphaned FP without scint: "<<FPorphans_noscint<<endl;
-  cout<<"Orphaned FP without gas: "<<FPorphans_nogas<<endl;
   outputFile->cd();
   SortTree->Write(SortTree->GetName(), TObject::kOverwrite);
   compFile->Close();

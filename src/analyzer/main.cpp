@@ -77,6 +77,14 @@ int main(int argc, char *argv[]) {
       }
       if(validity) {
         string raw, this_shifted, this_sorted, this_analyzed, this_fast;
+
+        /*Log file to document the statistics of the evb*/
+        ofstream log("event_builder_log.txt");
+        log<<"Event building statistics for most recent build"<<endl;
+        int totalEvents=0, completeFP=0, completeFP_SABRE=0, SABREorphans=0,
+            SABREorphans_noscint=0, FPorphans=0, FPorphans_partial=0,
+            FPorphans_noscint=0, FPorphans_nogas=0, FPextras=0;
+
         for(unsigned int i=0; i<filelist.size(); i++) {
           gROOT->Reset();
           string raw = filelist[i].Data();
@@ -106,12 +114,41 @@ int main(int argc, char *argv[]) {
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
           cout<<"Sorting the file by timestamp..."<<endl;
           no_hope.Run(this_shifted.c_str(), this_sorted.c_str());
+          /****Stats****/
+          totalEvents += no_hope.totalEvents;
+          completeFP += no_hope.completeFP;
+          completeFP_SABRE += no_hope.completeFP_SABRE;
+          SABREorphans += no_hope.SABREorphans;
+          SABREorphans_noscint += no_hope.SABREorphans_noscint;
+          FPorphans += no_hope.FPorphans;
+          FPorphans_partial += no_hope.FPorphans_partial;
+          FPorphans_noscint += no_hope.FPorphans_noscint;
+          FPorphans_nogas += no_hope.FPorphans_nogas;
+          /*************/
+          FPextras += no_hope.FPextras;
           cout<<"Sorting by fast coincidence..."<<endl;
           help_me.Run(this_sorted.c_str(), this_fast.c_str());
           cout<<"Performing basic analysis..."<<endl;
           doa.Run(this_fast.c_str(), this_analyzed.c_str());
           cout<<"--------------------------------------------------"<<endl;
         }
+        log<<"Total number of events found: "<<totalEvents<<endl;
+        log<<"Number of complete (2 anode, all delay line, scint) FP events: "
+           <<completeFP<<endl;
+        log<<"Number of complete FP events with SABRE: "<<completeFP_SABRE
+           <<endl;
+        log<<"Number of complete FP events with multi hits: "<<FPextras<<endl;
+        log<<"Number of orphaned (missing fp data) SABRE events: "
+           <<SABREorphans<<endl;
+        log<<"Number of SABRE orphans without a scint: "<<SABREorphans_noscint
+           <<endl;
+        log<<"Number of orphaned (missing fp data) focal plane events: "
+           <<FPorphans<<endl;
+        log<<"Number of FP orphans missing anode or delay: "<<FPorphans_partial
+           <<endl;
+        log<<"Number of FP orphans missing a scint: "<<FPorphans_noscint<<endl;
+        log<<"Number of scintillator singles: "<<FPorphans_nogas<<endl;
+        log.close(); 
       }
     } else {
       cerr<<"input list file missing!"<<endl;

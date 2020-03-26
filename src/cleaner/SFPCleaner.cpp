@@ -139,18 +139,26 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
       Double_t sabreRelFT = ev.sabreFrontTime - ev.anodeBackTime;
       Double_t sabreRelBT = ev.sabreBackTime - ev.anodeBackTime;
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
+      Double_t delayRelFT = ev.delayFrontMaxTime - ev.anodeBackTime;
+      Double_t delayRelBT = ev.delayBackMaxTime - ev.anodeBackTime;
       MyFill("sabreRelFrontTime_NoCuts",1000,-3000,3500, sabreRelFT);
       MyFill("sabreRelBackTime_NoCuts",1000,-3000,3500, sabreRelBT);
       MyFill("anodeRelFrontTime_NoCuts",1000,-3000,3500, anodeRelFT);
+      MyFill("delayRelFrontTime_NoCuts",1000,-3000,-3500,delayRelFT);
+      MyFill("delayRelBackTime_NoCuts",1000,-3000,-3500,delayRelBT);
       if(ev.sabreFrontE != -1 && sabreRelFT<1.0 && sabreRelFT>-1.0) {
         MyFill("xavg_sabrefcoinc_NoCuts",600,-300,300, ev.xavg);
       }
       Double_t sabreRelFT_toScint = ev.sabreFrontTime - ev.scintLeftTime;
       Double_t sabreRelBT_toScint = ev.sabreBackTime - ev.scintLeftTime;
       Double_t anodeRelT = ev.anodeBackTime - ev.scintLeftTime;
+      Double_t delayRelFT_toScint = ev.delayFrontMaxTime - ev.scintLeftTime;
+      Double_t delayRelBT_toScint = ev.delayBackMaxTime - ev.scintLeftTime;
       MyFill("anodeRelTime_toScint",1000,-3000,3500,anodeRelT);
       MyFill("sabreRelFrontTime_toScint",1000,-3000,3500,sabreRelFT_toScint);
       MyFill("sabreRelBackTime_toScint",1000,-3000,3500,sabreRelBT_toScint);
+      MyFill("delayRelBackTime_toScint",1000,-3000,3500,delayRelBT_toScint);
+      MyFill("delayRelFrontTime_toScint",1000,-3000,3500,delayRelFT_toScint);
       MyFill("sabreRelFTScint_sabreRelFTAnode",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,sabreRelFT);
       MyFill("sabreRelFTScint_sabreFrontChannel",500,-3000,3500,sabreRelFT_toScint,144,0,144,ev.sabreChannelFront);
       MyFill("sabreRelFTAnode_sabreFrontChannel",500,-3000,3500,sabreRelFT,144,0,144,ev.sabreChannelFront);
