@@ -23,8 +23,12 @@ struct SabreHit {
   Int_t Ch=-1;
 };
 
+struct FPHit {
+  Double_t Long=-1, Short=-1, Time=-1;
+};
+
 struct CoincEvent {
-  Double_t delayTimeFL=-1, delayTimeFR=-1, delayTimeBL=-1, delayTimeBR=-1;
+  /*Double_t delayTimeFL=-1, delayTimeFR=-1, delayTimeBL=-1, delayTimeBR=-1;
   Double_t anodeTimeF=-1, anodeTimeB=-1, scintTimeL=-1, scintTimeR=-1, 
            cathodeTime=-1;
   Double_t delayLongFL=-1, delayLongFR=-1, delayLongBL=-1, delayLongBR=-1;
@@ -32,7 +36,16 @@ struct CoincEvent {
            cathodeLong=-1;
   Double_t delayShortFL=-1, delayShortFR=-1, delayShortBL=-1, delayShortBR=-1;
   Double_t anodeShortF=-1, anodeShortB=-1, scintShortL=-1, scintShortR=-1,
-           cathodeShort=-1;
+           cathodeShort=-1;*/
+  vector<FPHit> delayFL, delayFR, delayBL, delayBR, anodeF, anodeB, scintL,
+                scintR, cathode;
+  vector<SabreHit> sabreFrontData;
+  vector<SabreHit> sabreBackData;
+  Int_t sabreFrontMult = -1, sabreBackMult = -1;
+};
+
+struct FastCoincEvent {
+  FPHit delayFL, delayFR, delayBL, delayBR, anodeF, anodeB, scintL, scintR, cathode;
   vector<SabreHit> sabreFrontData;
   vector<SabreHit> sabreBackData;
   Int_t sabreFrontMult = -1, sabreBackMult = -1;
@@ -41,7 +54,7 @@ struct CoincEvent {
 struct ProcessedEvent {
   Double_t fp1_tdiff = -1e6, fp2_tdiff = -1e6, fp1_tsum = -1, fp2_tsum = -1,
            fp1_tcheck = -1, fp2_tcheck = -1;
-  Double_t fp1_y, fp2_y;
+  Double_t fp1_y=-1, fp2_y=-1;
   Double_t anodeFront = -1, anodeBack = -1, scintRight = -1, scintLeft = -1;
   Double_t cathode = -1;
   Double_t xavg = -1e6, x1 = -1e6, x2 = -1e6;

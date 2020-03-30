@@ -1,6 +1,6 @@
 /*
  *Goal is to provide a fast coinc window for rejecting si.
- *
+ *And a way to orgainize focal plane data within slow cw.
  *
  */
 #ifndef FASTSORT_H
@@ -27,9 +27,11 @@ class FastSort {
   private:
     void Reset();
     void ProcessSABRE();
+    void ProcessFocalPlane(unsigned int iter);
 
     float coincWindow;
-    CoincEvent *event_address, slowEvent, fastEvent, blank;
+    CoincEvent *event_address, slowEvent;
+    FastCoincEvent fastEvent, blank;
     int illegalMap;
 
     unordered_map<int, sabrechan> smap;

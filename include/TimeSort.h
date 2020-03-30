@@ -51,10 +51,6 @@ class TimeSort {
     void StartEvent();
     bool ProcessEvent();
 
-    UShort_t Energy, EnergyShort, Channel, Board;
-    ULong64_t Timestamp;
-    UInt_t Flags;
-
     float coincWindow;
     int illegalMap;
     vector<DPPChannel> hitList;
@@ -62,6 +58,7 @@ class TimeSort {
     CoincEvent event;
     CoincEvent blank;
     SabreHit shit, sblank;
+    FPHit fhit, fblank;
   
     ULong64_t startTime, previousHitTime;    
     unordered_map<int, sabrechan> smap;

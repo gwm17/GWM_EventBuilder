@@ -16,20 +16,64 @@ void FastSort::Reset() {
   fastEvent = blank;
 }
 
+void FastSort::ProcessFocalPlane(unsigned int iter) {
+  /*Time sequential events. That is the first scint should correspond to the 
+   *first delay, first anode, etc.
+   */
+  fastEvent.scintL = slowEvent.scintL[iter];
+  if(slowEvent.delayFL.size() != 0) {
+    /* There are simpler methods for this. But,
+     * we may need a more complicted builder.
+     */
+    fastEvent.delayFL = slowEvent.delayFL[0];
+    slowEvent.delayFL.erase(slowEvent.delayFL.begin()); 
+  }
+  if(slowEvent.delayFR.size() != 0) {
+    fastEvent.delayFR = slowEvent.delayFR[0];
+    slowEvent.delayFR.erase(slowEvent.delayFR.begin());
+  }
+  if(slowEvent.delayBR.size() != 0) {
+    fastEvent.delayBR = slowEvent.delayBR[0];
+    slowEvent.delayBR.erase(slowEvent.delayBR.begin());
+  }
+  if(slowEvent.delayBL.size() != 0) {
+    fastEvent.delayBL = slowEvent.delayBL[0];
+    slowEvent.delayBL.erase(slowEvent.delayBL.begin());
+  }
+  if(slowEvent.scintR.size() != 0) {
+    fastEvent.scintR = slowEvent.scintR[0];
+    slowEvent.scintR.erase(slowEvent.scintR.begin());
+  }
+  if(slowEvent.anodeF.size() != 0) {
+    fastEvent.anodeF = slowEvent.anodeF[0];
+    slowEvent.anodeF.erase(slowEvent.anodeF.begin());
+  }
+  if(slowEvent.anodeB.size() != 0) {
+    fastEvent.anodeB = slowEvent.anodeB[0];
+    slowEvent.anodeB.erase(slowEvent.anodeB.begin());
+  }
+  if(slowEvent.cathode.size() != 0) {
+    fastEvent.cathode = slowEvent.cathode[0];
+    slowEvent.cathode.erase(slowEvent.cathode.begin());
+  }
+}
+
 void FastSort::ProcessSABRE() {
   vector<SabreHit> fronts;
   vector<SabreHit> backs;
   /*Dump sabre data that doesnt fall within the fast coincidence window with the scint*/
   for(unsigned int i=0; i<slowEvent.sabreFrontData.size(); i++) {
-    float sabreRelTime = fabs(slowEvent.sabreFrontData[i].Time - slowEvent.scintTimeL);
+    float sabreRelTime = fabs(slowEvent.sabreFrontData[i].Time - fastEvent.scintL.Time);
     if(sabreRelTime < coincWindow) {
       fronts.push_back(slowEvent.sabreFrontData[i]);
+      slowEvent.sabreFrontData.erase(slowEvent.sabreFrontData.begin()+i);
     }
   }
   for(unsigned int i=0; i<slowEvent.sabreBackData.size(); i++) {
-    float sabreRelTime = fabs(slowEvent.sabreBackData[i].Time - slowEvent.scintTimeL);
+    float sabreRelTime = fabs(slowEvent.sabreBackData[i].Time - fastEvent.scintL.Time);
     if(sabreRelTime < coincWindow) {
       backs.push_back(slowEvent.sabreBackData[i]);
+      slowEvent.sabreBackData.erase(slowEvent.sabreBackData.begin()+i);
     }
   }
   
@@ -71,6 +115,8 @@ void FastSort::ProcessSABRE() {
     fastEvent.sabreFrontData = fronts;
     fastEvent.sabreBackData = backs;
   }
+  fastEvent.sabreFrontMult = fastEvent.sabreFrontData.size();
+  fastEvent.sabreBackMult = fastEvent.sabreBackData.size();
 }
 
 void FastSort::Run(const char *infile_name, const char *outfile_name) {
@@ -96,9 +142,12 @@ void FastSort::Run(const char *infile_name, const char *outfile_name) {
       cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
     }
     slowEvent = *event_address;
-    fastEvent = slowEvent;
-    ProcessSABRE();
-    outtree->Fill();
+    for(unsigned int i=0; i<slowEvent.scintL.size(); i++) {
+      Reset();
+      ProcessFocalPlane(i);
+      ProcessSABRE();
+      outtree->Fill();
+    }
   }
   cout<<endl;
   input->Close();

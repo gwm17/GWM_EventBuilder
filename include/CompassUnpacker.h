@@ -34,8 +34,6 @@ class CompassUnpacker {
     bool archiveFlag;
     int archiveWarning;
     bool fatalFlag;
-    size_t fileSize;
-    size_t archiveSize;
 
     ifstream inputFile;
     struct archive *inputArchive;

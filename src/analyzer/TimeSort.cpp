@@ -56,68 +56,78 @@ bool TimeSort::ProcessEvent() {
   event.sabreFrontMult = 0, event.sabreBackMult = 0;
   for(unsigned int i=0; i<hitList.size(); i++) {
     shit = sblank; //Have to reset sabre hit every time
+    fhit = fblank;
     DPPChannel curHit = hitList[i];
     int gchan = curHit.Channel + curHit.Board*16; //global channel
     switch(gchan) {//switch over focal plane
       case delayFL_id:
-        event.delayTimeFL = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.delayShortFL = curHit.EnergyShort;
-        event.delayLongFL = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         dflFlag += 1;
+        event.delayFL.push_back(fhit);
         break;
       case delayFR_id:
-        event.delayTimeFR = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.delayShortFR = curHit.EnergyShort;
-        event.delayLongFR = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         dfrFlag += 1;
+        event.delayFR.push_back(fhit);
         break;
       case delayBL_id:
-        event.delayTimeBL = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.delayShortBL = curHit.EnergyShort;
-        event.delayLongBL = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         dblFlag += 1;
+        event.delayBL.push_back(fhit);
         break;
       case delayBR_id:
-        event.delayTimeBR = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.delayShortBR = curHit.EnergyShort;
-        event.delayLongBR = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         dbrFlag += 1;
+        event.delayBR.push_back(fhit);
         break;
       case anodeF_id:
-        event.anodeTimeF = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.anodeShortF = curHit.EnergyShort;
-        event.anodeLongF = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         afFlag += 1;
+        event.anodeF.push_back(fhit);
         break;
       case anodeB_id:
-        event.anodeTimeB = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.anodeShortB = curHit.EnergyShort;
-        event.anodeLongB = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         abFlag += 1;
+        event.anodeB.push_back(fhit);
         break;
       case scintL_id:
-        event.scintTimeL = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.scintShortL = curHit.EnergyShort;
-        event.scintLongL = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         sLFlag += 1;
+        event.scintL.push_back(fhit);
         break;
       case scintR_id:
-        event.scintTimeR = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.scintShortR = curHit.EnergyShort;
-        event.scintLongR = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
         sRFlag += 1;
+        event.scintR.push_back(fhit);
         break;
       case cath_id:
-        event.cathodeTime = ((Double_t)curHit.Timestamp)/1.0e3;
-        event.cathodeShort = curHit.EnergyShort;
-        event.cathodeLong = curHit.Energy;
+        fhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
+        fhit.Short = curHit.EnergyShort;
+        fhit.Long = curHit.Energy;
+        event.cathode.push_back(fhit);
         break;
     }
     try {/*see if this is a sabre channel*/
       sabrechan sc = smap.at(gchan); //throws out_of_range if not a valid member
       if(sc.side_pos.first == "FRONT" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) 
          && curHit.Energy>20.0) {
-        shit.Long = curHit.Energy;//*gains.GetScaler(gchan);
+        shit.Long = curHit.Energy;//gains.GetScaler(gchan);
         shit.Time = (Double_t) curHit.Timestamp/1.0e3;
         shit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreFrontData.push_back(shit);
@@ -125,7 +135,7 @@ bool TimeSort::ProcessEvent() {
         saFFlag++;
       } else if (sc.side_pos.first == "BACK" && curHit.Energy<16384 && 
                  (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi)){
-        shit.Long = curHit.Energy;//*gains.GetScaler(gchan);
+        shit.Long = curHit.Energy;//gains.GetScaler(gchan);
         shit.Time = ((Double_t) curHit.Timestamp)/1.0e3;
         shit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreBackData.push_back(shit);
@@ -197,7 +207,6 @@ void TimeSort::Run(const char *infile_name, const char *outfile_name) {
   startTime = 0; previousHitTime = 0; //initialize
   
   Int_t blentries = compassTree->GetEntries();
-  vector<DPPChannel> sort_list;
   cout<<setprecision(5)<<fixed;
  
   /*SetMaxVirtualSize supposedly increases the tree buffer size to the specified size;
