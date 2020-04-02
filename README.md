@@ -10,6 +10,8 @@ build all four programs. This program is built using libraries from `ROOT` 6.14.
 on the `libarchive` library to read in archived data. If you do not have `libarchive`, you will need to install it.
 Alternatively, just dont make and use the binary converter.
 
+WHEN TESTING, RUN WITH WIDE WINDOWS
+
 ## Binary2ROOT
 The `binary2root` program takes binary CoMPASS data and converts it into a `ROOT` file with a tree. Currently this program can
 accept either the plain .bin format binary CoMPASS data or a compressed archive of .bin files in a .tar.gz format. In principle,
@@ -25,21 +27,23 @@ The second stage is sorting the shifted data by timestamp and orgainizing detect
 data events. This is done through the use of TTree::BuildIndex which will sort a specific 
 branch value (in this case timestamps). The data is then collected in events; events are 
 structures which contain all detector hits that occur within a given coincidence window. This
-event data is then written to an output file. Note that at this stage some data is dumped; if
-there is an incomplete set of focal plane data, there is no point on carrying that event 
-to the next stage of analysis. This helps to reduce file sizes and computation times, however
-there are use cases were this may not be desirable. Finally, the sorted event data is then 
-converted into meaningful physical data, and saved to a final analyzed file. In this way, each
-raw data file gives three output files from the analysis: a shifted file, a sorted file, and 
-an analyzed file. The rationale behind the repetative writting is that it helps the user 
-isolate at which stage data issues occur at; this is especially useful for the shifting and 
-sorting stages, where the values for the shifts and coincidence window have to be estimated by
-the user before running. 
+event data is then written to an output file. The data is then handed off to a fast time sort.
+This is basically a secondary tier of event building, that is more user specific. It breaks down
+data within the coincidence window into single focal plane events with asscoiated SABRE data.
+Finally, the sorted event data is then converted into meaningful physical data, and saved to a 
+final analyzed file. In this way, each raw data file gives three output files from the analysis: 
+a shifted file, a sorted file, and an analyzed file. The rationale behind the repetative writting 
+is that it helps the user isolate at which stage data issues occur at; this is especially useful 
+for the shifting and sorting stages, where the values for the shifts and coincidence window have 
+to be estimated by the user before running. 
 
 All of the user input is handled through an input file in the program directory named 
 `analyzer_input.txt`. This file is preformated; all the user needs to do is update the names and
 values. Everything from input and output directories, to shifts and coincidence windows should
 be specified in this file. Note that directorires should be explicit fullpaths.
+
+See the cleaner section for advice on which histograms are useful for choosing the correct shifts
+and window sizes for the data set.
 
 ## Merger
 The `merger` is a small program with the intent of merging multiple analyzed files together into
@@ -62,6 +66,27 @@ while reading in multiple trees from multiple files is generally easy and fast. 
 programs, `cleaner` takes an input file (`cleaner_input.txt`) which specifies analyzed data 
 directory, output file, etc. These root files can then be combined into another file by using the
 command `hadd`, which is included in the `ROOT` distrobution.
+
+### Determining Shifts and Windows
+The cleaner already provides most of the histograms one would need to determine the shifts and windows
+for a data set. These, in general, come from plots of the relative time of various components of the
+detector. The goal of the scintillator and si shifts are to make them occur in coincidence with the
+anode (pick one of the focal plane anodes, they occur at essentially the same time). Included automatically
+are plots of the back anode relative to the scintillator (anodeB.Time-scintL.Time, gives scint offset), the
+si relative to the scint (SABRE fronts and backs... pick higher res one to make offsets and shifts), and
+maximum delay times relative to scint for both lines. Note also that boards can also have global offsets!
+To account for this some boards will have to be shifted slightly differently in the RealTimer.cpp. THIS
+VERSION CONTAINS AN INDIVIDUAL BOARD OFFSET AS AN EXAMPLE, WHEN MAKING A FIRST TEST REMOVE THIS.
+
+The method is the following:
+
+Using the anode relative to the scint, one can determine the scint offset (center the peak on 0). Then,
+by looking at the SABRE relative to scint plots one can determine the shift for si and the fast window
+size (again center the peak on 0, the width of the peak becomes the fast window). Finally, if everything goes
+according to plan, now the maximum size of the slow coincidence window will be the relative time of the maximum
+delay line signal. Look at the plot of this and determine where you want to cut off. Run it again and
+check the results. You should look for, in general, reduced background and noise along with correct
+centering of the timing peaks.
 
 ## System Requirements
 Only tested with `ROOT` 6.14, so compatibility with any other version is questionable
