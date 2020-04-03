@@ -9,7 +9,7 @@
 using namespace std;
 
 GainMatcher::GainMatcher() {
-  gain_file_name = "etc/OctNov2019_SABRE_GAINMATCH_500mV_to_5486";
+  gain_file_name = "etc/March2020_gainmatch_2.0V_5486Am241.txt";
   scaler_map.resize(144);
   MakeVector();
 }
@@ -20,6 +20,8 @@ GainMatcher::~GainMatcher() {
 
 void GainMatcher::MakeVector() {
   ifstream input(gain_file_name);
+  string junk;
+  getline(input, junk);
   if(input.is_open()) {
     int channel;
     double temp1, temp2;
