@@ -53,9 +53,9 @@ void RealTimer::Run(string in, string out) {
   cout<<"Shifting the timestamps of SABRE and the scintillator..."<<endl;
   Float_t blentries = intree->GetEntries();
   Float_t place;
-  for(Int_t i=0; i<intree->GetEntries(); i++) {
+  for(ULong_t i=0; i<intree->GetEntries(); i++) {
     intree->GetEntry(i);
-    place = ((Float_t)i)/blentries*100;
+    place = ((long double)i)/blentries*100;
     if(fmod(place,10.0) ==  0) { /*Non-continuous progress update*/
       cout<<"\rFile is "<<place<<"%"<<" complete"<<flush;
     }

@@ -7,6 +7,7 @@
  */
 
 #include "SFPCleaner.h"
+#include <TMath.h>
 
 /*Generates storage and initializes pointers*/
 SFPCleaner::SFPCleaner() {
@@ -114,6 +115,7 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
     MyFill("x1NoCuts_bothplanes",600,-300,300,ev.x2);
     MyFill("x2NoCuts_bothplanes",600,-300,300,ev.x2);
     MyFill("xavgNoCuts_bothplanes",600,-300,300,ev.xavg);
+    MyFill("xavgNoCuts_theta_bothplanes",600,-300,300,ev.xavg,100,0,TMath::Pi()/2.,ev.theta);
     
     MyFill("x1_delayBackRightE_NoCuts",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
     MyFill("x2_delayBackRightE_NoCuts",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
@@ -171,12 +173,12 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
     }
     
     if(ev.sabreFrontE != -1) {
-      MyFill("sabreFrontE_NoCuts",4096,0,4095,ev.sabreFrontE);
-      MyFill("sabreChannelFront_sabreFrontE_NoCuts",144,0,144,ev.sabreChannelFront,512,0,4095,ev.sabreFrontE);
+      MyFill("sabreFrontE_NoCuts",2000,0,20,ev.sabreFrontE);
+      MyFill("sabreChannelFront_sabreFrontE_NoCuts",144,0,144,ev.sabreChannelFront,200,0,20,ev.sabreFrontE);
     }
     if(ev.sabreBackE != -1) {
-      MyFill("sabreBackE_NoCuts",4096,0,4096,ev.sabreBackE);
-      MyFill("sabreChannelBack_sabreBackE_NoCuts",144,0,144,ev.sabreChannelBack,512,0,4095,ev.sabreBackE);
+      MyFill("sabreBackE_NoCuts",2000,0,20,ev.sabreBackE);
+      MyFill("sabreChannelBack_sabreBackE_NoCuts",144,0,144,ev.sabreChannelBack,200,0,20,ev.sabreBackE);
     }
   } else if(ev.x1 != -1e6) {
     MyFill("x1NoCuts_only1plane",600,-300,300,ev.x1);
@@ -194,6 +196,7 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
     MyFill("x2_bothplanes_edecut",600,-300,300,ev.x2);
     MyFill("xavg_bothplanes_edecut",600,-300,300,ev.xavg);
     MyFill("x1_x2_edecut",600,-300,300,ev.x1, 600,-300,300,ev.x2);
+    MyFill("xavg_theta_edecut_bothplanes",600,-300,300,ev.xavg,100,0,TMath::Pi()/2.,ev.theta);
     
     MyFill("x1_delayBackRightE_edecut",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
     MyFill("x2_delayBackRightE_edecut",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
@@ -233,13 +236,13 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
     }
     
     if(ev.sabreFrontE != -1) {
-      MyFill("sabreFrontE_edecut",4096,0,4096,ev.sabreFrontE);
+      MyFill("sabreFrontE_edecut",2000,0,20,ev.sabreFrontE);
       MyFill("xavg_edecut_sabrefcoinc",600,-300,300,ev.xavg);
-      MyFill("xavg_sabreFrontE_edecut",600,-300,300,ev.xavg,512,0,4096,ev.sabreFrontE);
+      MyFill("xavg_sabreFrontE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreFrontE);
     }
     if(ev.sabreBackE != -1) {
-      MyFill("sabreBackE_edecut",4096,0,4096,ev.sabreBackE);
-      MyFill("xavg_sabreBackE_edecut",600,-300,300,ev.xavg,512,0,4096,ev.sabreBackE);
+      MyFill("sabreBackE_edecut",2000,0,20,ev.sabreBackE);
+      MyFill("xavg_sabreBackE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreBackE);
     }
   }
 }
@@ -285,11 +288,11 @@ void SFPCleaner::Run(vector<TString> files, string output) {
   cout<<"Total number of events: "<<(Int_t)blentries<<endl;
   cout<<setprecision(5);
   float place;
-  for(int i=0; i<chain->GetEntries(); i++) {
+  for(unsigned long i=0; i<chain->GetEntries(); i++) {
     chain->GetEntry(i);
-    place = ((float)i)/blentries*100; 
+    place = ((long double)i)/blentries*100; 
     if(fmod(place, 10.0) == 0.0) {/*Non-continuous progress update*/
-      cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
+      cout<<"\rPercent of file processed: "<<ceil(place)<<"%"<<flush;
     }
     MakeUncutHistograms(*event_address);
     MakeCutHistograms(*event_address);

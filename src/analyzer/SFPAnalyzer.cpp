@@ -17,6 +17,7 @@ SFPAnalyzer::SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double 
                          double angle, double b) {
   Zt = zt; At = at; Zp = zp; Ap = ap; Ze = ze; Ae = ae; Ep = ep; 
   Angle = angle; B = b;
+  zfp = Delta_Z(Zt, At, Zp, Ap, Ze, Ae, Ep, Angle, B);
   event_address = new FastCoincEvent();
   rootObj = new THashTable();
   rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
@@ -30,7 +31,11 @@ void SFPAnalyzer::Reset() {
   pevent = blank; //set output back to blank
 }
 
-/*Use functions from FP_kinematics to calculate weights for xavg*/
+/*Use functions from FP_kinematics to calculate weights for xavg
+ *While this seems kind of funny, it is mathematically equivalent to making a line
+ *from the two focal plane points and finding the intersection with 
+ *the kinematic focal plane
+ */
 void SFPAnalyzer::GetWeights() {
   w1 = (Wire_Dist()/2.0-Delta_Z(Zt, At, Zp, Ap, Ze, Ae, Ep, Angle, B))/Wire_Dist();
   w2 = 1.0-w1;
@@ -74,12 +79,13 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
   GetWeights();
   Float_t place;
   Float_t blentries = inputTree->GetEntries();
-  for(int i=0; i<inputTree->GetEntries(); i++) {
+  cout<<setprecision(2);
+  for(unsigned long i=0; i<inputTree->GetEntries(); i++) {
     inputTree->GetEntry(i);
     cevent = *event_address;
-    place = ((Float_t)i)/blentries*100;
+    place = ((long double)i)/blentries*100;
     /*Non-continuous progress update*/
-    if(fmod(place, 10.0) == 0) cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
+    if(fmod(place, 10.0) == 0) cout<<"\rPercent of file processed: "<<ceil(place)<<"%"<<flush;
     Reset();
 
     pevent.anodeFront = cevent.anodeF.Long;

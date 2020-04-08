@@ -27,7 +27,7 @@ class FastSort {
   private:
     void Reset();
     void ProcessSABRE();
-    void ProcessFocalPlane(unsigned int iter);
+    void ProcessFocalPlane(unsigned long iter);
 
     float coincWindow;
     CoincEvent *event_address, slowEvent;

@@ -71,7 +71,7 @@ int RunCollector::GrabFilesInRange() {
     string runno;
     for(int i=MinRun; i<=MaxRun; i++) {//loop over range
       TIter next_element(flist);//list iterator
-      runno = to_string(i) + ".root"; //suffix is now #.root
+      runno = "_" + to_string(i) + ".root"; //suffix is now _#.root
       while((file = (TSystemFile*)next_element())) {//look through directory until file found
         temp = file->GetName();
         if(!file->IsDirectory()&&temp.BeginsWith(run.Data())&&temp.EndsWith(runno.c_str())){

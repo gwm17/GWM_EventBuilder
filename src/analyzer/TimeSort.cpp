@@ -54,7 +54,7 @@ bool TimeSort::ProcessEvent() {
   int sLFlag=0, sRFlag=0, afFlag=0, abFlag=0;
   int saFFlag=0, saBFlag = 0;
   event.sabreFrontMult = 0, event.sabreBackMult = 0;
-  for(unsigned int i=0; i<hitList.size(); i++) {
+  for(unsigned long i=0; i<hitList.size(); i++) {
     shit = sblank; //Have to reset sabre hit every time
     fhit = fblank;
     DPPChannel curHit = hitList[i];
@@ -127,7 +127,7 @@ bool TimeSort::ProcessEvent() {
       sabrechan sc = smap.at(gchan); //throws out_of_range if not a valid member
       if(sc.side_pos.first == "FRONT" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) 
          && curHit.Energy>20.0) {
-        shit.Long = curHit.Energy;//gains.GetScaler(gchan);
+        shit.Long = curHit.Energy*gains.GetScaler(gchan);
         shit.Time = (Double_t) curHit.Timestamp/1.0e3;
         shit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreFrontData.push_back(shit);
@@ -135,7 +135,7 @@ bool TimeSort::ProcessEvent() {
         saFFlag++;
       } else if (sc.side_pos.first == "BACK" && curHit.Energy<16384 && 
                  (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi)){
-        shit.Long = curHit.Energy;//gains.GetScaler(gchan);
+        shit.Long = curHit.Energy*gains.GetScaler(gchan);
         shit.Time = ((Double_t) curHit.Timestamp)/1.0e3;
         shit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreBackData.push_back(shit);
@@ -220,9 +220,9 @@ void TimeSort::Run(const char *infile_name, const char *outfile_name) {
   Float_t place;
   completeFP = 0; completeFP_SABRE = 0; SABREorphans = 0; FPorphans = 0; FPextras = 0; totalEvents = 0;
   FPorphans_partial = 0; FPorphans_noscint=0; FPorphans_nogas = 0; SABREorphans_noscint = 0;
-  for(Int_t i=0; i<compassTree->GetEntries(); i++) {
+  for(ULong_t i=0; i<compassTree->GetEntries(); i++) {
     compassTree->GetEntry(index[i]);
-    place = ((Float_t)i)/blentries*100;
+    place = ((long double)i)/blentries*100;
     if(fmod(place, 10.0) == 0) { //Non-continuous progress update
       cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
     }

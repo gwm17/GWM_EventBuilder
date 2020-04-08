@@ -16,7 +16,7 @@ void FastSort::Reset() {
   fastEvent = blank;
 }
 
-void FastSort::ProcessFocalPlane(unsigned int iter) {
+void FastSort::ProcessFocalPlane(unsigned long iter) {
   /*Time sequential events. That is the first scint should correspond to the 
    *first delay, first anode, etc.
    */
@@ -62,14 +62,14 @@ void FastSort::ProcessSABRE() {
   vector<SabreHit> fronts;
   vector<SabreHit> backs;
   /*Dump sabre data that doesnt fall within the fast coincidence window with the scint*/
-  for(unsigned int i=0; i<slowEvent.sabreFrontData.size(); i++) {
+  for(unsigned long i=0; i<slowEvent.sabreFrontData.size(); i++) {
     float sabreRelTime = fabs(slowEvent.sabreFrontData[i].Time - fastEvent.scintL.Time);
     if(sabreRelTime < coincWindow) {
       fronts.push_back(slowEvent.sabreFrontData[i]);
       slowEvent.sabreFrontData.erase(slowEvent.sabreFrontData.begin()+i);
     }
   }
-  for(unsigned int i=0; i<slowEvent.sabreBackData.size(); i++) {
+  for(unsigned long i=0; i<slowEvent.sabreBackData.size(); i++) {
     float sabreRelTime = fabs(slowEvent.sabreBackData[i].Time - fastEvent.scintL.Time);
     if(sabreRelTime < coincWindow) {
       backs.push_back(slowEvent.sabreBackData[i]);
@@ -135,9 +135,9 @@ void FastSort::Run(const char *infile_name, const char *outfile_name) {
   Float_t blentries = intree->GetEntries();
   cout<<setprecision(5)<<fixed;
   Float_t place;
-  for(Int_t i=0; i<intree->GetEntries(); i++) {
+  for(ULong_t i=0; i<intree->GetEntries(); i++) {
     intree->GetEntry(i);
-    place = ((Float_t)i)/blentries*100;
+    place = ((long double)i)/blentries*100;
     if(fmod(place,10.0) == 0) {
       cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
     }

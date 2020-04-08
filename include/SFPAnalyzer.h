@@ -48,7 +48,7 @@ class SFPAnalyzer {
 
     Int_t Zt, At, Zp, Ap, Ze, Ae;
     Double_t Ep, Angle, B;
-    Double_t w1, w2;
+    Double_t w1, w2, zfp;
 
     THashTable *rootObj; //root storage
 };
