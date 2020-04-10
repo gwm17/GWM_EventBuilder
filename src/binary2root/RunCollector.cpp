@@ -71,7 +71,7 @@ int RunCollector::GrabFilesInRange() {
     string runno;
     for(int i=MinRun; i<=MaxRun; i++) {//loop over range
       TIter next_element(flist);//list iterator
-      runno = to_string(i) + ".tar.gz"; //suffix is now #.tar.gz
+      runno = "_"+to_string(i) + ".tar.gz"; //suffix is now #.tar.gz
       while((file = (TSystemFile*)next_element())) {//look through directory until file found
         temp = file->GetName();
         if(!file->IsDirectory()&&temp.BeginsWith(run.Data())&&temp.EndsWith(runno.c_str())){
