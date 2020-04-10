@@ -20,29 +20,56 @@ but as .tar.gz is fairly universal this seems unnecessary. The full path to data
 
 ## Analyzer
 The `analyzer` is the bulk of the analysis process. Analyzer takes each individual run file from
-compass, and performs three stages of analysis on each file. The first stage is shifting all 
-of the timestamps for both the focal plane scintillator and SABRE silicons so that they come 
-later than the focal plane ion-chamber. The shifted data is then written to an output file.
-The second stage is sorting the shifted data by timestamp and orgainizing detector hits into 
-data events. This is done through the use of TTree::BuildIndex which will sort a specific 
+compass, and performs four stages of analysis on each file: shifting, slow sorting, fast sorting, and analyzing. 
+
+### Shifting
+The first stage is shifting all of the timestamps for both the focal plane scintillator 
+and SABRE silicons so that they come in coincidence with one of the anodes in the ion chamber. 
+The shifted data is then written to an output file. In general, this means that one
+will need to run the analyzer with "wide open" coincidence windows, look at the histograms of 
+relative timings and then apply shifts to a subsequent execution which make it so the relative
+timing peaks are centered on 0. For more details see the section on the `cleaner` for which 
+histograms are relevant.
+ 
+### Slow Sorting
+The second stage is  slow sorting the shifted data by timestamp and orgainizing detector hits into 
+large data events. This is done through the use of TTree::BuildIndex which will sort a specific 
 branch value (in this case timestamps). The data is then collected in events; events are 
 structures which contain all detector hits that occur within a given coincidence window. This
-event data is then written to an output file. The data is then handed off to a fast time sort.
+event data is then written to an output file. The goal of the slow sorting is to be as general
+as possible; slow sorting should change very little on a data set to data set basis, as this 
+coincidence window is limited mostly be the time difference between an anode hit and the maximum
+delay line time if the correct shifts are applied to SABRE and the scintillator.
+
+### Fast Sorting
 This is basically a secondary tier of event building, that is more user specific. It breaks down
-data within the coincidence window into single focal plane events with asscoiated SABRE data.
+data within the coincidence window into single focal plane events with asscoiated SABRE data. The
+principle is that the scintillator provides very sharp timing resolution by which we can further
+refine the built event. Currently, `FastSort` is desinged to take two windows: a coincidence window 
+for SABRE and the scintillator, and a coincidence window for the ion chamber and the scintillator. 
+For the ion chamber, the front anode was chosen to be the representative (it really doesn't matter
+which part of the ion chamber is chosen). SABRE data is additionally filtered to contain only paired
+hits (hits that have both a ring and a wedge). Fast sorting is where the user will have to make the
+most changes to the actual event building. Any new detector or additional changes will require more
+coincidence definitions and sorting depth. As such, this is probably the most computationally expensive
+part of the analysis pipeline.
+
+### Analyzing
 Finally, the sorted event data is then converted into meaningful physical data, and saved to a 
-final analyzed file. In this way, each raw data file gives three output files from the analysis: 
-a shifted file, a sorted file, and an analyzed file. The rationale behind the repetative writting 
-is that it helps the user isolate at which stage data issues occur at; this is especially useful 
-for the shifting and sorting stages, where the values for the shifts and coincidence window have 
-to be estimated by the user before running. 
+final analyzed file. This is where the digitizer parameters (charge/energy, time, etc.) are converted
+into the actual paramters of interest such as focal plane position, SABRE energy, etc. In this way, 
+each raw data file gives four output files from the analysis: a shifted file, a slow sorted file,
+a fast sorted file, and an analyzed file. The rationale behind the repetative writting is that
+it helps the user isolate at which stage data issues occur at; this is especially useful for the 
+shifting and sorting stages, where the values for the shifts and coincidence window have to be 
+estimated by the user before running. 
 
 All of the user input is handled through an input file in the program directory named 
 `analyzer_input.txt`. This file is preformated; all the user needs to do is update the names and
 values. Everything from input and output directories, to shifts and coincidence windows should
 be specified in this file. Note that directorires should be explicit fullpaths.
 
-See the cleaner section for advice on which histograms are useful for choosing the correct shifts
+See the `cleaner` section for advice on which histograms are useful for choosing the correct shifts
 and window sizes for the data set.
 
 ## Merger
