@@ -53,7 +53,7 @@ void RealTimer::Run(string in, string out) {
   cout<<"Shifting the timestamps of SABRE and the scintillator..."<<endl;
   Float_t blentries = intree->GetEntries();
   Float_t place;
-  for(ULong_t i=0; i<intree->GetEntries(); i++) {
+  for(ULong64_t i=0; i<intree->GetEntries(); i++) {
     intree->GetEntry(i);
     place = ((long double)i)/blentries*100;
     if(fmod(place,10.0) ==  0) { /*Non-continuous progress update*/

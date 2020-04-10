@@ -64,9 +64,9 @@ int RunMusher::GrabFilesInRange() {
     TSystemFile *file;
     TString fname, temp;
     string runno;
-    for(int i=MinRun; i<MaxRun; i++) {
+    for(int i=MinRun; i<=MaxRun; i++) {
       TIter next_element(flist);
-      runno = to_string(i) + ".root";
+      runno = "_" + to_string(i) + ".root";
       while((file = (TSystemFile*)next_element())) {
         temp = file->GetName();
         if(!file->IsDirectory()&&temp.EndsWith(runno.c_str())){
@@ -95,7 +95,7 @@ int RunMusher::GrabFilesInRange() {
 
 int RunMusher::Merge(string outname) {
   TFile *output = new TFile(outname.c_str(), "RECREATE");
-  TChain *chain = new TChain("SPSTree", "SPSTree");
+  TChain *chain = new TChain("SortTree", "SortTree");
   
   if(MaxRun == LITERALMAX) {
     if(GrabAllFiles()) { 

@@ -18,37 +18,24 @@ struct DPPChannel {
   UInt_t Flags = -1;
 };
 
-struct SabreHit {
+struct DetectorHit {
   Double_t Long=-1, Time=-1;
   Int_t Ch=-1;
 };
 
-struct FPHit {
-  Double_t Long=-1, Short=-1, Time=-1;
+struct SabreDetector {
+  vector<DetectorHit> rings;
+  vector<DetectorHit> wedges;
+};
+
+struct FPDetector {
+  vector<DetectorHit> delayFL, delayFR, delayBL, delayBR;
+  vector<DetectorHit> anodeF, anodeB, scintL, scintR, cathode;
 };
 
 struct CoincEvent {
-  /*Double_t delayTimeFL=-1, delayTimeFR=-1, delayTimeBL=-1, delayTimeBR=-1;
-  Double_t anodeTimeF=-1, anodeTimeB=-1, scintTimeL=-1, scintTimeR=-1, 
-           cathodeTime=-1;
-  Double_t delayLongFL=-1, delayLongFR=-1, delayLongBL=-1, delayLongBR=-1;
-  Double_t anodeLongF=-1, anodeLongB=-1, scintLongL=-1, scintLongR=-1,
-           cathodeLong=-1;
-  Double_t delayShortFL=-1, delayShortFR=-1, delayShortBL=-1, delayShortBR=-1;
-  Double_t anodeShortF=-1, anodeShortB=-1, scintShortL=-1, scintShortR=-1,
-           cathodeShort=-1;*/
-  vector<FPHit> delayFL, delayFR, delayBL, delayBR, anodeF, anodeB, scintL,
-                scintR, cathode;
-  vector<SabreHit> sabreFrontData;
-  vector<SabreHit> sabreBackData;
-  Int_t sabreFrontMult = -1, sabreBackMult = -1;
-};
-
-struct FastCoincEvent {
-  FPHit delayFL, delayFR, delayBL, delayBR, anodeF, anodeB, scintL, scintR, cathode;
-  vector<SabreHit> sabreFrontData;
-  vector<SabreHit> sabreBackData;
-  Int_t sabreFrontMult = -1, sabreBackMult = -1;
+  FPDetector focalPlane;
+  SabreDetector sabreArray[5]; //0=A 1=B 2=C 3=D 4=E
 };
 
 struct ProcessedEvent {
@@ -59,14 +46,14 @@ struct ProcessedEvent {
   Double_t cathode = -1;
   Double_t xavg = -1e6, x1 = -1e6, x2 = -1e6;
   Double_t theta = -1e6;
-  Double_t sabreFrontE = -1, sabreBackE = -1;
-  Int_t sabreChannelFront = -1, sabreChannelBack = -1;
+  Double_t sabreRingE[5] = {-1,-1,-1,-1,-1}, sabreWedgeE[5] = {-1,-1,-1,-1,-1};
+  Double_t sabreRingChannel[5] = {-1,-1,-1,-1,-1}, sabreWedgeChannel[5] = {-1,-1,-1,-1,-1};
+  Double_t sabreRingTime[5] = {-1,-1,-1,-1,-1}, sabreWedgeTime[5] = {-1,-1,-1,-1,-1};
+  
   Double_t delayFrontRightE = -1, delayFrontLeftE = -1;
   Double_t delayBackRightE = -1, delayBackLeftE = -1;
-  Double_t sabreFrontTime = -1, sabreBackTime = -1;
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
-  Int_t sabreFrontMult = -1, sabreBackMult = -1;
   Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;
 };
 

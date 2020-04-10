@@ -32,11 +32,11 @@ int main(int argc, char *argv[]) {
       string dir, shifted, sorted, analyzed, junk, fast;
       int zt, at, zp, ap, ze, ae;
       double ep, angle, b;
-      float si, scint, cw, fcw;
+      float si, scint, cw, si_fcw, ion_fcw;
       int min, max;
       input>>junk>>zt>>junk>>at>>junk>>zp>>junk>>ap>>junk>>ze>>junk>>ae;
       input>>junk>>ep>>junk>>angle>>junk>>b;
-      input>>junk>>si>>junk>>scint>>junk>>cw>>junk>>fcw;
+      input>>junk>>si>>junk>>scint>>junk>>cw>>junk>>si_fcw>>junk>>ion_fcw;
       input>>junk>>dir>>junk>>min>>junk>>max;
       input>>junk>>shifted>>junk>>sorted>>junk>>fast>>junk>>analyzed;
       input.close();
@@ -62,6 +62,8 @@ int main(int argc, char *argv[]) {
       cout<<"scintillator offset: "<<scint<<endl;
       cout<<"SABRE offset: "<<si<<endl;
       cout<<"Coincidence window: "<<cw<<endl;
+      cout<<"Si Fast Coincidence Window: "<<si_fcw<<endl;
+      cout<<"Ion Chamber Fast Coincidence Window: "<<ion_fcw<<endl;
       cout<<"--------------------------------------------------"<<endl;
       cout<<"~~~~~~~~~~~~~~~~~ Analyzer Output ~~~~~~~~~~~~~~~~"<<endl;
       vector<TString> filelist;
@@ -110,7 +112,7 @@ int main(int argc, char *argv[]) {
           RealTimer rt(si, scint);
           rt.Run(raw, this_shifted);
           TimeSort no_hope(cw);
-          FastSort help_me(fcw);
+          FastSort help_me(si_fcw, ion_fcw);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
           cout<<"Sorting the file by timestamp..."<<endl;
           no_hope.Run(this_shifted.c_str(), this_sorted.c_str());
@@ -132,12 +134,15 @@ int main(int argc, char *argv[]) {
           doa.Run(this_fast.c_str(), this_analyzed.c_str());
           cout<<"--------------------------------------------------"<<endl;
         }
+        log<<"---------'Good' Events-----------"<<endl;
         log<<"Total number of events found: "<<totalEvents<<endl;
         log<<"Number of complete (2 anode, all delay line, scint) FP events: "
            <<completeFP<<endl;
         log<<"Number of complete FP events with SABRE: "<<completeFP_SABRE
            <<endl;
         log<<"Number of complete FP events with multi hits: "<<FPextras<<endl;
+        log<<"---------------------------------"<<endl;
+        log<<"----------'Bad' Events-----------"<<endl;
         log<<"Number of orphaned (missing fp data) SABRE events: "
            <<SABREorphans<<endl;
         log<<"Number of SABRE orphans without a scint: "<<SABREorphans_noscint
@@ -148,6 +153,7 @@ int main(int argc, char *argv[]) {
            <<endl;
         log<<"Number of FP orphans missing a scint: "<<FPorphans_noscint<<endl;
         log<<"Number of scintillator singles: "<<FPorphans_nogas<<endl;
+        log<<"---------------------------------"<<endl;
         log.close(); 
       }
     } else {

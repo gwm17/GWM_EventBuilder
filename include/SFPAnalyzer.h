@@ -43,7 +43,7 @@ class SFPAnalyzer {
                              int binsy, double miny, double maxy, double valuey);
     void MyFill(string name, int binsx, double minx, double maxx, double valuex);
 
-    FastCoincEvent cevent, *event_address; //Input branch address
+    CoincEvent cevent, *event_address; //Input branch address
     ProcessedEvent pevent, blank; //output branch and reset
 
     Int_t Zt, At, Zp, Ap, Ze, Ae;

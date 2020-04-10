@@ -20,18 +20,21 @@ using namespace std;
 class FastSort {
   
   public:
-    FastSort(float windowSize);
+    FastSort(float si_windowSize, float ion_windowSize);
     ~FastSort();
     void Run(const char *infile_name, const char *outfile_name);
 
   private:
-    void Reset();
-    void ProcessSABRE();
-    void ProcessFocalPlane(unsigned long iter);
+    void ResetSABRE();
+    void ResetFocalPlane();
+    void ProcessSABRE(unsigned int scint_index);
+    void ProcessFocalPlane(unsigned int scint_index, unsigned int ionch_index);
 
-    float coincWindow;
+    float si_coincWindow, ion_coincWindow;
     CoincEvent *event_address, slowEvent;
-    FastCoincEvent fastEvent, blank;
+    CoincEvent fastEvent, blank;
+    SabreDetector sblank;
+    FPDetector fpblank;
     int illegalMap;
 
     unordered_map<int, sabrechan> smap;

@@ -57,8 +57,6 @@ class TimeSort {
     DPPChannel hit;
     CoincEvent event;
     CoincEvent blank;
-    SabreHit shit, sblank;
-    FPHit fhit, fblank;
   
     ULong64_t startTime, previousHitTime;    
     unordered_map<int, sabrechan> smap;

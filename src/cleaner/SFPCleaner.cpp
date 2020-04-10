@@ -133,52 +133,52 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
 
     MyFill("scintLeft_anodeBack_NoCuts",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
     MyFill("scintLeft_anodeFront_NoCuts",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
-    MyFill("sabreFrontMult_NoCuts",10,0,10,ev.sabreFrontMult);
-    MyFill("sabreBackMult_NoCuts",10,0,10,ev.sabreBackMult);
 
     /****Timing relative to back anode****/
     if(ev.anodeBackTime != -1 && ev.scintLeftTime != -1) {
-      Double_t sabreRelFT = ev.sabreFrontTime - ev.anodeBackTime;
-      Double_t sabreRelBT = ev.sabreBackTime - ev.anodeBackTime;
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
       Double_t delayRelFT = ev.delayFrontMaxTime - ev.anodeBackTime;
       Double_t delayRelBT = ev.delayBackMaxTime - ev.anodeBackTime;
-      MyFill("sabreRelFrontTime_NoCuts",1000,-3000,3500, sabreRelFT);
-      MyFill("sabreRelBackTime_NoCuts",1000,-3000,3500, sabreRelBT);
-      MyFill("anodeRelFrontTime_NoCuts",1000,-3000,3500, anodeRelFT);
-      MyFill("delayRelFrontTime_NoCuts",1000,-3000,-3500,delayRelFT);
-      MyFill("delayRelBackTime_NoCuts",1000,-3000,-3500,delayRelBT);
-      if(ev.sabreFrontE != -1 && sabreRelFT<1.0 && sabreRelFT>-1.0) {
-        MyFill("xavg_sabrefcoinc_NoCuts",600,-300,300, ev.xavg);
-      }
-      Double_t sabreRelFT_toScint = ev.sabreFrontTime - ev.scintLeftTime;
-      Double_t sabreRelBT_toScint = ev.sabreBackTime - ev.scintLeftTime;
       Double_t anodeRelT = ev.anodeBackTime - ev.scintLeftTime;
       Double_t delayRelFT_toScint = ev.delayFrontMaxTime - ev.scintLeftTime;
       Double_t delayRelBT_toScint = ev.delayBackMaxTime - ev.scintLeftTime;
+      MyFill("anodeRelFrontTime_NoCuts",1000,-3000,3500, anodeRelFT);
+      MyFill("delayRelFrontTime_NoCuts",1000,-3000,-3500,delayRelFT);
+      MyFill("delayRelBackTime_NoCuts",1000,-3000,-3500,delayRelBT);
+      for(int i=0; i<5; i++) {
+        if(ev.sabreRingE[i] != -1) {
+          Double_t sabreRelRT = ev.sabreRingTime[i] - ev.anodeBackTime;
+          Double_t sabreRelWT = ev.sabreWedgeTime[i] - ev.anodeBackTime;
+          Double_t sabreRelRT_toScint = ev.sabreRingTime[i] - ev.scintLeftTime;
+          Double_t sabreRelWT_toScint = ev.sabreWedgeTime[i] - ev.scintLeftTime;
+          MyFill("xavg_sabrefcoinc_NoCuts",600,-300,300, ev.xavg);
+          MyFill("sabreRelRingTime_NoCuts",1000,-3000,3500, sabreRelRT);
+          MyFill("sabreRelWedgeTime_NoCuts",1000,-3000,3500, sabreRelWT);
+          MyFill("sabreRelRingTime_toScint",1000,-3000,3500,sabreRelRT_toScint);
+          MyFill("sabreRelWedgeTime_toScint",1000,-3000,3500,sabreRelWT_toScint);
+          MyFill("sabreRelRTScint_sabreRelRTAnode",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,sabreRelRT);
+          MyFill("sabreRelRTScint_sabreRingChannel",500,-3000,3500,sabreRelRT_toScint,144,0,144,ev.sabreRingChannel[i]);
+          MyFill("sabreRelRTAnode_sabreRingChannel",500,-3000,3500,sabreRelRT,144,0,144,ev.sabreRingChannel[i]);
+          MyFill("sabreRelWTScint_sabreWedgeChannel",500,-3000,3500,sabreRelWT_toScint,144,0,144,ev.sabreWedgeChannel[i]);
+          MyFill("sabreRelRT_sabreRelWT",500,-3000,3500,sabreRelRT,500,-3000,3500,sabreRelWT);
+          MyFill("sabreRelRT_sabreRelWT_scint",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,sabreRelWT_toScint);
+          MyFill("sabreRelRTScint_anodeRelT",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,anodeRelT);
+        }
+      }
       MyFill("anodeRelTime_toScint",1000,-3000,3500,anodeRelT);
-      MyFill("sabreRelFrontTime_toScint",1000,-3000,3500,sabreRelFT_toScint);
-      MyFill("sabreRelBackTime_toScint",1000,-3000,3500,sabreRelBT_toScint);
       MyFill("delayRelBackTime_toScint",1000,-3000,3500,delayRelBT_toScint);
       MyFill("delayRelFrontTime_toScint",1000,-3000,3500,delayRelFT_toScint);
-      MyFill("sabreRelFTScint_sabreRelFTAnode",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,sabreRelFT);
-      MyFill("sabreRelFTScint_sabreFrontChannel",500,-3000,3500,sabreRelFT_toScint,144,0,144,ev.sabreChannelFront);
-      MyFill("sabreRelFTAnode_sabreFrontChannel",500,-3000,3500,sabreRelFT,144,0,144,ev.sabreChannelFront);
-      MyFill("sabreRelBTScint_sabreBackChannel",500,-3000,3500,sabreRelBT_toScint,144,0,144,ev.sabreChannelBack);
-      MyFill("sabreRelFT_sabreRelBT",500,-3000,3500,sabreRelFT,500,-3000,3500,sabreRelBT);
-      MyFill("sabreRelFT_sabreRelBT_scint",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,sabreRelBT_toScint);
-      MyFill("sabreRelFTScint_anodeRelT",500,-3000,3500,sabreRelFT_toScint,500,-3000,3500,anodeRelT);
     } else {
       MyFill("noscinttime_counter_NoCuts",2,0,1,1);
     }
-    
-    if(ev.sabreFrontE != -1) {
-      MyFill("sabreFrontE_NoCuts",2000,0,20,ev.sabreFrontE);
-      MyFill("sabreChannelFront_sabreFrontE_NoCuts",144,0,144,ev.sabreChannelFront,200,0,20,ev.sabreFrontE);
-    }
-    if(ev.sabreBackE != -1) {
-      MyFill("sabreBackE_NoCuts",2000,0,20,ev.sabreBackE);
-      MyFill("sabreChannelBack_sabreBackE_NoCuts",144,0,144,ev.sabreChannelBack,200,0,20,ev.sabreBackE);
+   
+    for(int i=0; i<5; i++) { 
+      if(ev.sabreRingE[i] != -1) { //Again, at this point front&back are required
+        MyFill("sabreRingE_NoCuts",2000,0,20,ev.sabreRingE[i]);
+        MyFill("sabreRingChannel_sabreRingE_NoCuts",144,0,144,ev.sabreRingChannel[i],200,0,20,ev.sabreRingE[i]);
+        MyFill("sabreWedgeE_NoCuts",2000,0,20,ev.sabreWedgeE[i]);
+        MyFill("sabreWedgeChannel_sabreWedgeE_NoCuts",144,0,144,ev.sabreWedgeChannel[i],200,0,20,ev.sabreWedgeE[i]);
+      }
     }
   } else if(ev.x1 != -1e6) {
     MyFill("x1NoCuts_only1plane",600,-300,300,ev.x1);
@@ -213,36 +213,35 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
 
     MyFill("scintLeft_anodeBack_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
     MyFill("scintLeft_anodeFront_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
-    MyFill("sabreFrontMult_edecut",10,0,10,ev.sabreFrontMult);
-    MyFill("sabreBackMult_edecut",10,0,10,ev.sabreBackMult);
 
     /****Timing relative to back anode****/
-    if(ev.anodeBackTime != -1) {
-      Double_t sabreRelFT = ev.sabreFrontTime - ev.anodeBackTime;
-      Double_t sabreRelBT = ev.sabreBackTime - ev.anodeBackTime;
+    if(ev.anodeBackTime != -1 && ev.scintLeftTime != -1) {
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
       Double_t anodeRelBT = ev.anodeBackTime - ev.anodeBackTime;
-      MyFill("sabreRelFrontTime_edecut",1000,-3000,3500, sabreRelFT);
-      MyFill("sabreRelBackTime_edecut",1000,-3000,3500, sabreRelBT);
+      Double_t anodeRelFT_toScint = ev.anodeFrontTime-ev.scintLeftTime;
       MyFill("anodeRelBackTime_edecut",1000,-3000,3500, anodeRelBT);
       MyFill("anodeRelFrontTime_edecut",1000,-3000,3500, anodeRelFT);
-      Double_t anodeRelFT_toScint = ev.anodeFrontTime-ev.scintLeftTime;
       MyFill("anodeRelTime_toScint_edecut",1000,-3000,3500,anodeRelFT_toScint);
-      if(ev.sabreFrontE != -1 && sabreRelFT<1.0 && sabreRelFT>-1.0) {
-        MyFill("xavg_edecut_sabrefcoinc_strict",600,-300,300, ev.xavg);
+      for(int i=0; i<5; i++) {
+        if(ev.sabreRingE[i] != -1) {
+          Double_t sabreRelRT = ev.sabreRingTime[i] - ev.anodeBackTime;
+          Double_t sabreRelWT = ev.sabreWedgeTime[i] - ev.anodeBackTime;
+          MyFill("sabreRelRingTime_edecut",1000,-3000,3500, sabreRelRT);
+          MyFill("sabreRelWedgeTime_edecut",1000,-3000,3500, sabreRelWT);
+        } 
       }
     } else {
       MyFill("noscinttime_counter_edecut",2,0,1,1);
     }
     
-    if(ev.sabreFrontE != -1) {
-      MyFill("sabreFrontE_edecut",2000,0,20,ev.sabreFrontE);
-      MyFill("xavg_edecut_sabrefcoinc",600,-300,300,ev.xavg);
-      MyFill("xavg_sabreFrontE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreFrontE);
-    }
-    if(ev.sabreBackE != -1) {
-      MyFill("sabreBackE_edecut",2000,0,20,ev.sabreBackE);
-      MyFill("xavg_sabreBackE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreBackE);
+    for(int i=0; i<5; i++) {
+      if(ev.sabreRingE[i] != -1) {
+        MyFill("sabreRingE_edecut",2000,0,20,ev.sabreRingE[i]);
+        MyFill("xavg_edecut_sabrefcoinc",600,-300,300,ev.xavg);
+        MyFill("xavg_sabreRingE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreRingE[i]);
+        MyFill("sabreWedgeE_edecut",2000,0,20,ev.sabreWedgeE[i]);
+        MyFill("xavg_sabreWedgeE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreWedgeE[i]);
+      }
     }
   }
 }
@@ -288,7 +287,7 @@ void SFPCleaner::Run(vector<TString> files, string output) {
   cout<<"Total number of events: "<<(Int_t)blentries<<endl;
   cout<<setprecision(5);
   float place;
-  for(unsigned long i=0; i<chain->GetEntries(); i++) {
+  for(long double i=0; i<chain->GetEntries(); i++) {
     chain->GetEntry(i);
     place = ((long double)i)/blentries*100; 
     if(fmod(place, 10.0) == 0.0) {/*Non-continuous progress update*/

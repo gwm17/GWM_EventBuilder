@@ -16,7 +16,7 @@
 using namespace std;
 
 struct sabrechan {
-  string detID;
+  int detID;
   pair<string, int> side_pos;
   int ECutLo;
   int ECutHi;
