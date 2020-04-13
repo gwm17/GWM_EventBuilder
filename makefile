@@ -4,11 +4,12 @@ ROOTGLIBS=`root-config --glibs`
 
 LIBARCHIVE=/usr/local/opt/libarchive/lib/libarchive.dylib
 LIBARCHIVE_INCL=/usr/local/opt/libarchive/include
+ROOTDICT_INCL=./
 CFLAGS= -std=c++11 -g -Wall $(ROOTCFLAGS)
 INCLDIR=./include
 SRCDIR=./src
 BINDIR=./bin
-CPPFLAGS= -I$(INCLDIR) -I./ -I$(LIBARCHIVE_INCL)
+CPPFLAGS= -I$(INCLDIR)
 LDFLAGS=$(ROOTGLIBS) 
 
 ASRCDIR=$(SRCDIR)/analyzer
@@ -38,14 +39,20 @@ LIB=$(OBJDIR)/sps_dict.o
 RCSRC=$(SRCDIR)/RunCollector.cpp
 RCOBJ=$(OBJDIR)/RunCollector.o
 
+PCH_FILE=$(INCLDIR)/EventBuilder.h
+PCH=$(INCLDIR)/EventBuilder.h.gch
+
 AEXE=$(BINDIR)/analyzer
 MEXE=$(BINDIR)/merger
 CEXE=$(BINDIR)/cleaner
 BEXE=$(BINDIR)/binary2root
 
-.PHONY: all clean
+.PHONY: all clean clean_header
 
-all: $(AEXE) $(MEXE) $(CEXE) $(BEXE)
+all: $(PCH) $(AEXE) $(MEXE) $(CEXE) $(BEXE)
+
+$(PCH): $(PCH_FILE)
+	$(CC) $(CFLAGS) -x c++-header $^
 
 $(AEXE): $(LIB) $(RCOBJ) $(AOBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
@@ -60,7 +67,7 @@ $(BEXE): $(LIBARCHIVE) $(RCOBJ) $(BOBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 $(LIB): $(DICT)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
+	$(CC) $(CFLAGS) -I $(ROOTDICT_INCL) -o $@ -c $^
 	mv $(SRCDIR)/*.pcm ./$(BINDIR)/
 
 $(DICT): $(DICT_PAGES)
@@ -79,7 +86,10 @@ $(COBJDIR)/%.o: $(CSRCDIR)/%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
 
 $(BOBJDIR)/%.o: $(BSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I $(LIBARCHIVE_INCL) -o $@ -c $^
 
 clean:
 	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(LIB) $(RCOBJ) ./$(BINDIR)/*.pcm
+
+clean_header:
+	$(RM) $(PCH)

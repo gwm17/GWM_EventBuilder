@@ -1,3 +1,4 @@
+#include "EventBuilder.h"
 #include "FastSort.h"
 
 FastSort::FastSort(float si_windowSize, float ion_windowSize, string mapfile) {

@@ -10,17 +10,6 @@
 #ifndef SFPANALYZER_H
 #define SFPANALYZER_H
 
-#include <TROOT.h>
-#include <TTree.h>
-#include <TFile.h>
-#include <TCanvas.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <THashTable.h>
-#include <TCutG.h>
 #include "DataStructs.h"
 #include "FP_kinematics.h"
 
@@ -46,8 +35,6 @@ class SFPAnalyzer {
     CoincEvent cevent, *event_address; //Input branch address
     ProcessedEvent pevent, blank; //output branch and reset
 
-    Int_t Zt, At, Zp, Ap, Ze, Ae;
-    Double_t Ep, Angle, B;
     Double_t w1, w2, zfp;
 
     THashTable *rootObj; //root storage

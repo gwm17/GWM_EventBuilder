@@ -4,6 +4,7 @@
  *
  *Created Jan 2020 by GWM
  */
+#include "EventBuilder.h"
 #include "GainMatcher.h"
 
 using namespace std;

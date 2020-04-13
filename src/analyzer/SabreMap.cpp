@@ -4,6 +4,7 @@
  *
  *Gordon M. Oct. 2019
  */
+#include "EventBuilder.h"
 #include "SabreMap.h"
 
 int FillSabreMap(string mapfile, unordered_map<int, sabrechan> &smap) {

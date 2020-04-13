@@ -7,13 +7,8 @@
  *
  *Updated Jan 2020 GWM -- Has multifile processing, also a neat splash
  */
-#include <TROOT.h>
-#include <TMath.h>
-#include <TString.h>
+#include "EventBuilder.h"
 #include <TApplication.h>
-#include <iostream>
-#include <fstream>
-#include <string>
 #include "SFPAnalyzer.h"
 #include "RealTimer.h"
 #include "RunCollector.h"
@@ -100,11 +95,11 @@ int main(int argc, char *argv[]) {
       vector<TString> filelist;
       int validity;
       if(min>0 && max>0) {
-        RunCollector grabber(dir, min, max);
+        RunCollector grabber(dir, "compass", ".root",min, max);
         validity = grabber.GrabFilesInRange();
         filelist = grabber.filelist;
       } else {
-        RunCollector grabber(dir);
+        RunCollector grabber(dir, "compass", ".root");
         validity = grabber.GrabAllFiles();
         filelist = grabber.filelist;
       }
@@ -121,6 +116,7 @@ int main(int argc, char *argv[]) {
         for(unsigned int i=0; i<filelist.size(); i++) {
           gROOT->Reset();
           string raw = filelist[i].Data();
+          cout<<"--------------------------------------------------"<<endl;
           cout<<"Working on "<<raw<<"..."<<endl;
           string suffix = "",test="", temp;
           int endflag = 0;
@@ -178,6 +174,7 @@ int main(int argc, char *argv[]) {
             cout<<"Only slow sorting option passed"<<endl;
             cout<<"Skipping fast sort... Performing basic analysis..."<<endl;
             doa.Run(this_sorted.c_str(), this_analyzed.c_str());
+            cout<<"--------------------------------------------------"<<endl;
           } else {
             cout<<"Sorting by fast coincidence..."<<endl;
             help_me.Run(this_sorted.c_str(), this_fast.c_str());

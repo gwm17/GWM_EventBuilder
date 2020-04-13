@@ -1,3 +1,4 @@
+#include "EventBuilder.h"
 #include "CompassUnpacker.h"
 
 using namespace std;
@@ -8,7 +9,6 @@ CompassUnpacker::CompassUnpacker(string file_name){
   if(test.EndsWith(".tar.gz")) {
     archiveFlag = true;
     inputArchive = archive_read_new();
-    archive_read_support_compression_all(inputArchive);
     archive_read_support_filter_all(inputArchive);
     archive_read_support_format_all(inputArchive);
     archiveWarning = archive_read_open_filename(inputArchive, file_name.c_str(), 10240);

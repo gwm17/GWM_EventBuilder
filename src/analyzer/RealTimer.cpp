@@ -7,6 +7,7 @@
  *Created Jan 2020 by GWM
  */
 
+#include "EventBuilder.h"
 #include "RealTimer.h"
 
 using namespace std;

@@ -52,8 +52,6 @@
 #ifndef FP_KINEMATICS
 #define FP_KINEMATICS
 
-#include <iostream>
-#include <fstream>
 #include <cmath>
 
 using namespace std;

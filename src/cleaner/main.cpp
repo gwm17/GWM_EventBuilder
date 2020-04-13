@@ -1,11 +1,6 @@
-#include <TROOT.h>
-#include <TString.h>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
+#include "EventBuilder.h"
 #include "SFPCleaner.h"
-#include "RunMusher.h"
+#include "RunCollector.h"
 
 using namespace std;
 
@@ -30,15 +25,14 @@ int main(int argc, char *argv[]) {
       cout<<"x1-x2 Cut File: "<<xxcut<<endl;
       cout<<"Running cleaner..."<<endl;
       if(mr_clean.SetCuts(edecut, dexcut, excut, xxcut)) {
-        RunMusher mushy(data);
         int validity;
         vector<TString> files;
         if(min>0 && max>0) {
-          RunMusher mushy(data, min, max);
+          RunCollector mushy(data, "", ".root", min, max);
           validity = mushy.GrabFilesInRange();
           files = mushy.filelist;
         } else {
-          RunMusher mushy(data);
+          RunCollector mushy(data, "", ".root");
           validity = mushy.GrabAllFiles();
           files = mushy.filelist;
         }

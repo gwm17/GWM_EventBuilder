@@ -8,11 +8,6 @@
 #ifndef GAIN_MATCHER_H
 #define GAIN_MATCHER_H
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
-
 using namespace std;
 
 class GainMatcher {

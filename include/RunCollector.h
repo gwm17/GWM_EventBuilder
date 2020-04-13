@@ -10,17 +10,10 @@
 #ifndef RUNCOLLECTOR_H
 #define RUNCOLLECTOR_H
 
-#include <TROOT.h>
-#include <TString.h>
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TCollection.h>
-#include <TFile.h>
-#include <TChain.h>
 #include <TList.h>
-#include <vector>
-#include <string>
-#include <iostream>
 #include <cstdlib>
 #include <cstdio>
 

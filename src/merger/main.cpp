@@ -1,8 +1,5 @@
-#include <TROOT.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "RunMusher.h"
+#include "EventBuilder.h"
+#include "RunCollector.h"
 
 using namespace std;
 
@@ -19,11 +16,11 @@ int main(int argc, char *argv[]) {
       cout<<"Data Directory: "<<dir<<endl;
       cout<<"Merged file: "<<raw<<endl;
       if(max > 0 && min > 0) {
-        RunMusher rc(dir, min, max);
-        rc.Merge(raw);
+        RunCollector rc(dir, "", ".root", min, max);
+        rc.Merge_TChain(raw);
       } else {
-        RunMusher rc(dir);
-        rc.Merge(raw);
+        RunCollector rc(dir, "", ".root");
+        rc.Merge_TChain(raw);
       }
       return 1;
     } else {

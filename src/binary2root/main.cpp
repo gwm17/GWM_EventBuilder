@@ -1,7 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
+#include "EventBuilder.h"
+//#include <iostream>
+//#include <fstream>
+//#include <string>
+//#include <vector>
 #include "CompassUnpacker.h"
 #include "RunCollector.h"
 
@@ -22,11 +23,11 @@ int main(int argc, char *argv[]) {
     vector<TString> filelist;
     int validity;
     if(min>0 && max>0) {
-      RunCollector grabber(data, min, max);
+      RunCollector grabber(data, "", ".tar.gz", min, max);
       validity = grabber.GrabFilesInRange();
       filelist = grabber.filelist;
     } else {
-      RunCollector grabber(data);
+      RunCollector grabber(data, "", ".tar.gz");
       validity = grabber.GrabAllFiles();
       filelist = grabber.filelist;
     }

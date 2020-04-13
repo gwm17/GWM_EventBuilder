@@ -1,8 +1,6 @@
 #ifndef COMPASS_HIT_H
 #define COMPASS_HIT_H
 
-#include <TROOT.h>
-
 struct CompassHit {
   UShort_t board = 400;
   UShort_t channel = 400;

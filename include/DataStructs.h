@@ -6,9 +6,6 @@
 #ifndef DATA_STRUCTS_H
 #define DATA_STRUCTS_H
 
-#include <TROOT.h>
-#include <string>
-
 using namespace std;
 
 struct DPPChannel {

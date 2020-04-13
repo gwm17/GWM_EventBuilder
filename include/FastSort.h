@@ -6,12 +6,6 @@
 #ifndef FASTSORT_H
 #define FASTSORT_H
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <vector>
-#include <unordered_map>
-#include <iostream>
 #include "SabreMap.h"
 #include "DataStructs.h"
 

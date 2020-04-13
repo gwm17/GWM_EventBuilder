@@ -1,3 +1,4 @@
+#include "EventBuilder.h"
 #include "RunCollector.h"
 
 using namespace std;

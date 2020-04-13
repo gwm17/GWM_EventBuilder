@@ -6,8 +6,8 @@
  *Created Jan 2020 by GWM
  */
 
+#include "EventBuilder.h"
 #include "SFPCleaner.h"
-#include <TMath.h>
 
 /*Generates storage and initializes pointers*/
 SFPCleaner::SFPCleaner() {
@@ -244,37 +244,6 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
       }
     }
   }
-}
-
-/*Single file run concept... Currently UNUSED*/
-void SFPCleaner::Run(string input, string output) {
-  TFile *infile = new TFile(input.c_str(), "READ");
-  TTreeReader myReader("SPSTree", infile);
-  TTreeReaderValue<ProcessedEvent> eve(myReader, "event");
-  TFile *outfile = new TFile(output.c_str(), "RECREATE");
- 
-  Float_t blentries = myReader.GetEntries(false); 
-  cout<<"Total number of events: "<<(Int_t)blentries<<endl;
-  cout<<setprecision(5);
-  float place;
-  float i=0;
-  while(myReader.Next()) {
-    i++;
-    place = ((float)i)/blentries*100; 
-    if(fmod(place, 10.0) == 0.0) {
-      cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
-    }
-    MakeUncutHistograms(*event_address);
-    MakeCutHistograms(*event_address);
-  }
-  cout<<endl;
-  infile->Close();
-  outfile->cd();
-  rootObj->Write();
-  delete rootObj;
-  outfile->Close();
-  delete outfile;
-  delete infile;
 }
 
 /*Runs a list of files given from a RunMusher/Collector class*/

@@ -7,12 +7,6 @@
 #ifndef SABRE_MAP_H
 #define SABRE_MAP_H
 
-#include <TROOT.h>
-#include <unordered_map>
-#include <string>
-#include <iostream>
-#include <fstream>
-
 using namespace std;
 
 struct sabrechan {

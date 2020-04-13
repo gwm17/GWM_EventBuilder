@@ -10,16 +10,7 @@
 #ifndef TIME_SORT_H
 #define TIME_SORT_H
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <vector>
-#include <iostream>
-#include <unordered_map>
-#include <TTreeReader.h>
-#include <TTreeIndex.h>
+#include "TTreeIndex.h"
 #include "DataStructs.h"
 #include "SabreMap.h"
 #include "GainMatcher.h"

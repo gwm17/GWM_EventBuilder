@@ -7,19 +7,17 @@
  *
  *Refurbished and updated Jan 2020 by GWM. Now uses both focal plane and SABRE data
  */
+#include "EventBuilder.h"
 #include "SFPAnalyzer.h"
-#include <TMath.h>
 
 using namespace std;
 
 /*Constructor takes in kinematic parameters for generating focal plane weights*/
 SFPAnalyzer::SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep,
                          double angle, double b) {
-  Zt = zt; At = at; Zp = zp; Ap = ap; Ze = ze; Ae = ae; Ep = ep; 
-  Angle = angle; B = b;
+  zfp = Delta_Z(zt, at, zp, ap, ze, ae, ep, angle, b);
   event_address = new CoincEvent();
-  rootObj = new THashTable();
-  rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
+  GetWeights();
 }
 
 SFPAnalyzer::~SFPAnalyzer() {
@@ -36,7 +34,7 @@ void SFPAnalyzer::Reset() {
  *the kinematic focal plane
  */
 void SFPAnalyzer::GetWeights() {
-  w1 = (Wire_Dist()/2.0-Delta_Z(Zt, At, Zp, Ap, Ze, Ae, Ep, Angle, B))/Wire_Dist();
+  w1 = (Wire_Dist()/2.0-zfp)/Wire_Dist();
   w2 = 1.0-w1;
   cout<<"w1: "<<w1<<" w2: "<<w2<<endl;
 }
@@ -74,8 +72,10 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
 
   TFile* outputFile = new TFile(output, "RECREATE");
   TTree* outputTree = new TTree("SPSTree", "SPSTree");
+  rootObj = new THashTable();
+  rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
+
   outputTree->Branch("event", &pevent);
-  GetWeights();
   Float_t place;
   Float_t blentries = inputTree->GetEntries();
   cout<<setprecision(2);

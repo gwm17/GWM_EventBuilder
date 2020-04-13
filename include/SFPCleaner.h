@@ -9,20 +9,6 @@
 #ifndef SFPCLEANER_H
 #define SFPCLEANER_H
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TChain.h>
-#include <TTreeReader.h>
-#include <TTreeReaderValue.h>
-#include <TCutG.h>
-#include <THashTable.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TString.h>
-#include <iostream>
-#include <string>
-#include <vector>
 #include "DataStructs.h"
 
 using namespace std;
@@ -33,7 +19,6 @@ class SFPCleaner {
     SFPCleaner(bool tf);
     ~SFPCleaner();
     int SetCuts(string edename, string dexname, string exname, string xxname);
-    void Run(string input, string output);
     void Run(vector<TString> files, string output);
 
   private:
