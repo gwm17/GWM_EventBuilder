@@ -153,6 +153,8 @@ void FastSort::Run(const char *infile_name, const char *outfile_name) {
       ResetSABRE();
       ProcessSABRE(i);
       //loop over ion chamber
+      //NOTE: as written, this dumps data that does not have an ion chamber hit!
+      //If you want scint/SABRE singles, move the fill outside of this loop
       for(unsigned int j=0; j<maxSize; j++) {
         ResetFocalPlane();
         ProcessFocalPlane(i, j);

@@ -20,13 +20,40 @@
 #include "TimeSort.h"
 #include "FastSort.h"
 #include <chrono>
+#include <unistd.h>
 
 using namespace std;
 
+//Option parsing; currently set so that user can choose to run with or without fast sorting, and can choose
+//to run only the analyzer (will only work if sorted files already exist)
+//set up in such a way that adding more cases is a non issue.
+//s-slow sorting only a-analyze only (assumes analyze fast files) sa-only analyze slow files
+static const char* optString = "sa";
+
+struct options {
+  bool slowFlag = false;
+  bool onlyAnalyzeFlag = false;
+} options;
+
 int main(int argc, char *argv[]) {
-  if(argc == 2) {
+  if(argc == 2 || argc == 3) {
+    
+    int c;
+    while((c=getopt(argc,argv,optString)) != -1) {
+      switch(c) {
+        case 's':
+          options.slowFlag = true;
+          break;
+        case 'a':
+          options.onlyAnalyzeFlag = true;
+          break;
+      }
+    }   
+
     TApplication app("app", &argc, argv);
-    char *name = app.Argv(1);
+    char* name;
+    if(app.Argc() == 2) name = app.Argv(1);
+    else  name = app.Argv(2);
     ifstream input(name);
     if(input.is_open()) {
       string dir, shifted, sorted, analyzed, junk, fast;
@@ -109,11 +136,26 @@ int main(int argc, char *argv[]) {
           this_sorted = sorted+suffix;
           this_fast = fast+suffix;
           this_analyzed = analyzed+suffix;
+
           RealTimer rt(si, scint);
-          rt.Run(raw, this_shifted);
           TimeSort no_hope(cw);
           FastSort help_me(si_fcw, ion_fcw);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
+
+          //if only analyze ... only analyze
+          if(options.onlyAnalyzeFlag && options.slowFlag) {
+            cout<<"Only analyze slow files option passed"<<endl;
+            cout<<"Performing basic analysis..."<<endl;
+            doa.Run(this_sorted.c_str(), this_analyzed.c_str());
+            continue;
+          } else if (options.onlyAnalyzeFlag) {
+            cout<<"Only analyze fast files option passed"<<endl;
+            cout<<"Performing basic analysis..."<<endl;
+            doa.Run(this_fast.c_str(), this_analyzed.c_str());
+            continue;
+          }
+
+          rt.Run(raw, this_shifted);
           cout<<"Sorting the file by timestamp..."<<endl;
           no_hope.Run(this_shifted.c_str(), this_sorted.c_str());
           /****Stats****/
@@ -128,11 +170,17 @@ int main(int argc, char *argv[]) {
           FPorphans_nogas += no_hope.FPorphans_nogas;
           /*************/
           FPextras += no_hope.FPextras;
-          cout<<"Sorting by fast coincidence..."<<endl;
-          help_me.Run(this_sorted.c_str(), this_fast.c_str());
-          cout<<"Performing basic analysis..."<<endl;
-          doa.Run(this_fast.c_str(), this_analyzed.c_str());
-          cout<<"--------------------------------------------------"<<endl;
+          if(options.slowFlag) {
+            cout<<"Only slow sorting option passed"<<endl;
+            cout<<"Skipping fast sort... Performing basic analysis..."<<endl;
+            doa.Run(this_sorted.c_str(), this_analyzed.c_str());
+          } else {
+            cout<<"Sorting by fast coincidence..."<<endl;
+            help_me.Run(this_sorted.c_str(), this_fast.c_str());
+            cout<<"Performing basic analysis..."<<endl;
+            doa.Run(this_fast.c_str(), this_analyzed.c_str());
+            cout<<"--------------------------------------------------"<<endl;
+          }
         }
         log<<"---------'Good' Events-----------"<<endl;
         log<<"Total number of events found: "<<totalEvents<<endl;
@@ -156,10 +204,13 @@ int main(int argc, char *argv[]) {
         log<<"---------------------------------"<<endl;
         log.close(); 
       }
+      return 0;
     } else {
       cerr<<"input list file missing!"<<endl;
+      return 1;
     }
   } else {
     cerr<<"Incorrect number of arguments! Requires input file name."<<endl;
+    return 1;
   }
 }

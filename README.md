@@ -22,6 +22,17 @@ but as .tar.gz is fairly universal this seems unnecessary. The full path to data
 The `analyzer` is the bulk of the analysis process. Analyzer takes each individual run file from
 compass, and performs four stages of analysis on each file: shifting, slow sorting, fast sorting, and analyzing. 
 
+### Analyzer options
+The analyzer has several program options designed to allow the user to only run pieces of the analysis pipeline. They are as follows:
+
+`-s` -- runs the full analysis pipeline without the fast sorting
+
+`-a` -- runs only the analyzing part of the analysis pipeline. Assumes the existance of a fast sorted file in the directory of specified
+by the input file
+
+`-as` or `-sa` -- runs only the analyzing part of the analysis pipeline, assuming that only slow sorted files exist, int the directory
+specified by the input file.
+
 ### Shifting
 The first stage is shifting all of the timestamps for both the focal plane scintillator 
 and SABRE silicons so that they come in coincidence with one of the anodes in the ion chamber. 

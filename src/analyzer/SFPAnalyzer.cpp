@@ -142,10 +142,12 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
     }
     /*SABRE data... keeps only max hit to next round atm*/
     for(int j=0; j<5; j++) {
-      if(cevent.sabreArray[j].rings.size() != 0) { //rings and wedges required to have same mult here
+      if(cevent.sabreArray[j].rings.size() != 0) {
         pevent.sabreRingE[j] = cevent.sabreArray[j].rings[0].Long;
         pevent.sabreRingChannel[j] = cevent.sabreArray[j].rings[0].Ch;
         pevent.sabreRingTime[j] = cevent.sabreArray[j].rings[0].Time;
+      }
+      if(cevent.sabreArray[j].wedges.size() != 0) {
         pevent.sabreWedgeE[j] = cevent.sabreArray[j].wedges[0].Long;
         pevent.sabreWedgeChannel[j] = cevent.sabreArray[j].wedges[0].Ch;
         pevent.sabreWedgeTime[j] = cevent.sabreArray[j].wedges[0].Time;
