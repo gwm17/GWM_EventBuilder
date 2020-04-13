@@ -1,33 +1,29 @@
-/*RunCollector.cpp
- *Class that searches through a directory looking for files of a specified format.
- *Stores all filenames in a vector which can be accessed by other functions/classes for
- *further use. Can also use Merge() to combine all files using hadd into a single file.
- *Merge() is NOT RECOMMENDED in the analyzer program.
- *
- *Created Jan2020 by GWM
- */
 #include "RunCollector.h"
 
 using namespace std;
 
-RunCollector::RunCollector(string dirname) {
+RunCollector::RunCollector(string dirname, string prefix, string suffix) {
   dir = dirname.c_str();
-  run = ""; 
-  cout<<"Searching directory: "<<dir.Data()<<" for segments of run: "<<run.Data()<<endl; 
-  MinRun = 0; MaxRun = LITERALMAX; //if max and min not specified, the class limit is used
+  run = prefix.c_str();
+  end = suffix.c_str();
+  cout<<"Searching directory: "<<dir.Data()<<" for files starting with: "<<run.Data()
+      <<" and ending with: "<<end.Data()<<endl;
+
+  MinRun = 0; MaxRun = LITERALMAX;
 }
 
-RunCollector::RunCollector(string dirname, int min, int max) {
+RunCollector::RunCollector(string dirname, string prefix, string suffix, int min, int max) {
   dir = dirname.c_str();
-  run = ""; 
-  cout<<"Searching directory "<<dir.Data()<<" for segments of run: "<<run.Data();
+  run = prefix.c_str();
+  end = suffix.c_str();
+  cout<<"Searching directory: "<<dir.Data()<<" for files starting with: "<<run.Data()
+      <<" and ending with: "<<end.Data()<<" from run no. "<<min<<" to run no. "<<max<<endl;
+
   MinRun = min; MaxRun = max;
-  cout<<" from run no. "<<MinRun<<" to run no. "<<MaxRun<<endl;
 }
 
 RunCollector::~RunCollector() {}
 
-/*Stores all filenames in a given directory that match format*/
 int RunCollector::GrabAllFiles() {
   TSystemDirectory sysdir(dir.Data(), dir.Data());
   TList *flist = sysdir.GetListOfFiles();
@@ -38,7 +34,7 @@ int RunCollector::GrabAllFiles() {
     TIter next_element(flist); //List iterator
     while((file = (TSystemFile*)next_element())) {
       temp = file->GetName();
-      if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(".tar.gz")) {
+      if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(end.Data())) {
         counter++;
         fname = dir+temp; //need fullpath for other functions /*no longer true, just useful for cout*/
         cout<<"Found file: "<<fname.Data()<<endl;
@@ -71,7 +67,7 @@ int RunCollector::GrabFilesInRange() {
     string runno;
     for(int i=MinRun; i<=MaxRun; i++) {//loop over range
       TIter next_element(flist);//list iterator
-      runno = "_"+to_string(i) + ".tar.gz"; //suffix is now #.tar.gz
+      runno = "_"+to_string(i) + end.Data(); //suffix is now _#.endData
       while((file = (TSystemFile*)next_element())) {//look through directory until file found
         temp = file->GetName();
         if(!file->IsDirectory()&&temp.BeginsWith(run.Data())&&temp.EndsWith(runno.c_str())){
@@ -98,7 +94,7 @@ int RunCollector::GrabFilesInRange() {
   }
 }
 
-int RunCollector::Merge(string outname) {
+int RunCollector::Merge_hadd(string outname) {
   if(MaxRun == LITERALMAX) {
     if(GrabAllFiles()) { 
       TString clump = "hadd "+outname;
@@ -126,5 +122,37 @@ int RunCollector::Merge(string outname) {
       return 0;
     }
   }
+}
+
+int RunCollector::Merge_TChain(string outname) {
+  TFile *output = new TFile(outname.c_str(), "RECREATE");
+  TChain *chain = new TChain("SortTree", "SortTree");
+  
+  if(MaxRun == LITERALMAX) {
+    if(GrabAllFiles()) { 
+      for(unsigned int i=0; i<filelist.size(); i++) {
+        chain->Add(filelist[i].Data());
+      }
+      cout<<"Merging runs into single file..."<<endl;
+      chain->Merge(output,0,"fast");
+      cout<<"Finished merging"<<endl;
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    if(GrabFilesInRange()) {
+      for(unsigned int i=0; i<filelist.size(); i++) {
+        chain->Add(filelist[i]);
+      }
+      cout<<"Merging runs "<<MinRun<<" to "<<MaxRun<<" into a single file..."<<endl;
+      chain->Merge(output,0,"fast");
+      cout<<"Finished merging"<<endl;
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  if(output->IsOpen()) output->Close();
   return 0;
 }

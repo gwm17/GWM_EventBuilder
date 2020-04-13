@@ -1,21 +1,27 @@
 CC=g++
-ROOTFLAGS= `root-config --cflags --glibs`
-LIBARCHIVE=/usr/lib64/libarchive.so
-CFLAGS= -std=c++11 -g -Wall $(ROOTFLAGS)
+ROOTCFLAGS= `root-config --cflags`
+ROOTGLIBS=`root-config --glibs`
+
+LIBARCHIVE=/usr/local/opt/libarchive/lib/libarchive.dylib
+LIBARCHIVE_INCL=/usr/local/opt/libarchive/include
+CFLAGS= -std=c++11 -g -Wall $(ROOTCFLAGS)
 INCLDIR=./include
 SRCDIR=./src
 BINDIR=./bin
+CPPFLAGS= -I$(INCLDIR) -I./ -I$(LIBARCHIVE_INCL)
+LDFLAGS=$(ROOTGLIBS) 
+
 ASRCDIR=$(SRCDIR)/analyzer
 MSRCDIR=$(SRCDIR)/merger
 CSRCDIR=$(SRCDIR)/cleaner
 BSRCDIR=$(SRCDIR)/binary2root
+
 OBJDIR=./objs
 AOBJDIR=$(OBJDIR)/analyzer
 MOBJDIR=$(OBJDIR)/merger
 COBJDIR=$(OBJDIR)/cleaner
 BOBJDIR=$(OBJDIR)/binary2root
-CPPFLAGS= -I$(INCLDIR) -I./
-LDFLAGS= -L$(INCLDIR) $(ROOTFLAGS)
+
 ASRC=$(wildcard $(ASRCDIR)/*.cpp)
 MSRC=$(wildcard $(MSRCDIR)/*.cpp)
 CSRC=$(wildcard $(CSRCDIR)/*.cpp)
@@ -24,36 +30,44 @@ AOBJS=$(ASRC:$(ASRCDIR)/%.cpp=$(AOBJDIR)/%.o)
 MOBJS=$(MSRC:$(MSRCDIR)/%.cpp=$(MOBJDIR)/%.o)
 COBJS=$(CSRC:$(CSRCDIR)/%.cpp=$(COBJDIR)/%.o)
 BOBJS=$(BSRC:$(BSRCDIR)/%.cpp=$(BOBJDIR)/%.o)
+
 DICT_PAGES= $(INCLDIR)/DataStructs.h $(INCLDIR)/LinkDef_sps.h
+DICT=$(SRCDIR)/sps_dict.cxx
+LIB=$(OBJDIR)/sps_dict.o
+
+RCSRC=$(SRCDIR)/RunCollector.cpp
+RCOBJ=$(OBJDIR)/RunCollector.o
+
 AEXE=$(BINDIR)/analyzer
 MEXE=$(BINDIR)/merger
 CEXE=$(BINDIR)/cleaner
 BEXE=$(BINDIR)/binary2root
-DICT=$(SRCDIR)/sps_dict.cxx
-LIB=$(OBJDIR)/sps_dict.o
 
 .PHONY: all clean
 
 all: $(AEXE) $(MEXE) $(CEXE) $(BEXE)
 
-$(AEXE): $(LIB) $(AOBJS)
+$(AEXE): $(LIB) $(RCOBJ) $(AOBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-$(MEXE): $(LIB) $(MOBJS)
+$(MEXE): $(LIB) $(RCOBJ) $(MOBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-$(CEXE): $(LIB) $(COBJS)
+$(CEXE): $(LIB) $(RCOBJ) $(COBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-$(BEXE): $(LIBARCHIVE) $(BOBJS)
+$(BEXE): $(LIBARCHIVE) $(RCOBJ) $(BOBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 $(LIB): $(DICT)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-	mv $(SRCDIR)/*.pcm ./
+	mv $(SRCDIR)/*.pcm ./$(BINDIR)/
 
 $(DICT): $(DICT_PAGES)
-	rootcint -f $@ -c $^
+	rootcint -f $@ $^
+
+$(RCOBJ): $(RCSRC)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
 
 $(AOBJDIR)/%.o: $(ASRCDIR)/%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
@@ -68,4 +82,4 @@ $(BOBJDIR)/%.o: $(BSRCDIR)/%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
 
 clean:
-	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(LIB) ./*.pcm
+	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(LIB) $(RCOBJ) ./$(BINDIR)/*.pcm
