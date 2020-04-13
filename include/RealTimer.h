@@ -21,7 +21,7 @@ using namespace std;
 
 class RealTimer {
   public:
-    RealTimer(UInt_t si, UInt_t plast);
+    RealTimer(UInt_t si, UInt_t plast, string mapfile);
     ~RealTimer();
     void Run(string in, string out);
 

@@ -29,7 +29,7 @@ using namespace std;
 class TimeSort {
 
   public:
-    TimeSort(float windowSize);
+    TimeSort(float windowSize, string mapfile, string gainfile);
     ~TimeSort();
     void Run(const char *infile_name, const char *outfile_name);
 
@@ -49,10 +49,11 @@ class TimeSort {
   private:
     void Reset();
     void StartEvent();
-    bool ProcessEvent();
+    void ProcessEvent();
 
     float coincWindow;
     int illegalMap;
+    bool illegalGains;
     vector<DPPChannel> hitList;
     DPPChannel hit;
     CoincEvent event;

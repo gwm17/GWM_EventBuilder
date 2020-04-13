@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     else  name = app.Argv(2);
     ifstream input(name);
     if(input.is_open()) {
-      string dir, shifted, sorted, analyzed, junk, fast;
+      string dir, shifted, sorted, analyzed, junk, fast, map, gains;
       int zt, at, zp, ap, ze, ae;
       double ep, angle, b;
       float si, scint, cw, si_fcw, ion_fcw;
@@ -66,6 +66,8 @@ int main(int argc, char *argv[]) {
       input>>junk>>si>>junk>>scint>>junk>>cw>>junk>>si_fcw>>junk>>ion_fcw;
       input>>junk>>dir>>junk>>min>>junk>>max;
       input>>junk>>shifted>>junk>>sorted>>junk>>fast>>junk>>analyzed;
+      input>>junk>>map;
+      input>>junk>>gains;
       input.close();
       cout<<"--------------------------------------------------"<<endl;
       cout<<"|~~~~~~~~~~~~ GWM SPS-SABRE Analyzer ~~~~~~~~~~~~|"<<endl;
@@ -91,6 +93,8 @@ int main(int argc, char *argv[]) {
       cout<<"Coincidence window: "<<cw<<endl;
       cout<<"Si Fast Coincidence Window: "<<si_fcw<<endl;
       cout<<"Ion Chamber Fast Coincidence Window: "<<ion_fcw<<endl;
+      cout<<"SABRE Channel Map File: "<<map<<endl;
+      cout<<"Gain Matching File: "<<gains<<endl;
       cout<<"--------------------------------------------------"<<endl;
       cout<<"~~~~~~~~~~~~~~~~~ Analyzer Output ~~~~~~~~~~~~~~~~"<<endl;
       vector<TString> filelist;
@@ -137,9 +141,9 @@ int main(int argc, char *argv[]) {
           this_fast = fast+suffix;
           this_analyzed = analyzed+suffix;
 
-          RealTimer rt(si, scint);
-          TimeSort no_hope(cw);
-          FastSort help_me(si_fcw, ion_fcw);
+          RealTimer rt(si, scint, map);
+          TimeSort no_hope(cw, map, gains);
+          FastSort help_me(si_fcw, ion_fcw, map);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
 
           //if only analyze ... only analyze

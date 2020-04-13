@@ -20,7 +20,7 @@ using namespace std;
 class FastSort {
   
   public:
-    FastSort(float si_windowSize, float ion_windowSize);
+    FastSort(float si_windowSize, float ion_windowSize, string mapfile);
     ~FastSort();
     void Run(const char *infile_name, const char *outfile_name);
 

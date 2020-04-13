@@ -5,8 +5,10 @@ coincidence_window: 1.5e6
 si_fast_coincidence_window: 0.125e6
 ion_chamber_fast_coincidence_window: 0.25e6
 DataDir: /Volumes/Lacie/9BMarch2020/raw_root/
-MinRun: 9 MaxRun: -1
+MinRun: 99 MaxRun: 99
 TimeshiftedDir: /Volumes/Lacie/9BMarch2020/shifted/
 SortedDir: /Volumes/Lacie/9BMarch2020/sorted/
 FastDir: /Volumes/Lacie/9BMarch2020/fast/
 AnalyzedDir: /Volumes/Lacie/9BMarch2020/analyzed/
+SABREChannelMapFile: ./etc/ChannelMap_March2020.dat
+GainMatchingFile: ./etc/March2020_gainmatch_2.0V_5486Am241.txt

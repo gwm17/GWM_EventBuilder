@@ -22,6 +22,6 @@ struct sabrechan {
   int ECutHi;
 };
 
-int FillSabreMap(unordered_map<int, sabrechan> &smap);
+int FillSabreMap(string mapfile, unordered_map<int, sabrechan> &smap);
 
 #endif

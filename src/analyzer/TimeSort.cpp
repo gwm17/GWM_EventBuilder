@@ -20,10 +20,11 @@ bool SabreSort(DetectorHit i, DetectorHit j) {
 }
 
 /*Constructor takes input of coincidence window size, and fills sabre channel map*/
-TimeSort::TimeSort(float windowSize) {
+TimeSort::TimeSort(float windowSize, string mapfile, string gainfile) {
   coincWindow = windowSize;
-  
-  if(!FillSabreMap(smap)) illegalMap = 1;
+ 
+  illegalGains = !gains.SetFile(gainfile); 
+  if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
   else illegalMap = 0; 
 }
 
@@ -47,12 +48,12 @@ void TimeSort::StartEvent() {
 /*Function called when an event outside the coincidence window is detected
  *Process all of the hits in the list, and write them to the sorted tree
  */
-bool TimeSort::ProcessEvent() {
+void TimeSort::ProcessEvent() {
   Reset();
-  /*Flags to further dump data... Only good event if full focal plane*/
-  int dfrFlag=0, dflFlag=0, dbrFlag=0, dblFlag=0;
-  int sLFlag=0, sRFlag=0, afFlag=0, abFlag=0;
-  int saFFlag=0, saBFlag = 0;
+  /*Counters to examine Slow Event stats*/
+  int dfrCount=0, dflCount=0, dbrCount=0, dblCount=0;
+  int slCount=0, srCount=0, afCount=0, abCount=0;
+  int safCount=0, sawCount = 0;
   DetectorHit dhit, dblank;
   for(unsigned long i=0; i<hitList.size(); i++) {
     DPPChannel curHit = hitList[i];
@@ -63,56 +64,56 @@ bool TimeSort::ProcessEvent() {
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        dflFlag += 1;
+        dflCount += 1;
         event.focalPlane.delayFL.push_back(dhit);
         break;
       case delayFR_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        dfrFlag += 1;
+        dfrCount += 1;
         event.focalPlane.delayFR.push_back(dhit);
         break;
       case delayBL_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        dblFlag += 1;
+        dblCount += 1;
         event.focalPlane.delayBL.push_back(dhit);
         break;
       case delayBR_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        dbrFlag += 1;
+        dbrCount += 1;
         event.focalPlane.delayBR.push_back(dhit);
         break;
       case anodeF_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        afFlag += 1;
+        afCount += 1;
         event.focalPlane.anodeF.push_back(dhit);
         break;
       case anodeB_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        abFlag += 1;
+        abCount += 1;
         event.focalPlane.anodeB.push_back(dhit);
         break;
       case scintL_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        sLFlag += 1;
+        slCount += 1;
         event.focalPlane.scintL.push_back(dhit);
         break;
       case scintR_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel;
         dhit.Long = curHit.Energy;
-        sRFlag += 1;
+        srCount += 1;
         event.focalPlane.scintR.push_back(dhit);
         break;
       case cath_id:
@@ -130,14 +131,14 @@ bool TimeSort::ProcessEvent() {
         dhit.Time = (Double_t) curHit.Timestamp/1.0e3;
         dhit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreArray[sc.detID].rings.push_back(dhit);
-        saFFlag++;
+        safCount++;
       } else if (sc.side_pos.first == "BACK" && curHit.Energy<16384 && 
                  (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi)){
         dhit.Long = curHit.Energy*gains.GetScaler(gchan);
         dhit.Time = ((Double_t) curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreArray[sc.detID].wedges.push_back(dhit);
-        saBFlag++;
+        sawCount++;
       }
     } catch (out_of_range& orr) {} //dont do anything if not sabre
   }
@@ -148,40 +149,33 @@ bool TimeSort::ProcessEvent() {
   }
 
   //Event Building Stats
-  if((dflFlag && dfrFlag && dblFlag && dbrFlag && afFlag && abFlag && sLFlag && sRFlag) && (saBFlag || saFFlag)) {
+  if((dflCount&&dfrCount&&dblCount&&dbrCount&&afCount&&abCount&&slCount&&srCount)&&(sawCount||safCount)) {
     completeFP_SABRE++;
-    if(dflFlag>1 || dfrFlag>1 || dblFlag>1 || dbrFlag>1 || afFlag>1 || abFlag>1 || sLFlag>1 || sRFlag>1) {
+    if(dflCount>1 || dfrCount>1 || dblCount>1 || dbrCount>1 || afCount>1 || abCount>1 || slCount>1 || srCount>1) {
       FPextras++;
     }
-  } else if (dflFlag && dfrFlag && dblFlag && dbrFlag && afFlag && abFlag && sLFlag && sRFlag) {
+  } else if (dflCount && dfrCount && dblCount && dbrCount && afCount && abCount && slCount && srCount) {
     completeFP++;
-    if(dflFlag>1 || dfrFlag>1 || dblFlag>1 || dbrFlag>1 || afFlag>1 || abFlag>1 || sLFlag>1 || sRFlag>1) {
+    if(dflCount>1 || dfrCount>1 || dblCount>1 || dbrCount>1 || afCount>1 || abCount>1 || slCount>1 || srCount>1) {
       FPextras++;
     }
   } else {
     FPorphans++;
-    if (saBFlag || saFFlag) {
+    if (sawCount || safCount) {
       SABREorphans++;
-      if(!(sLFlag || sRFlag)) {
+      if(!(slCount || srCount)) {
         SABREorphans_noscint++;
       }
     }
-    if((dflFlag || dfrFlag || dblFlag || dbrFlag || afFlag || abFlag) && (sLFlag || sRFlag)) {
+    if((dflCount || dfrCount || dblCount || dbrCount || afCount || abCount) && (slCount || srCount)) {
       FPorphans_partial++;
-    } else if(!(sLFlag || sRFlag)) {
+    } else if(!(slCount || srCount)) {
       FPorphans_noscint++;
     } else {
       FPorphans_nogas++;
     }
   }
-  //int sum = dflFlag+dfrFlag+dblFlag+dbrFlag+sLFlag+sRFlag+afFlag+abFlag; 
-  int sum = 7; //pass everything for testing
-  if(sum == 7) {//full focal plane requirement
-    totalEvents++;
-    return true;
-  } else {
-    return false;
-  }
+  totalEvents++;
 }
 
 /*Loop over all input events, function called by main*/
@@ -189,6 +183,9 @@ void TimeSort::Run(const char *infile_name, const char *outfile_name) {
   if(illegalMap) {
     cerr<<"Unable to process with illegal map!"<<endl;
     return;
+  }
+  if(illegalGains) {
+    cout<<"Warning: bad gain matching file! Gains will not be matched"<<endl;
   }
   TFile* compFile = new TFile(infile_name, "READ");
   TTree* compassTree = (TTree*) compFile->Get("Data");
@@ -233,9 +230,8 @@ void TimeSort::Run(const char *infile_name, const char *outfile_name) {
     } else if ((float)(hit.Timestamp - startTime)< coincWindow) {
       hitList.push_back(hit);
     } else if (hitList.size()>0) { 
-      //if(hitList.size()>=6) { //Need at least 7 things for good event: 4delays, 2anodes, scint
-        if(ProcessEvent()) SortTree->Fill(); //if good, fill
-      //}
+      ProcessEvent();
+      SortTree->Fill();
       /*Start next event with the hit in hand*/
       hitList.resize(0);
       StartEvent();

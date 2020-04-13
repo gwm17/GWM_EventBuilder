@@ -20,12 +20,14 @@ class GainMatcher {
   public:
     GainMatcher();
     ~GainMatcher();
+    bool SetFile(string filename);
     double GetScaler(int channel);
 
   private:
-    void MakeVector();
+    bool MakeVector();
     vector<double> scaler_map;
     string gain_file_name;
+    bool validFile;
 };
 
 #endif

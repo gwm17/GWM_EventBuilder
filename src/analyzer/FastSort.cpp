@@ -1,11 +1,11 @@
 #include "FastSort.h"
 
-FastSort::FastSort(float si_windowSize, float ion_windowSize) {
+FastSort::FastSort(float si_windowSize, float ion_windowSize, string mapfile) {
   si_coincWindow = si_windowSize/1.0e3; //given in pico s, want in nano s
   ion_coincWindow = ion_windowSize/1.0e3; 
   event_address = NULL;
 
-  if(!FillSabreMap(smap)) illegalMap = 1;
+  if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
   else illegalMap = 0;
 }
 

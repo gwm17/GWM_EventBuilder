@@ -6,8 +6,8 @@
  */
 #include "SabreMap.h"
 
-int FillSabreMap(unordered_map<int, sabrechan> &smap) {
-  ifstream input("etc/ChannelMap_March2020.dat"); //hardcoded!
+int FillSabreMap(string mapfile, unordered_map<int, sabrechan> &smap) {
+  ifstream input(mapfile); 
   if(input.is_open()) {
     int chan_i;
     sabrechan chan;

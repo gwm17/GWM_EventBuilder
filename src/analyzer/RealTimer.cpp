@@ -12,10 +12,10 @@
 using namespace std;
 
 /*Take unsigned int inputs and store in signed ints, as this is the type of the timestamp*/
-RealTimer::RealTimer(UInt_t si, UInt_t plast) {
+RealTimer::RealTimer(UInt_t si, UInt_t plast, string mapfile) {
   SI_OFFSET = si;
   SCINT_OFFSET = plast;
-  if(!FillSabreMap(smap)) illegalMap = 1;
+  if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
   else illegalMap = 0;
 }
 
