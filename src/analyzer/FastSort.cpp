@@ -32,10 +32,10 @@ void FastSort::ProcessFocalPlane(unsigned int scint_index, unsigned int ionch_in
    *In this case, I chose one of the anodes. But in principle you could also choose any other part of the ion
    *chamber
    */
-  if(slowEvent.focalPlane.anodeF.size() > ionch_index) { //Front anode required to move on`
-    fastEvent.focalPlane.anodeF.push_back(slowEvent.focalPlane.anodeF[ionch_index]);
+  if(slowEvent.focalPlane.anodeB.size() > ionch_index) { //Back anode required to move on`
+    fastEvent.focalPlane.anodeB.push_back(slowEvent.focalPlane.anodeB[ionch_index]);
 
-    float anodeRelTime = fabs(fastEvent.focalPlane.anodeF[0].Time - fastEvent.focalPlane.scintL[0].Time);
+    float anodeRelTime = fabs(fastEvent.focalPlane.anodeB[0].Time - fastEvent.focalPlane.scintL[0].Time);
     if(anodeRelTime > ion_coincWindow) return; //Window check
 
     if(slowEvent.focalPlane.delayFL.size() > ionch_index) {
@@ -53,8 +53,8 @@ void FastSort::ProcessFocalPlane(unsigned int scint_index, unsigned int ionch_in
     if(slowEvent.focalPlane.scintR.size() > ionch_index) {
       fastEvent.focalPlane.scintR.push_back(slowEvent.focalPlane.scintR[ionch_index]);
     }
-    if(slowEvent.focalPlane.anodeB.size() > ionch_index) {
-      fastEvent.focalPlane.anodeB.push_back(slowEvent.focalPlane.anodeB[ionch_index]);
+    if(slowEvent.focalPlane.anodeF.size() > ionch_index) {
+      fastEvent.focalPlane.anodeF.push_back(slowEvent.focalPlane.anodeF[ionch_index]);
     }
     if(slowEvent.focalPlane.cathode.size() > ionch_index) {
       fastEvent.focalPlane.cathode.push_back(slowEvent.focalPlane.cathode[ionch_index]);

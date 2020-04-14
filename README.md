@@ -58,7 +58,7 @@ data within the coincidence window into single focal plane events with asscoiate
 principle is that the scintillator provides very sharp timing resolution by which we can further
 refine the built event. Currently, `FastSort` is desinged to take two windows: a coincidence window 
 for SABRE and the scintillator, and a coincidence window for the ion chamber and the scintillator. 
-For the ion chamber, the front anode was chosen to be the representative (it really doesn't matter
+For the ion chamber, the back anode was chosen to be the representative (it really doesn't matter
 which part of the ion chamber is chosen). SABRE data is additionally filtered to contain only paired
 hits (hits that have both a ring and a wedge). Fast sorting is where the user will have to make the
 most changes to the actual event building. Any new detector or additional changes will require more

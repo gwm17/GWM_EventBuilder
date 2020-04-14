@@ -139,7 +139,7 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
       Double_t delayRelFT = ev.delayFrontMaxTime - ev.anodeBackTime;
       Double_t delayRelBT = ev.delayBackMaxTime - ev.anodeBackTime;
-      Double_t anodeRelT = ev.anodeBackTime - ev.scintLeftTime;
+      Double_t anodeRelBT = ev.anodeBackTime - ev.scintLeftTime;
       Double_t delayRelFT_toScint = ev.delayFrontMaxTime - ev.scintLeftTime;
       Double_t delayRelBT_toScint = ev.delayBackMaxTime - ev.scintLeftTime;
       MyFill("anodeRelFrontTime_NoCuts",1000,-3000,3500, anodeRelFT);
@@ -165,7 +165,7 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
           MyFill("sabreRelRTScint_anodeRelT",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,anodeRelT);
         }
       }
-      MyFill("anodeRelTime_toScint",1000,-3000,3500,anodeRelT);
+      MyFill("anodeBackRelTime_toScint",1000,-3000,3500,anodeRelBT);
       MyFill("delayRelBackTime_toScint",1000,-3000,3500,delayRelBT_toScint);
       MyFill("delayRelFrontTime_toScint",1000,-3000,3500,delayRelFT_toScint);
     } else {
