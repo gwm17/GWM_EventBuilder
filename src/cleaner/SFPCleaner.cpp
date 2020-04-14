@@ -162,7 +162,7 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
           MyFill("sabreRelWTScint_sabreWedgeChannel",500,-3000,3500,sabreRelWT_toScint,144,0,144,ev.sabreWedgeChannel[i]);
           MyFill("sabreRelRT_sabreRelWT",500,-3000,3500,sabreRelRT,500,-3000,3500,sabreRelWT);
           MyFill("sabreRelRT_sabreRelWT_scint",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,sabreRelWT_toScint);
-          MyFill("sabreRelRTScint_anodeRelT",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,anodeRelT);
+          MyFill("sabreRelRTScint_anodeRelT",500,-3000,3500,sabreRelRT_toScint,500,-3000,3500,anodeRelBT);
         }
       }
       MyFill("anodeBackRelTime_toScint",1000,-3000,3500,anodeRelBT);
