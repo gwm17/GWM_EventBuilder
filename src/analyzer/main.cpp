@@ -51,14 +51,14 @@ int main(int argc, char *argv[]) {
     else  name = app.Argv(2);
     ifstream input(name);
     if(input.is_open()) {
-      string dir, shifted, sorted, analyzed, junk, fast, map, gains;
+      string dir, shifted, sorted, analyzed, junk, fast, map, gains, shifts;
       int zt, at, zp, ap, ze, ae;
       double ep, angle, b;
-      float si, scint, cw, si_fcw, ion_fcw;
+      float scint, cw, si_fcw, ion_fcw;
       int min, max;
       input>>junk>>zt>>junk>>at>>junk>>zp>>junk>>ap>>junk>>ze>>junk>>ae;
       input>>junk>>ep>>junk>>angle>>junk>>b;
-      input>>junk>>si>>junk>>scint>>junk>>cw>>junk>>si_fcw>>junk>>ion_fcw;
+      input>>junk>>shifts>>junk>>scint>>junk>>cw>>junk>>si_fcw>>junk>>ion_fcw;
       input>>junk>>dir>>junk>>min>>junk>>max;
       input>>junk>>shifted>>junk>>sorted>>junk>>fast>>junk>>analyzed;
       input>>junk>>map;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
           <<" Zp: "<<zp<<" Ap: "<<ap<<" E: "<<ep<<" angle: "
           <<angle<<" B: "<<b<<endl;
       cout<<"scintillator offset: "<<scint<<endl;
-      cout<<"SABRE offset: "<<si<<endl;
+      cout<<"Board offset file: "<<shifts<<endl;
       cout<<"Coincidence window: "<<cw<<endl;
       cout<<"Si Fast Coincidence Window: "<<si_fcw<<endl;
       cout<<"Ion Chamber Fast Coincidence Window: "<<ion_fcw<<endl;
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
           this_fast = fast+suffix;
           this_analyzed = analyzed+suffix;
 
-          RealTimer rt(si, scint, map);
+          RealTimer rt(scint, map, shifts);
           TimeSort no_hope(cw, map, gains);
           FastSort help_me(si_fcw, ion_fcw, map);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);

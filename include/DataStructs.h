@@ -9,10 +9,10 @@
 using namespace std;
 
 struct DPPChannel {
-  ULong64_t Timestamp = -1;
-  UShort_t Channel = -1 , Board = -1, Energy = -1, EnergyShort = -1;
-  string Name = "";
-  UInt_t Flags = -1;
+  Double_t Timestamp;
+  Int_t Channel, Board, Energy, EnergyShort;
+  string Name;
+  Int_t Flags;
 };
 
 struct DetectorHit {

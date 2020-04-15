@@ -1,6 +1,7 @@
 Ztarget: 5 Atarget: 10 Zproj: 2 Aproj: 3 Zeject: 2 Aeject: 4
 BeamE(MeV): 24 Angle(deg): 20 Bfield(G): 9500
-Si_offset(ps): 0.15e6 Scint_offset(ps): 0.65e6
+Board_shift_file: etc/ShiftMap_April2020.txt
+Scint_offset(ps): 0.65e6
 coincidence_window(ps): 1.5e6
 si_fast_coincidence_window(ps): 0.125e6
 ion_chamber_fast_coincidence_window(ps): 0.25e6

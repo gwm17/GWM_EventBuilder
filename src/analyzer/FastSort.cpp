@@ -26,18 +26,18 @@ void FastSort::ResetFocalPlane() {
 
 /*Assign a set of ion chamber data to the scintillator*/
 void FastSort::ProcessFocalPlane(unsigned int scint_index, unsigned int ionch_index) {
-  fastEvent.focalPlane.scintL.push_back(slowEvent.focalPlane.scintL[scint_index]);
 
   /*In order to have a coincidence window, one must choose a portion of the ion chamber to form a requirement.
    *In this case, I chose one of the anodes. But in principle you could also choose any other part of the ion
    *chamber
    */
   if(slowEvent.focalPlane.anodeB.size() > ionch_index) { //Back anode required to move on`
-    fastEvent.focalPlane.anodeB.push_back(slowEvent.focalPlane.anodeB[ionch_index]);
 
-    float anodeRelTime = fabs(fastEvent.focalPlane.anodeB[0].Time - fastEvent.focalPlane.scintL[0].Time);
+    float anodeRelTime = fabs(slowEvent.focalPlane.anodeB[ionch_index].Time - slowEvent.focalPlane.scintL[scint_index].Time);
     if(anodeRelTime > ion_coincWindow) return; //Window check
 
+    fastEvent.focalPlane.anodeB.push_back(slowEvent.focalPlane.anodeB[ionch_index]);
+    fastEvent.focalPlane.scintL.push_back(slowEvent.focalPlane.scintL[scint_index]);
     if(slowEvent.focalPlane.delayFL.size() > ionch_index) {
       fastEvent.focalPlane.delayFL.push_back(slowEvent.focalPlane.delayFL[ionch_index]);
     }

@@ -1,7 +1,9 @@
 /*RealTimer.cpp
  *Class used to shift timestamps of the SABRE detector and the scintillator
- *of the focal plane, so that time-order is approximately fp ion-chamber,
- *scintillator, SABRE. This is for ease of event-building.
+ *of the focal plane, so that time-order is such that the scintllator, SABRE,
+ *and a specific piece of the ion chamber (usually an anode) are all coincident
+ *This is for ease of event-building and to allow for the narrowest possible
+ *coincidence windows.
  *Based on code written by S. Balak, K. Macon, E. Good from LSU
  *
  *Created Jan 2020 by GWM
@@ -13,11 +15,12 @@
 using namespace std;
 
 /*Take unsigned int inputs and store in signed ints, as this is the type of the timestamp*/
-RealTimer::RealTimer(UInt_t si, UInt_t plast, string mapfile) {
-  SI_OFFSET = si;
+RealTimer::RealTimer(Int_t plast, string mapfile, string shiftfile) {
   SCINT_OFFSET = plast;
   if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
   else illegalMap = 0;
+
+  shifts.SetShiftMap(shiftfile);
 }
 
 RealTimer::~RealTimer(){}
@@ -31,13 +34,17 @@ void RealTimer::Run(string in, string out) {
 
   TFile *input = new TFile(in.c_str(), "READ");
   TTree *intree = (TTree*) input->Get("Data");
-   
-  intree->SetBranchAddress("Energy",&hit.Energy);
-  intree->SetBranchAddress("EnergyShort", &hit.EnergyShort);
-  intree->SetBranchAddress("Timestamp", &hit.Timestamp);
-  intree->SetBranchAddress("Channel", &hit.Channel);
-  intree->SetBranchAddress("Board", &hit.Board);
-  intree->SetBranchAddress("Flags", &hit.Flags);
+  
+  ULong64_t ts;
+  UShort_t es, e, c, b;
+  string name;
+  UInt_t f; 
+  intree->SetBranchAddress("Energy",&e);
+  intree->SetBranchAddress("EnergyShort", &es);
+  intree->SetBranchAddress("Timestamp", &ts);
+  intree->SetBranchAddress("Channel", &c);
+  intree->SetBranchAddress("Board", &b);
+  intree->SetBranchAddress("Flags", &f);
 
   TFile *output = new TFile(out.c_str(), "RECREATE");
   TTree *outtree  = new TTree("Data", "RealTime Data");
@@ -56,17 +63,27 @@ void RealTimer::Run(string in, string out) {
   Float_t place;
   for(ULong64_t i=0; i<intree->GetEntries(); i++) {
     intree->GetEntry(i);
+
+    /*Convert out of unsigned land (that we were in for no reason)*/
+    hit.Energy = e;
+    hit.EnergyShort = es;
+    hit.Channel = c;
+    hit.Board = b;
+    hit.Timestamp = ts;
+    hit.Flags = f;
+
     place = ((long double)i)/blentries*100;
     if(fmod(place,10.0) ==  0) { /*Non-continuous progress update*/
       cout<<"\rFile is "<<place<<"%"<<" complete"<<flush;
     }
     gchan = hit.Board*16+hit.Channel;
     if(smap[gchan].side_pos.first=="FRONT" || smap[gchan].side_pos.first=="BACK"){
-      if(hit.Board == 3) { /*GWM temporary measure to account for board offsets... these should be for each board, not just scint & si*/
+      hit.Timestamp += shifts.GetShift(hit.Board);
+      /*if(hit.Board == 3) { //GWM temporary measure to account for board offsets... these should be for each board, not just scint & si
         hit.Timestamp += (SI_OFFSET-3e5);
       } else {
         hit.Timestamp += SI_OFFSET;
-      }
+      }*/
     } else if (hit.Board == 8 && (hit.Channel == 0 || hit.Channel == 1)) {/*Scint*/
       hit.Timestamp += SCINT_OFFSET;
     }

@@ -36,6 +36,7 @@ specified by the input file.
 ### Shifting
 The first stage is shifting all of the timestamps for both the focal plane scintillator 
 and SABRE silicons so that they come in coincidence with one of the anodes in the ion chamber. 
+Shift values for SABRE boards are written to a .txt file which is given as an input parameter.
 The shifted data is then written to an output file. In general, this means that one
 will need to run the analyzer with "wide open" coincidence windows, look at the histograms of 
 relative timings and then apply shifts to a subsequent execution which make it so the relative
