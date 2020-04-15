@@ -1,0 +1,9 @@
+Board_0	0.15e6
+Board_1	0.15e6
+Board_2	0.15e6
+Board_3	-0.15e6
+Board_4	0.15e6
+Board_5	0.15e6
+Board_6	0.15e6
+Board_7	0.15e6
+Board_8	0.0
