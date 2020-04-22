@@ -26,16 +26,16 @@ class TimeSort {
 
     /****** Data Counters *******/
     /*Use these for statistics on the event building*/
-    int totalEvents;
-    int completeFP;
-    int completeFP_SABRE;
-    int SABREorphans;
-    int SABREorphans_noscint;
-    int FPorphans;
-    int FPorphans_partial;
-    int FPorphans_noscint;
-    int FPorphans_nogas;
-    int FPextras;
+    double totalEvents;
+    double completeFP;
+    double completeFP_SABRE;
+    double SABREorphans;
+    double SABREorphans_noscint;
+    double FPorphans;
+    double FPorphans_partial;
+    double FPorphans_noscint;
+    double FPorphans_nogas;
+    double FPextras;
 
   private:
     void Reset();

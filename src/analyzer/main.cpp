@@ -109,9 +109,9 @@ int main(int argc, char *argv[]) {
         /*Log file to document the statistics of the evb*/
         ofstream log("event_builder_log.txt");
         log<<"Event building statistics for most recent build"<<endl;
-        int totalEvents=0, completeFP=0, completeFP_SABRE=0, SABREorphans=0,
-            SABREorphans_noscint=0, FPorphans=0, FPorphans_partial=0,
-            FPorphans_noscint=0, FPorphans_nogas=0, FPextras=0;
+        double totalEvents=0, completeFP=0, completeFP_SABRE=0, SABREorphans=0,
+               SABREorphans_noscint=0, FPorphans=0, FPorphans_partial=0,
+               FPorphans_noscint=0, FPorphans_nogas=0, FPextras=0;
 
         for(unsigned int i=0; i<filelist.size(); i++) {
           gROOT->Reset();
