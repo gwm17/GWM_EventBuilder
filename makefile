@@ -10,7 +10,10 @@ INCLDIR=./include
 SRCDIR=./src
 BINDIR=./bin
 CPPFLAGS= -I$(INCLDIR)
-LDFLAGS=$(ROOTGLIBS) 
+LDFLAGS=$(ROOTGLIBS)
+
+#Use this for operating systems which micromanage their linking libraries
+#LDFLAGS=$(ROOTGLIBS) -Wl,--no-as-needed
 
 ASRCDIR=$(SRCDIR)/analyzer
 MSRCDIR=$(SRCDIR)/merger
