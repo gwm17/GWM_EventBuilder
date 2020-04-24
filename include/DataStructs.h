@@ -52,6 +52,9 @@ struct ProcessedEvent {
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
   Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;
+  Double_t cathodeTime = -1;
+
+  SabreDetector sabreArray[5]; //0=A 1=B 2=C 4=D 4=E
 };
 
 #endif

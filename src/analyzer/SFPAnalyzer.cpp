@@ -105,6 +105,7 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
     }
     if(cevent.focalPlane.cathode.size() > 0) {
       pevent.cathode = cevent.focalPlane.cathode[0].Long;
+      pevent.cathodeTime = cevent.focalPlane.cathode[0].Time;
     }
 
     /*Delay lines and all that*/
@@ -152,6 +153,8 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
         pevent.sabreWedgeChannel[j] = cevent.sabreArray[j].wedges[0].Ch;
         pevent.sabreWedgeTime[j] = cevent.sabreArray[j].wedges[0].Time;
       }
+      /*Aaaand passes on all of the rest. 4/24/20 GWM*/
+      pevent.sabreArray[j] = cevent.sabreArray[j];
     }
 
     /*Make some histograms and xavg*/
@@ -161,7 +164,7 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
     if(pevent.x1 != -1e6 && pevent.x2 != -1e6) {
       pevent.xavg = pevent.x1*w1+pevent.x2*w2;
       MyFill("xavg",1200,-300,300,pevent.xavg);
-      pevent.theta = atan((pevent.x2-pevent.x1)/36.0);
+      pevent.theta = atan((pevent.x2-pevent.x1)/36.0); //36 mm separate the wires
       if(pevent.theta<0) pevent.theta = pevent.theta + TMath::Pi()/2.0;
       MyFill("xavg vs theta",600,-300,300,pevent.xavg,314,0,3.14,pevent.theta);
       MyFill("x1 vs x2",600,-300,300,pevent.x1,600,-300,300,pevent.x2);
