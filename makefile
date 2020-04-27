@@ -12,9 +12,6 @@ BINDIR=./bin
 CPPFLAGS= -I$(INCLDIR)
 LDFLAGS=$(ROOTGLIBS)
 
-#Use this for operating systems which micromanage their linking libraries
-#LDFLAGS=$(ROOTGLIBS) -Wl,--no-as-needed
-
 ASRCDIR=$(SRCDIR)/analyzer
 MSRCDIR=$(SRCDIR)/merger
 CSRCDIR=$(SRCDIR)/cleaner
@@ -58,16 +55,16 @@ $(PCH): $(PCH_FILE)
 	$(CC) $(CFLAGS) -x c++-header $^
 
 $(AEXE): $(LIB) $(RCOBJ) $(AOBJS)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS) 
 
 $(MEXE): $(LIB) $(RCOBJ) $(MOBJS)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(CEXE): $(LIB) $(RCOBJ) $(COBJS)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(BEXE): $(LIBARCHIVE) $(RCOBJ) $(BOBJS)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(LIB): $(DICT)
 	$(CC) $(CFLAGS) -I $(ROOTDICT_INCL) -o $@ -c $^
