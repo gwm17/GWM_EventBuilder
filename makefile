@@ -1,3 +1,5 @@
+
+OS_NAME := $(shell uname -s)
 CC=g++
 ROOTCFLAGS= `root-config --cflags`
 ROOTGLIBS=`root-config --glibs`
@@ -5,10 +7,11 @@ ROOTGLIBS=`root-config --glibs`
 LIBARCHIVE=/usr/local/opt/libarchive/lib/libarchive.dylib
 LIBARCHIVE_INCL=/usr/local/opt/libarchive/include
 ROOTDICT_INCL=./
-CFLAGS= -std=c++11 -g -Wall $(ROOTCFLAGS)
+CFLAGS= -std=c++11 -fPIC -g -Wall $(ROOTCFLAGS)
 INCLDIR=./include
 SRCDIR=./src
 BINDIR=./bin
+LIBDIR=./lib
 CPPFLAGS= -I$(INCLDIR)
 LDFLAGS=$(ROOTGLIBS)
 
@@ -34,7 +37,8 @@ BOBJS=$(BSRC:$(BSRCDIR)/%.cpp=$(BOBJDIR)/%.o)
 
 DICT_PAGES= $(INCLDIR)/DataStructs.h $(INCLDIR)/LinkDef_sps.h
 DICT=$(SRCDIR)/sps_dict.cxx
-LIB=$(OBJDIR)/sps_dict.o
+DICTOBJ=$(OBJDIR)/sps_dict.o
+DICTLIB=$(LIBDIR)/libSPSDict
 
 RCSRC=$(SRCDIR)/RunCollector.cpp
 RCOBJ=$(OBJDIR)/RunCollector.o
@@ -49,25 +53,34 @@ BEXE=$(BINDIR)/binary2root
 
 .PHONY: all clean clean_header
 
-all: $(PCH) $(AEXE) $(MEXE) $(CEXE) $(BEXE)
+all: $(PCH) $(ALIBS) $(AEXE) $(MEXE) $(CEXE) $(BEXE)
 
 $(PCH): $(PCH_FILE)
 	$(CC) $(CFLAGS) -x c++-header $^
 
-$(AEXE): $(LIB) $(RCOBJ) $(AOBJS)
+$(AEXE): $(DICTOBJ) $(RCOBJ) $(AOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS) 
 
-$(MEXE): $(LIB) $(RCOBJ) $(MOBJS)
+$(MEXE): $(DICTOBJ) $(RCOBJ) $(MOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(CEXE): $(LIB) $(RCOBJ) $(COBJS)
+$(CEXE): $(DICTOBJ) $(RCOBJ) $(COBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(BEXE): $(LIBARCHIVE) $(RCOBJ) $(BOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(LIB): $(DICT)
+$(DICTOBJ): $(DICT)
 	$(CC) $(CFLAGS) -I $(ROOTDICT_INCL) -o $@ -c $^
+ifeq ($(OS_NAME), Darwin) 
+	$(CC) $(CFLAGS) $(LDFLAGS) $@ -dynamiclib -o $(DICTLIB).dylib
+	cp $(SRCDIR)/*.pcm $(LIBDIR)
+else
+ifeq ($(OS_NAME), Linux)
+	$(CC) $(CFLAGS) $(LDFLAGS) $@ -shared -o $(DICTLIB).so
+	cp $(SRCDIR)/*.pcm $(LIBDIR)
+endif
+endif
 	mv $(SRCDIR)/*.pcm ./$(BINDIR)/
 
 $(DICT): $(DICT_PAGES)
@@ -88,8 +101,14 @@ $(COBJDIR)/%.o: $(CSRCDIR)/%.cpp
 $(BOBJDIR)/%.o: $(BSRCDIR)/%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I $(LIBARCHIVE_INCL) -o $@ -c $^
 
+$(LIBDIR)/lib%.dylib: $(AOBJDIR)/%.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -dynamiclib -o $@
+
+$(LIBDIR)/lib%.so: $(AOBJDIR)/%.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -shared -o $@
+
 clean:
-	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(LIB) $(RCOBJ) ./$(BINDIR)/*.pcm
+	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(ALIBS) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(DICTOBJ) $(DICTLIB) $(RCOBJ) ./$(LIBDIR)/*.pcm ./$(BINDIR)/*.pcm
 
 clean_header:
 	$(RM) $(PCH)
