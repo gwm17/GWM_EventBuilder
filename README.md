@@ -130,6 +130,7 @@ centering of the timing peaks.
 ## System Requirements
 Only tested with `ROOT` 6.14, so compatibility with any other version is questionable
 Uses C++11 standards
+Only compatible with MacOSX and Linux of most flavors
 
 ## Compliling and Running
 To compile use the command `make`
