@@ -126,14 +126,14 @@ void TimeSort::ProcessEvent() {
     }
     try {/*see if this is a sabre channel*/
       sabrechan sc = smap.at(gchan); //throws out_of_range if not a valid member
-      if(sc.side_pos.first == "FRONT" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) 
+      if(sc.side_pos.first == "RING" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) 
          && curHit.Energy>20.0) {
         dhit.Long = curHit.Energy*gains.GetScaler(gchan);
         dhit.Time = (Double_t) curHit.Timestamp/1.0e3;
         dhit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreArray[sc.detID].rings.push_back(dhit);
         safCount++;
-      } else if (sc.side_pos.first == "BACK" && curHit.Energy<16384 && 
+      } else if (sc.side_pos.first == "WEDGE" && curHit.Energy<16384 && 
                  (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi)){
         dhit.Long = curHit.Energy*gains.GetScaler(gchan);
         dhit.Time = ((Double_t) curHit.Timestamp)/1.0e3;
