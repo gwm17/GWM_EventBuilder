@@ -23,11 +23,12 @@ using namespace std;
 //to run only the analyzer (will only work if sorted files already exist)
 //set up in such a way that adding more cases is a non issue.
 //s-slow sorting only a-analyze only (assumes analyze fast files) sa-only analyze slow files
-static const char* optString = "sa";
+static const char* optString = "saf";
 
 struct options {
   bool slowFlag = false;
   bool onlyAnalyzeFlag = false;
+  bool fastFlag = false;
 } options;
 
 int main(int argc, char *argv[]) {
@@ -41,6 +42,9 @@ int main(int argc, char *argv[]) {
           break;
         case 'a':
           options.onlyAnalyzeFlag = true;
+          break;
+        case 'f':
+          options.fastFlag = true;
           break;
       }
     }   
@@ -150,6 +154,13 @@ int main(int argc, char *argv[]) {
             continue;
           } else if (options.onlyAnalyzeFlag) {
             cout<<"Only analyze fast files option passed"<<endl;
+            cout<<"Performing basic analysis..."<<endl;
+            doa.Run(this_fast.c_str(), this_analyzed.c_str());
+            continue;
+          } else if (options.fastFlag) {
+            cout<<"Fast sort and analyze option passed"<<endl;
+            cout<<"Skipping shifting and slow sort..."<<endl;
+            help_me.Run(this_sorted.c_str(), this_fast.c_str());
             cout<<"Performing basic analysis..."<<endl;
             doa.Run(this_fast.c_str(), this_analyzed.c_str());
             continue;
