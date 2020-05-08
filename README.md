@@ -14,9 +14,9 @@ WHEN TESTING, RUN WITH WIDE WINDOWS
 
 ## Binary2ROOT
 The `binary2root` program takes binary CoMPASS data and converts it into a `ROOT` file with a tree. Currently this program can
-accept either the plain .bin format binary CoMPASS data or a compressed archive of .bin files in a .tar.gz format. In principle,
-the types of accepted archive formats can be expanded, as the archives and compression is all handled by the libarchive library,
-but as .tar.gz is fairly universal this seems unnecessary. The full path to data is specified by `binary2root_input`.txt input file.
+accept a compressed archive of .bin files in a .tar.gz format. In principle,the types of accepted archive formats can be expanded,
+as the archives and compression is all handled by the libarchive library, but as .tar.gz is fairly universal this seems 
+unnecessary. The full path to data is specified by `binary2root_input`.txt input file.
 
 ## Analyzer
 The `analyzer` is the bulk of the analysis process. Analyzer takes each individual run file from
