@@ -164,8 +164,13 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
     if(pevent.x1 != -1e6 && pevent.x2 != -1e6) {
       pevent.xavg = pevent.x1*w1+pevent.x2*w2;
       MyFill("xavg",1200,-300,300,pevent.xavg);
-      pevent.theta = atan((pevent.x2-pevent.x1)/36.0); //36 mm separate the wires
-      if(pevent.theta<0) pevent.theta = pevent.theta + TMath::Pi()/2.0;
+      if((pevent.x2-pevent.x1) > 0) {
+        pevent.theta = atan((pevent.x2-pevent.x1)/36.0);
+      } else if((pevent.x2-pevent.x1) < 0) {
+        pevent.theta = TMath::Pi() + atan((pevent.x2-pevent.x1)/36.0);
+      } else {
+        pevent.theta = TMath::Pi()/2.0;
+      }
       MyFill("xavg vs theta",600,-300,300,pevent.xavg,314,0,3.14,pevent.theta);
       MyFill("x1 vs x2",600,-300,300,pevent.x1,600,-300,300,pevent.x2);
     }
