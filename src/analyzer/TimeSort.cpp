@@ -126,16 +126,15 @@ void TimeSort::ProcessEvent() {
     }
     try {/*see if this is a sabre channel*/
       sabrechan sc = smap.at(gchan); //throws out_of_range if not a valid member
-      if(sc.side_pos.first == "RING" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) 
-         && curHit.Energy>20.0) {
-        dhit.Long = curHit.Energy*gains.GetScaler(gchan);
+      if(sc.side_pos.first == "RING" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) ) {
+        dhit.Long = curHit.Energy;
         dhit.Time = (Double_t) curHit.Timestamp/1.0e3;
         dhit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreArray[sc.detID].rings.push_back(dhit);
         safCount++;
       } else if (sc.side_pos.first == "WEDGE" && curHit.Energy<16384 && 
                  (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi)){
-        dhit.Long = curHit.Energy*gains.GetScaler(gchan);
+        dhit.Long = curHit.Energy;
         dhit.Time = ((Double_t) curHit.Timestamp)/1.0e3;
         dhit.Ch = curHit.Channel+curHit.Board*16;
         event.sabreArray[sc.detID].wedges.push_back(dhit);
@@ -228,7 +227,7 @@ void TimeSort::Run(const char *infile_name, const char *outfile_name) {
     } else if (hit.Timestamp < previousHitTime) {//out of order check
       cerr<<"This timestamp: "<<hit.Timestamp<<" is out of order with : "<<previousHitTime
           <<". Skipping hit!"<<endl;
-    } else if ((float)(hit.Timestamp - startTime)< coincWindow) {
+    } else if ((double)(hit.Timestamp - startTime)< coincWindow) {
       hitList.push_back(hit);
     } else if (hitList.size()>0) { 
       ProcessEvent();
