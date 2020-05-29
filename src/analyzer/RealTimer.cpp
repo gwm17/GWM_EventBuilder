@@ -77,7 +77,7 @@ void RealTimer::Run(string in, string out) {
       cout<<"\rFile is "<<place<<"%"<<" complete"<<flush;
     }
     gchan = hit.Board*16+hit.Channel;
-    if(smap[gchan].side_pos.first=="FRONT" || smap[gchan].side_pos.first=="BACK"){
+    if(smap[gchan].side_pos.first=="RING" || smap[gchan].side_pos.first=="WEDGE"){
       hit.Timestamp += shifts.GetShift(hit.Board);
       /*if(hit.Board == 3) { //GWM temporary measure to account for board offsets... these should be for each board, not just scint & si
         hit.Timestamp += (SI_OFFSET-3e5);
