@@ -10,15 +10,10 @@
 #ifndef RUNCOLLECTOR_H
 #define RUNCOLLECTOR_H
 
-#include <TROOT.h>
-#include <TString.h>
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TCollection.h>
 #include <TList.h>
-#include <vector>
-#include <string>
-#include <iostream>
 #include <cstdlib>
 #include <cstdio>
 
@@ -26,10 +21,11 @@ using namespace std;
 
 class RunCollector {
   public:
-    RunCollector(string dirname);
-    RunCollector(string dirname, int min, int max);
+    RunCollector(string dirname, string prefix, string suffix);
+    RunCollector(string dirname, string prefix, string suffix, int min, int max);
     ~RunCollector();
-    int Merge(string outname);
+    int Merge_hadd(string outname);
+    int Merge_TChain(string outname);
     int GrabAllFiles();
     int GrabFilesInRange();
     vector<TString> filelist;
@@ -37,6 +33,7 @@ class RunCollector {
   private:
     TString dir;
     TString run;
+    TString end;
     Int_t MaxRun, MinRun;  //user run limits
     const Int_t LITERALMAX = 1000; //class run limit
 };

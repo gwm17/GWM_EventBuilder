@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./bin/binary2root binary2root_input.txt
+#./bin/binary2root binary2root_input.txt
 ./bin/analyzer analyzer_input.txt
 ./bin/cleaner cleaner_input.txt

@@ -7,21 +7,15 @@
 #ifndef SABRE_MAP_H
 #define SABRE_MAP_H
 
-#include <TROOT.h>
-#include <unordered_map>
-#include <string>
-#include <iostream>
-#include <fstream>
-
 using namespace std;
 
 struct sabrechan {
-  string detID;
+  int detID;
   pair<string, int> side_pos;
   int ECutLo;
   int ECutHi;
 };
 
-int FillSabreMap(unordered_map<int, sabrechan> &smap);
+int FillSabreMap(string mapfile, unordered_map<int, sabrechan> &smap);
 
 #endif

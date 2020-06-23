@@ -10,16 +10,7 @@
 #ifndef TIME_SORT_H
 #define TIME_SORT_H
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <vector>
-#include <iostream>
-#include <unordered_map>
-#include <TTreeReader.h>
-#include <TTreeIndex.h>
+#include "TTreeIndex.h"
 #include "DataStructs.h"
 #include "SabreMap.h"
 #include "GainMatcher.h"
@@ -29,20 +20,31 @@ using namespace std;
 class TimeSort {
 
   public:
-    TimeSort(float windowSize);
+    TimeSort(float windowSize, string mapfile, string gainfile);
     ~TimeSort();
     void Run(const char *infile_name, const char *outfile_name);
+
+    /****** Data Counters *******/
+    /*Use these for statistics on the event building*/
+    double totalEvents;
+    double completeFP;
+    double completeFP_SABRE;
+    double SABREorphans;
+    double SABREorphans_noscint;
+    double FPorphans;
+    double FPorphans_partial;
+    double FPorphans_noscint;
+    double FPorphans_nogas;
+    double FPextras;
+
   private:
     void Reset();
     void StartEvent();
-    bool ProcessEvent();
-
-    UShort_t Energy, EnergyShort, Channel, Board;
-    ULong64_t Timestamp;
-    UInt_t Flags;
+    void ProcessEvent();
 
     float coincWindow;
     int illegalMap;
+    bool illegalGains;
     vector<DPPChannel> hitList;
     DPPChannel hit;
     CoincEvent event;

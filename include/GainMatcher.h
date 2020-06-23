@@ -8,11 +8,6 @@
 #ifndef GAIN_MATCHER_H
 #define GAIN_MATCHER_H
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
-
 using namespace std;
 
 class GainMatcher {
@@ -20,12 +15,14 @@ class GainMatcher {
   public:
     GainMatcher();
     ~GainMatcher();
+    bool SetFile(string filename);
     double GetScaler(int channel);
 
   private:
-    void MakeVector();
+    bool MakeVector();
     vector<double> scaler_map;
     string gain_file_name;
+    bool validFile;
 };
 
 #endif

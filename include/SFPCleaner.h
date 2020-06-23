@@ -9,20 +9,6 @@
 #ifndef SFPCLEANER_H
 #define SFPCLEANER_H
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TChain.h>
-#include <TTreeReader.h>
-#include <TTreeReaderValue.h>
-#include <TCutG.h>
-#include <THashTable.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TString.h>
-#include <iostream>
-#include <string>
-#include <vector>
 #include "DataStructs.h"
 
 using namespace std;
@@ -32,8 +18,7 @@ class SFPCleaner {
     SFPCleaner();
     SFPCleaner(bool tf);
     ~SFPCleaner();
-    int SetCuts(string alphaname, string he3name, string x1x2name);
-    void Run(string input, string output);
+    int SetCuts(string edename, string dexname, string exname, string xxname);
     void Run(vector<TString> files, string output);
 
   private:
@@ -56,8 +41,8 @@ class SFPCleaner {
     /*Files containing cuts, and actaul cuts... Names should be customized for
      *each individual experiment
      */
-    TFile *afile, *hefile, *xfile;
-    TCutG *alphaCut, *he3Cut, *x1x2Cut;
+    TFile *edefile, *dexfile, *exfile, *xxfile;
+    TCutG *EdECut, *dExCut, *x1x2Cut, *ExCut;
 
     TChain *chain;
 

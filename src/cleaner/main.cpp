@@ -1,11 +1,6 @@
-#include <TROOT.h>
-#include <TString.h>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
+#include "EventBuilder.h"
 #include "SFPCleaner.h"
-#include "RunMusher.h"
+#include "RunCollector.h"
 
 using namespace std;
 
@@ -13,30 +8,36 @@ int main(int argc, char *argv[]) {
   if(argc == 2) {
     ifstream input(argv[1]);
     if(input.is_open()) {
-      string junk, data, histos, acut, he3cut, xcut;
-      input>>junk>>data>>junk>>histos;
-      input>>junk>>acut>>junk>>he3cut>>junk>>xcut;
+      string junk, data, histos, edecut, dexcut, excut, xxcut;
+      int min, max;
+      input>>junk>>data;
+      input>>junk>>min>>junk>>max;
+      input>>junk>>histos;
+      input>>junk>>edecut>>junk>>xxcut>>junk>>excut>>junk>>dexcut;
       input.close();
       SFPCleaner mr_clean;
       cout<<"------ SPS-SABRE Histogrammer & Cleaner ------"<<endl;
-      cout<<"Data File: "<<data<<endl;
+      cout<<"Data Dir: "<<data<<endl;
       cout<<"Histogram File: "<<histos<<endl;
-      cout<<"Alpha Cut File: "<<acut<<endl;
-      cout<<"3He Cut File: "<<he3cut<<endl;
-      cout<<"x1x2 Cut File: "<<xcut<<endl;
+      cout<<"E-dE Cut File: "<<edecut<<endl;
+      cout<<"E-xavg Cut File: "<<excut<<endl;
+      cout<<"dE-xavg Cut File: "<<dexcut<<endl;
+      cout<<"x1-x2 Cut File: "<<xxcut<<endl;
       cout<<"Running cleaner..."<<endl;
-      if(mr_clean.SetCuts(acut, he3cut, xcut)) {
-        TString test(data.c_str());
-        if(test.EndsWith(".root")) {
-          vector<TString> files;
-          files.push_back(data);
-          mr_clean.Run(files, histos);
+      if(mr_clean.SetCuts(edecut, dexcut, excut, xxcut)) {
+        int validity;
+        vector<TString> files;
+        if(min>0 && max>0) {
+          RunCollector mushy(data, "", ".root", min, max);
+          validity = mushy.GrabFilesInRange();
+          files = mushy.filelist;
         } else {
-          RunMusher mushy(data);
-          if(mushy.GrabAllFiles()) {
-            vector<TString> files = mushy.filelist;
-            mr_clean.Run(files, histos);
-          }
+          RunCollector mushy(data, "", ".root");
+          validity = mushy.GrabAllFiles();
+          files = mushy.filelist;
+        }
+        if(validity) {
+          mr_clean.Run(files, histos);
         }
       } else {
         cerr<<"Invalid cut files! Unable to run cleaner"<<endl;

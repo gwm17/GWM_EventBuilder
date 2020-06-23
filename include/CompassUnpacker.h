@@ -1,16 +1,8 @@
 #ifndef COMPASS_UNPACKER_H
 #define COMPASS_UNPACKER_H
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
 #include "archive.h"
 #include "archive_entry.h"
-#include <TROOT.h>
-#include <TString.h>
-#include <TTree.h>
-#include <TFile.h>
 #include "CompassHit.h"
 
 using namespace std;
@@ -34,8 +26,6 @@ class CompassUnpacker {
     bool archiveFlag;
     int archiveWarning;
     bool fatalFlag;
-    size_t fileSize;
-    size_t archiveSize;
 
     ifstream inputFile;
     struct archive *inputArchive;
