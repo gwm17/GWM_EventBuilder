@@ -1,7 +1,7 @@
-DataDir: /data1/gwm17/10B3He/March2020/analyzed/
-MinRun: 9 MaxRun: -1
-HistogramFile: /data1/gwm17/10B3He/March2020/9b_histograms/9b_spectra_fulldata_including_garbage_testing_fasttime_si0_sc0.5_cw2.5.root
-E_dE_CutFile: /data1/gwm17/10B3He/March2020/cuts/alphaCut_dbr_sl.root
-x1_x2_CutFile: /data1/gwm17/10B3He/March2020/cuts/x1x2Cut.root
-E_positon_CutFile: /data1/gwm17/10B3He/March2020/cuts/scintXavgCut.root
-dE_position_CutFile: /data1/gwm17/10B3He/March2020/cuts/delayEXavgCut.root
+DataDir: /Volumes/LaCie/9BMarch2020/analyzed/
+MinRun: 99 MaxRun: 99
+HistogramFile: /Volumes/LaCie/9BMarch2020/9b_histograms/run99_windowtest.root
+E_dE_CutFile: /Volumes/LaCie/9BMarch2020/cuts/alphaCut_dbr_sl.root
+x1_x2_CutFile: /Volumes/LaCie/9BMarch2020//cuts/x1x2Cut.root
+E_positon_CutFile: /Volumes/LaCie/9BMarch2020/cuts/scintXavgCut.root
+dE_position_CutFile: /Volumes/LaCie/9BMarch2020/cuts/delayEXavgCut.root

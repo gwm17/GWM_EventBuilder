@@ -15,25 +15,21 @@ LIBDIR=./lib
 CPPFLAGS= -I$(INCLDIR)
 LDFLAGS=$(ROOTGLIBS)
 
-ASRCDIR=$(SRCDIR)/analyzer
+BUSRCDIR=$(SRCDIR)/builder
 MSRCDIR=$(SRCDIR)/merger
-CSRCDIR=$(SRCDIR)/cleaner
-BSRCDIR=$(SRCDIR)/binary2root
+PSRCDIR=$(SRCDIR)/plotter
+BISRCDIR=$(SRCDIR)/binary2root
 
 OBJDIR=./objs
-AOBJDIR=$(OBJDIR)/analyzer
-MOBJDIR=$(OBJDIR)/merger
-COBJDIR=$(OBJDIR)/cleaner
-BOBJDIR=$(OBJDIR)/binary2root
 
-ASRC=$(wildcard $(ASRCDIR)/*.cpp)
+BUSRC=$(wildcard $(BUSRCDIR)/*.cpp)
 MSRC=$(wildcard $(MSRCDIR)/*.cpp)
-CSRC=$(wildcard $(CSRCDIR)/*.cpp)
-BSRC=$(wildcard $(BSRCDIR)/*.cpp)
-AOBJS=$(ASRC:$(ASRCDIR)/%.cpp=$(AOBJDIR)/%.o)
-MOBJS=$(MSRC:$(MSRCDIR)/%.cpp=$(MOBJDIR)/%.o)
-COBJS=$(CSRC:$(CSRCDIR)/%.cpp=$(COBJDIR)/%.o)
-BOBJS=$(BSRC:$(BSRCDIR)/%.cpp=$(BOBJDIR)/%.o)
+PSRC=$(wildcard $(PSRCDIR)/*.cpp)
+BISRC=$(wildcard $(BISRCDIR)/*.cpp)
+BUOBJS=$(BUSRC:$(BUSRCDIR)/%.cpp=$(OBJDIR)/%.o)
+MOBJS=$(MSRC:$(MSRCDIR)/%.cpp=$(OBJDIR)/%.o)
+POBJS=$(PSRC:$(PSRCDIR)/%.cpp=$(OBJDIR)/%.o)
+BIOBJS=$(BISRC:$(BISRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 DICT_PAGES= $(INCLDIR)/DataStructs.h $(INCLDIR)/LinkDef_sps.h
 DICT=$(SRCDIR)/sps_dict.cxx
@@ -46,28 +42,31 @@ RCOBJ=$(OBJDIR)/RunCollector.o
 PCH_FILE=$(INCLDIR)/EventBuilder.h
 PCH=$(INCLDIR)/EventBuilder.h.gch
 
-AEXE=$(BINDIR)/analyzer
+BUEXE=$(BINDIR)/builder
 MEXE=$(BINDIR)/merger
-CEXE=$(BINDIR)/cleaner
-BEXE=$(BINDIR)/binary2root
+PEXE=$(BINDIR)/plotter
+BIEXE=$(BINDIR)/binary2root
+
+EXES = $(BUEXE) $(MEXE) $(PEXE) $(BIEXE)
+OBJS = $(BUOBJS) $(MOBJS) $(POBJS) $(BIOBJS) $(DICTOBJ) $(RCOBJ)
 
 .PHONY: all clean clean_header
 
-all: $(PCH) $(ALIBS) $(AEXE) $(MEXE) $(CEXE) $(BEXE)
+all: $(PCH) $(BUEXE) $(MEXE) $(PEXE) $(BIEXE)
 
 $(PCH): $(PCH_FILE)
 	$(CC) $(CFLAGS) -x c++-header $^
 
-$(AEXE): $(DICTOBJ) $(RCOBJ) $(AOBJS)
+$(BUEXE): $(DICTOBJ) $(RCOBJ) $(BUOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS) 
 
 $(MEXE): $(DICTOBJ) $(RCOBJ) $(MOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(CEXE): $(DICTOBJ) $(RCOBJ) $(COBJS)
+$(PEXE): $(DICTOBJ) $(RCOBJ) $(POBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(BEXE): $(LIBARCHIVE) $(RCOBJ) $(BOBJS)
+$(BIEXE): $(LIBARCHIVE) $(RCOBJ) $(BIOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(DICTOBJ): $(DICT)
@@ -89,18 +88,6 @@ $(DICT): $(DICT_PAGES)
 $(RCOBJ): $(RCSRC)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
 
-$(AOBJDIR)/%.o: $(ASRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(MOBJDIR)/%.o: $(MSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(COBJDIR)/%.o: $(CSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(BOBJDIR)/%.o: $(BSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -I $(LIBARCHIVE_INCL) -o $@ -c $^
-
 $(LIBDIR)/lib%.dylib: $(AOBJDIR)/%.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -dynamiclib -o $@
 
@@ -108,7 +95,12 @@ $(LIBDIR)/lib%.so: $(AOBJDIR)/%.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -shared -o $@
 
 clean:
-	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(ALIBS) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(DICTOBJ) $(DICTLIB) $(RCOBJ) ./$(LIBDIR)/*.pcm ./$(BINDIR)/*.pcm
+	$(RM) $(OBJS) $(EXES) $(DICT) $(DICTLIB) ./$(LIBDIR)/*.pcm ./$(BINDIR)/*.pcm
 
 clean_header:
 	$(RM) $(PCH)
+
+VPATH= $(SRCDIR):$(BUSRCDIR):$(BISRCDIR):$(MSRCDIR):$(PSRCDIR)
+
+$(OBJDIR)/%.o: %.cpp
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I $(LIBARCHIVE_INCL) -o $@ -c $^

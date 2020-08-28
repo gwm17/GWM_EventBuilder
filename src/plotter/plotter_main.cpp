@@ -1,5 +1,5 @@
 #include "EventBuilder.h"
-#include "SFPCleaner.h"
+#include "SFPPlotter.h"
 #include "RunCollector.h"
 
 using namespace std;
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
       input>>junk>>histos;
       input>>junk>>edecut>>junk>>xxcut>>junk>>excut>>junk>>dexcut;
       input.close();
-      SFPCleaner mr_clean;
+      SFPPlotter mr_clean;
       cout<<"------ SPS-SABRE Histogrammer & Cleaner ------"<<endl;
       cout<<"Data Dir: "<<data<<endl;
       cout<<"Histogram File: "<<histos<<endl;

@@ -1,4 +1,4 @@
-/*TimeSort.cpp
+/*SlowSort.cpp
  *Class designed to first time-order raw data, and then based on a given coincidence window
  *sort the raw data into coincidence structures. Utilizes dictionary elements DPPChannel and
  *CoincEvent. Based on work by S. Balak, K. Macon, and E. Good from LSU. 
@@ -8,7 +8,7 @@
  *Refurbished and updated Jan 2020 GWM
  */
 #include "EventBuilder.h"
-#include "TimeSort.h"
+#include "SlowSort.h"
 
 /*UNUSED*/
 bool MySort(DPPChannel i, DPPChannel j) {
@@ -21,7 +21,7 @@ bool SabreSort(DetectorHit i, DetectorHit j) {
 }
 
 /*Constructor takes input of coincidence window size, and fills sabre channel map*/
-TimeSort::TimeSort(float windowSize, string mapfile, string gainfile) {
+SlowSort::SlowSort(float windowSize, string mapfile, string gainfile) {
   coincWindow = windowSize;
  
   illegalGains = !gains.SetFile(gainfile); 
@@ -29,16 +29,16 @@ TimeSort::TimeSort(float windowSize, string mapfile, string gainfile) {
   else illegalMap = 0; 
 }
 
-TimeSort::~TimeSort() {
+SlowSort::~SlowSort() {
 }
 
 /*Reset output structure to blank*/
-void TimeSort::Reset() {
+void SlowSort::Reset() {
   event = blank;
 }
 
 /*Function called when a start of a coincidence event is detected*/
-void TimeSort::StartEvent() {
+void SlowSort::StartEvent() {
   if(hitList.size() != 0) {
     cerr<<"Attempting to initalize hitList when not cleared!! Check processing order."<<endl;
   }
@@ -49,7 +49,7 @@ void TimeSort::StartEvent() {
 /*Function called when an event outside the coincidence window is detected
  *Process all of the hits in the list, and write them to the sorted tree
  */
-void TimeSort::ProcessEvent() {
+void SlowSort::ProcessEvent() {
   Reset();
   /*Counters to examine Slow Event stats*/
   int dfrCount=0, dflCount=0, dbrCount=0, dblCount=0;
@@ -179,7 +179,7 @@ void TimeSort::ProcessEvent() {
 }
 
 /*Loop over all input events, function called by main*/
-void TimeSort::Run(const char *infile_name, const char *outfile_name) {
+void SlowSort::Run(const char *infile_name, const char *outfile_name) {
   if(illegalMap) {
     cerr<<"Unable to process with illegal map!"<<endl;
     return;

@@ -10,9 +10,9 @@
 #include "EventBuilder.h"
 #include <TApplication.h>
 #include "SFPAnalyzer.h"
-#include "RealTimer.h"
+#include "TimeShifter.h"
 #include "RunCollector.h"
-#include "TimeSort.h"
+#include "SlowSort.h"
 #include "FastSort.h"
 #include <chrono>
 #include <unistd.h>
@@ -141,8 +141,8 @@ int main(int argc, char *argv[]) {
           this_fast = fast+suffix;
           this_analyzed = analyzed+suffix;
 
-          RealTimer rt(scint, map, shifts);
-          TimeSort no_hope(cw, map, gains);
+          TimeShifter rt(scint, map, shifts);
+          SlowSort no_hope(cw, map, gains);
           FastSort help_me(si_fcw, ion_fcw, map);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
 

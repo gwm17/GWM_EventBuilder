@@ -1,4 +1,4 @@
-/*RealTimer.cpp
+/*TimeShifter.cpp
  *Class used to shift timestamps of the SABRE detector and the scintillator
  *of the focal plane, so that time-order is such that the scintllator, SABRE,
  *and a specific piece of the ion chamber (usually an anode) are all coincident
@@ -10,12 +10,12 @@
  */
 
 #include "EventBuilder.h"
-#include "RealTimer.h"
+#include "TimeShifter.h"
 
 using namespace std;
 
 /*Take unsigned int inputs and store in signed ints, as this is the type of the timestamp*/
-RealTimer::RealTimer(Int_t plast, string mapfile, string shiftfile) {
+TimeShifter::TimeShifter(Int_t plast, string mapfile, string shiftfile) {
   SCINT_OFFSET = plast;
   if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
   else illegalMap = 0;
@@ -23,10 +23,10 @@ RealTimer::RealTimer(Int_t plast, string mapfile, string shiftfile) {
   shifts.SetShiftMap(shiftfile);
 }
 
-RealTimer::~RealTimer(){}
+TimeShifter::~TimeShifter(){}
 
 /*Actual work of class*/
-void RealTimer::Run(string in, string out) {
+void TimeShifter::Run(string in, string out) {
   if(illegalMap) {
     cerr<<"Unable to timeshift with illegal map!"<<endl;
     return;

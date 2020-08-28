@@ -1,4 +1,4 @@
-/*SFPCleaner.h
+/*SFPPlotter.h
  *Class for generating histogram files for SPS-SABRE data
  *Intended use case is generating a TChain of multiple analyzed files and making
  *histograms of the larger data set.
@@ -7,10 +7,10 @@
  */
 
 #include "EventBuilder.h"
-#include "SFPCleaner.h"
+#include "SFPPlotter.h"
 
 /*Generates storage and initializes pointers*/
-SFPCleaner::SFPCleaner() {
+SFPPlotter::SFPPlotter() {
   rootObj = new THashTable();
   rootObj->SetOwner(false);//THashTable doesnt own members; avoid double delete
   event_address = new ProcessedEvent();
@@ -24,7 +24,7 @@ SFPCleaner::SFPCleaner() {
 }
 
 /*UNUSED*/
-SFPCleaner::SFPCleaner(bool tf) {
+SFPPlotter::SFPPlotter(bool tf) {
   rootObj = new THashTable();
   rootObj->SetOwner(false);
   event_address = new ProcessedEvent();
@@ -36,7 +36,7 @@ SFPCleaner::SFPCleaner(bool tf) {
   EdECut = NULL, ExCut = NULL, dExCut = NULL, x1x2Cut = NULL;
 }
 
-SFPCleaner::~SFPCleaner() {
+SFPPlotter::~SFPPlotter() {
   delete event_address;
   if(edefile != NULL && edefile->IsOpen()) edefile->Close();
   if(dexfile != NULL && dexfile->IsOpen()) dexfile->Close();
@@ -45,7 +45,7 @@ SFPCleaner::~SFPCleaner() {
 }
 
 /*2D histogram fill wrapper*/
-void SFPCleaner::MyFill(string name, int binsx, double minx, double maxx, double valuex,
+void SFPPlotter::MyFill(string name, int binsx, double minx, double maxx, double valuex,
                                       int binsy, double miny, double maxy, double valuey) {
   TH2F *histo = (TH2F*) rootObj->FindObject(name.c_str());
   if(histo != NULL) {
@@ -58,7 +58,7 @@ void SFPCleaner::MyFill(string name, int binsx, double minx, double maxx, double
 }
 
 /*1D histogram fill wrapper*/
-void SFPCleaner::MyFill(string name, int binsx, double minx, double maxx, double valuex) {
+void SFPPlotter::MyFill(string name, int binsx, double minx, double maxx, double valuex) {
   TH1F *histo = (TH1F*) rootObj->FindObject(name.c_str());
   if(histo != NULL) {
     histo->Fill(valuex);
@@ -69,7 +69,7 @@ void SFPCleaner::MyFill(string name, int binsx, double minx, double maxx, double
   }
 }
 
-void SFPCleaner::Reset() {
+void SFPPlotter::Reset() {
   event = empty;
 }
 
@@ -77,7 +77,7 @@ void SFPCleaner::Reset() {
  *has to be used in current design!
  *User will probably want to change number of cuts and their names
  */
-int SFPCleaner::SetCuts(string edename, string dexname, string exname, string xxname) {
+int SFPPlotter::SetCuts(string edename, string dexname, string exname, string xxname) {
   edefile = new TFile(edename.c_str(), "READ");
   if(edefile->IsOpen()) {
     EdECut = (TCutG*) edefile->Get("CUTG");
@@ -110,7 +110,7 @@ int SFPCleaner::SetCuts(string edename, string dexname, string exname, string xx
 }
 
 /*Makes histograms where only rejection is unset data*/
-void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
+void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
   if(ev.x1 != -1e6 && ev.x2 != -1e6) {
     MyFill("x1NoCuts_bothplanes",600,-300,300,ev.x2);
     MyFill("x2NoCuts_bothplanes",600,-300,300,ev.x2);
@@ -171,14 +171,20 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
     } else {
       MyFill("noscinttime_counter_NoCuts",2,0,1,1);
     }
-   
+ 
+    int count = 0;  
     for(int i=0; i<5; i++) { 
       if(ev.sabreRingE[i] != -1) { //Again, at this point front&back are required
         MyFill("sabreRingE_NoCuts",2000,0,20,ev.sabreRingE[i]);
         MyFill("sabreRingChannel_sabreRingE_NoCuts",144,0,144,ev.sabreRingChannel[i],200,0,20,ev.sabreRingE[i]);
         MyFill("sabreWedgeE_NoCuts",2000,0,20,ev.sabreWedgeE[i]);
         MyFill("sabreWedgeChannel_sabreWedgeE_NoCuts",144,0,144,ev.sabreWedgeChannel[i],200,0,20,ev.sabreWedgeE[i]);
+      } else {
+        count++;
       }
+    }
+    if(count == 80) {
+      MyFill("xavg_bothplanes_sabreanticoinc_NoCuts",600,-300,300,ev.xavg);
     }
   } else if(ev.x1 != -1e6) {
     MyFill("x1NoCuts_only1plane",600,-300,300,ev.x1);
@@ -190,7 +196,7 @@ void SFPCleaner::MakeUncutHistograms(ProcessedEvent ev) {
 }
 
 /*Makes histograms with cuts & gates implemented*/
-void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
+void SFPPlotter::MakeCutHistograms(ProcessedEvent ev) {
   if(EdECut->IsInside(ev.scintLeft, ev.delayBackRightE) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
     MyFill("x1_bothplanes_edecut",600,-300,300,ev.x2);
     MyFill("x2_bothplanes_edecut",600,-300,300,ev.x2);
@@ -234,6 +240,7 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
       MyFill("noscinttime_counter_edecut",2,0,1,1);
     }
     
+    int count = 0;
     for(int i=0; i<5; i++) {
       if(ev.sabreRingE[i] != -1) {
         MyFill("sabreRingE_edecut",2000,0,20,ev.sabreRingE[i]);
@@ -241,13 +248,18 @@ void SFPCleaner::MakeCutHistograms(ProcessedEvent ev) {
         MyFill("xavg_sabreRingE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreRingE[i]);
         MyFill("sabreWedgeE_edecut",2000,0,20,ev.sabreWedgeE[i]);
         MyFill("xavg_sabreWedgeE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreWedgeE[i]);
+      } else {
+        count++;
       }
+    }
+    if(count == 80) {
+      MyFill("xavg_bothplanes_sabreanticoinc_edecut",600,-300,300,ev.xavg);
     }
   }
 }
 
 /*Runs a list of files given from a RunMusher/Collector class*/
-void SFPCleaner::Run(vector<TString> files, string output) {
+void SFPPlotter::Run(vector<TString> files, string output) {
   Chain(files);
   chain->SetBranchAddress("event", &event_address);
   TFile *outfile = new TFile(output.c_str(), "RECREATE");
@@ -274,7 +286,7 @@ void SFPCleaner::Run(vector<TString> files, string output) {
 }
 
 /*Link all files*/
-void SFPCleaner::Chain(vector<TString> files) {
+void SFPPlotter::Chain(vector<TString> files) {
   for(unsigned int i=0; i<files.size(); i++) {
     chain->Add(files[i]); 
   }

@@ -1,3 +1,3 @@
-DataDir: /data1/gwm17/10B3He/Jan2020/analyzed/
-MinRun: 45  MaxRun: -1
-RawFile: /data1/gwm17/10B3He/Jan2020/combined/compass_10B_20deg_noexttrig_fulldata_trimmed_fixedcond_1msScint_2mscw.root
+DataDir: /Volumes/LaCie/9BMarch2020/analyzed/
+MinRun: 0  MaxRun: 102
+RawFile: /Volumes/LaCie/9BMarch2020/combined/combined_sorted_0.65sco_1.5cw_fixedTheta.root

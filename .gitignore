@@ -1,6 +1,7 @@
 ###directories to ignore###
 ./rootfiles/
 ./pics/
+./hotfixes/
 
 ###file types to ignore###
 *.swp
@@ -10,6 +11,8 @@
 *.pcm
 *.jpg
 *.png
+*.sublime-project
+*.sublime-workspace
 
 ###include this###
 !.gitignore

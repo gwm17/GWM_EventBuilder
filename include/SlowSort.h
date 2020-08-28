@@ -1,4 +1,4 @@
-/*TimeSort.h
+/*SlowSort.h
  *Class designed to first time-order raw data, and then based on a given coincidence window
  *sort the raw data into coincidence structures. Utilizes dictionary elements DPPChannel and
  *CoincEvent. Based on work by S. Balak, K. Macon, and E. Good from LSU. 
@@ -17,11 +17,11 @@
 
 using namespace std;
 
-class TimeSort {
+class SlowSort {
 
   public:
-    TimeSort(float windowSize, string mapfile, string gainfile);
-    ~TimeSort();
+    SlowSort(float windowSize, string mapfile, string gainfile);
+    ~SlowSort();
     void Run(const char *infile_name, const char *outfile_name);
 
     /****** Data Counters *******/
@@ -66,7 +66,7 @@ class TimeSort {
       scintL_id = 16*8+1,
       cath_id = 16*8+7
     };
-    
+ 
 };
 
 #endif

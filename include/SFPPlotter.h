@@ -1,4 +1,4 @@
-/*SFPCleaner.h
+/*SFPPlotter.h
  *Class for generating histogram files for SPS-SABRE data
  *Intended use case is generating a TChain of multiple analyzed files and making
  *histograms of the larger data set.
@@ -13,11 +13,11 @@
 
 using namespace std;
 
-class SFPCleaner {
+class SFPPlotter {
   public:
-    SFPCleaner();
-    SFPCleaner(bool tf);
-    ~SFPCleaner();
+    SFPPlotter();
+    SFPPlotter(bool tf);
+    ~SFPPlotter();
     int SetCuts(string edename, string dexname, string exname, string xxname);
     void Run(vector<TString> files, string output);
 

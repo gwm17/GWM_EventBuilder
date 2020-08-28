@@ -1,0 +1,15 @@
+Event building statistics for most recent build
+---------'Good' Events-----------
+Total number of events found: 1.17447e+06
+Number of complete (2 anode, all delay line, scint) FP events: 176713
+Number of complete FP events with SABRE: 51088
+Number of complete FP events with multi hits: 11850
+---------------------------------
+----------'Bad' Events-----------
+Number of orphaned (missing fp data) SABRE events: 151519
+Number of SABRE orphans without a scint: 1723
+Number of orphaned (missing fp data) focal plane events: 946667
+Number of FP orphans missing anode or delay: 52852
+Number of FP orphans missing a scint: 86389
+Number of scintillator singles: 807426
+---------------------------------

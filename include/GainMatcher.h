@@ -5,8 +5,8 @@
  *Created Jan 2020 by GWM
  */
 
-#ifndef GAIN_MATCHER_H
-#define GAIN_MATCHER_H
+#ifndef GAIN_MATCH_MAP_H
+#define GAIN_MATCH_MAP_H
 
 using namespace std;
 

@@ -67,6 +67,7 @@ void FastSort::ProcessSABRE(unsigned int scint_index) {
   for(int i=0; i<5; i++) { //loop over SABRE silicons
     vector<DetectorHit> rings;
     vector<DetectorHit> wedges;
+    //if(i==0 || i==1) cout<<"Detector"<<i<<": ringsize = "<<slowEvent.sabreArray[i].rings.size()<<" wedgesize = "<<slowEvent.sabreArray[i].wedges.size()<<endl;
     /*Dump sabre data that doesnt fall within the fast coincidence window with the scint*/
     for(unsigned int j=0; j<slowEvent.sabreArray[i].rings.size(); j++) {
       float sabreRelTime = fabs(slowEvent.sabreArray[i].rings[j].Time - slowEvent.focalPlane.scintL[scint_index].Time);
@@ -122,6 +123,8 @@ void FastSort::Run(const char *infile_name, const char *outfile_name) {
   }
   TFile *input = new TFile(infile_name, "READ");
   TTree *intree = (TTree*) input->Get("SortTree");
+  intree->SetMaxVirtualSize(4000000000);
+
   TFile *output = new TFile(outfile_name, "RECREATE");
   TTree *outtree = new TTree("SortTree","SortTree");
 
@@ -161,6 +164,7 @@ void FastSort::Run(const char *infile_name, const char *outfile_name) {
         ProcessFocalPlane(i, j);
         outtree->Fill();
       }
+      //if(fastEvent.focalPlane.anodeB.size() == 0) outtree->Fill();
     }
   }
   cout<<endl;

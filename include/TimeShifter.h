@@ -1,4 +1,4 @@
-/*RealTimer.h
+/*TimeShifter.h
  *Class used to shift timestamps of the SABRE detector and the scintillator
  *of the focal plane, so that time-order is such that the scintllator, SABRE,
  *and a specific piece of the ion chamber (usually an anode) are all coincident
@@ -17,10 +17,10 @@
 
 using namespace std;
 
-class RealTimer {
+class TimeShifter {
   public:
-    RealTimer(Int_t plast, string mapfile, string shiftfile);
-    ~RealTimer();
+    TimeShifter(Int_t plast, string mapfile, string shiftfile);
+    ~TimeShifter();
     void Run(string in, string out);
 
   private:

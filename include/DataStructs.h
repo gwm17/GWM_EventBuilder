@@ -32,7 +32,7 @@ struct FPDetector {
 
 struct CoincEvent {
   FPDetector focalPlane;
-  SabreDetector sabreArray[5]; //0=A 1=B 2=C 3=D 4=E
+  SabreDetector sabreArray[5]; //index = ChannelMap Id# -1
 };
 
 struct ProcessedEvent {
@@ -54,7 +54,7 @@ struct ProcessedEvent {
   Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;
   Double_t cathodeTime = -1;
 
-  SabreDetector sabreArray[5]; //0=A 1=B 2=C 4=D 4=E
+  SabreDetector sabreArray[5]; //index = ChannelMap Id# -1
 };
 
 #endif

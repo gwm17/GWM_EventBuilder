@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
       cout<<"-------------------"<<endl;
       cout<<"Data Directory: "<<dir<<endl;
       cout<<"Merged file: "<<raw<<endl;
-      if(max > 0 && min > 0) {
+      if(max >= 0 && min >= 0) {
         RunCollector rc(dir, "", ".root", min, max);
         rc.Merge_TChain(raw);
       } else {

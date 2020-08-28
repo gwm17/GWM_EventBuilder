@@ -127,7 +127,7 @@ int RunCollector::Merge_hadd(string outname) {
 
 int RunCollector::Merge_TChain(string outname) {
   TFile *output = new TFile(outname.c_str(), "RECREATE");
-  TChain *chain = new TChain("SortTree", "SortTree");
+  TChain *chain = new TChain("SPSTree", "SPSTree");
   
   if(MaxRun == LITERALMAX) {
     if(GrabAllFiles()) { 
