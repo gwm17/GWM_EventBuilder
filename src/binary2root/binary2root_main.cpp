@@ -1,8 +1,4 @@
 #include "EventBuilder.h"
-//#include <iostream>
-//#include <fstream>
-//#include <string>
-//#include <vector>
 #include "CompassUnpacker.h"
 #include "RunCollector.h"
 
@@ -33,6 +29,7 @@ int main(int argc, char *argv[]) {
     }
     if(validity) {
       string raw, this_data, this_output;
+      CompassUnpacker goodluck;
       for(unsigned int i=0; i<filelist.size(); i++) {
         gROOT->Reset();
         string raw = filelist[i].Data();
@@ -55,8 +52,10 @@ int main(int argc, char *argv[]) {
         }
         this_data = data+suffix;
         this_output = output+"compass_"+suffix_sans_filetype+".root";
-        CompassUnpacker goodluck(this_data);
-        goodluck.Run(this_output);
+        if(goodluck.AttachToArchive(this_data)) {
+          goodluck.Run(this_output);
+          goodluck.ReleaseCurrentArchive();
+        }
       }
     }
     cout<<"-----------------------------"<<endl;

@@ -1,3 +1,3 @@
-DataFile: /Volumes/LaCie/9BMarch2020/raw_binary_singles/
-MinRun: 74 MaxRun: -77
-OutputFile: /Volumes/LaCie/9BMarch2020/raw_root_singles/
+DataFile: /Volumes/LaCie/9BMarch2020/raw_binary/
+MinRun: 98 MaxRun: 99
+OutputFile: /Volumes/LaCie/9BMarch2020/

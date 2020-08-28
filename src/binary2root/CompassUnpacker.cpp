@@ -1,63 +1,98 @@
 #include "EventBuilder.h"
 #include "CompassUnpacker.h"
 
-using namespace std;
 
-CompassUnpacker::CompassUnpacker(string file_name){
-  fatalFlag = false;
-  TString test(file_name.c_str());
-  if(test.EndsWith(".tar.gz")) {
-    archiveFlag = true;
-    inputArchive = archive_read_new();
-    archive_read_support_filter_all(inputArchive);
-    archive_read_support_format_all(inputArchive);
-    archiveWarning = archive_read_open_filename(inputArchive, file_name.c_str(), 10240);
-    if(archiveWarning == ARCHIVE_FATAL) {
-      cerr<<"Unable to open archive! Check file name in input."<<endl;
-      fatalFlag = true;
-    } else if (archiveWarning == ARCHIVE_WARN) {
-      cerr<<"Archive opened with warnings!"<<endl;
-      cerr<<"Warning given as: "<<archive_error_string(inputArchive)<<endl;
-    } else if(archiveWarning == ARCHIVE_OK) {
-      cout<<"Succesfully opened archive: "<<file_name<<endl;
-      cout<<"Beginning unpacking..."<<endl;
-    }
-    archiveWarning = archive_read_next_header(inputArchive, &entry);
-    cout<<"Number of files in archive: "<<archive_file_count(inputArchive)<<endl;
-    if(archiveWarning != ARCHIVE_OK) {
-      cerr<<"Unable to read first header, archive may be not correct format!"<<endl;
-      fatalFlag = true;
-    }
-  } else {
-    archiveFlag = false;
-    inputArchive = NULL;
-    inputFile.open(file_name, ios::binary);
-    if(inputFile.is_open()) {
-      cout<<"Succesfully opened file: "<<file_name<<endl;
-      cout<<"Beginning unpacking..."<<endl;
-    } else {
-      cerr<<"Unable to open file! Check file name in input."<<endl;
-      fatalFlag = true;
-    }
-  }
+CompassUnpacker::CompassUnpacker(){
+  fatalFlag = true;
+  archiveFlag = false;
+  inputArchive = NULL;
 }
 
 CompassUnpacker::~CompassUnpacker() {
   if(inputArchive) {
     archiveWarning = archive_read_free(inputArchive);
     if(archiveWarning != ARCHIVE_OK) {
-      cerr<<"Error in releasing archive from memory"<<endl;
+      std::cerr<<"Error in releasing archive from memory"<<std::endl;
     }
   }
 }
 
+bool CompassUnpacker::AttachToArchive(std::string& archive_name) {
+  fatalFlag = true;
+  TString test(archive_name.c_str());
+  if(test.EndsWith(".tar.gz") && inputArchive == NULL) {
+    archiveFlag = true;
+    inputArchive = archive_read_new();
+    archive_read_support_filter_all(inputArchive);
+    archive_read_support_format_all(inputArchive);
+    archiveWarning = archive_read_open_filename(inputArchive, archive_name.c_str(), 10240);
+    if(archiveWarning == ARCHIVE_FATAL) {
+      std::cerr<<"Unable to open archive! Check file name in input."<<std::endl;
+    } else if (archiveWarning == ARCHIVE_WARN) {
+      std::cerr<<"Archive opened with warnings!"<<std::endl;
+      std::cerr<<"Warning given as: "<<archive_error_string(inputArchive)<<std::endl;
+      fatalFlag = false;
+    } else if(archiveWarning == ARCHIVE_OK) {
+      std::cout<<"Succesfully opened archive: "<<archive_name<<std::endl;
+      std::cout<<"Beginning unpacking..."<<std::endl;
+      fatalFlag = false;
+    }
+    archiveWarning = archive_read_next_header(inputArchive, &entry);
+    std::cout<<"Number of files in archive: "<<archive_file_count(inputArchive)<<std::endl;
+    if(archiveWarning != ARCHIVE_OK) {
+      std::cerr<<"Unable to read first header, archive may be not correct format!"<<std::endl;
+    }
+  } else {
+    std::cerr<<"Formating is incorrect! Make sure that this is a .tar.gz archive and that the previous archive was freed"<<std::endl;
+  }
+  return !fatalFlag;
+}
+
+bool CompassUnpacker::ReleaseCurrentArchive() {
+  if(inputArchive) {
+    archiveWarning = archive_read_free(inputArchive);
+    inputArchive = NULL;
+    if(archiveWarning != ARCHIVE_OK) {
+      std::cerr<<"Error in releasing archive from memory! Stopping binary2root"<<std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
+bool CompassUnpacker::AttachToFile(std::string& file_name) {
+  fatalFlag = true;
+  archiveFlag = false;
+  inputArchive = NULL;
+  if(!inputFile.is_open()) {
+    inputFile.open(file_name, std::ios::binary);
+    if(inputFile.is_open()) {
+      std::cout<<"Succesfully opened file: "<<file_name<<std::endl;
+      std::cout<<"Beginning unpacking..."<<std::endl;
+      fatalFlag = false;
+    } else {
+      std::cerr<<"Unable to open file! Check file name in input."<<std::endl;
+    }
+  } else {
+    std::cerr<<"Previous file was not closed! Stopping binary2root"<<std::endl;
+  }
+  return !fatalFlag;
+}
+
+bool CompassUnpacker::ReleaseCurrentFile() {
+  if(inputFile.is_open()) {
+    inputFile.close();
+  }
+  return true;
+}
+
 /*******TESTING*********/
 void CompassUnpacker::VomitInfo() {
-  cout<<"Dumping out all data:"<<endl;
-  cout<<"Timestamp: "<<hit.timestamp<<" Energy: "<<hit.lgate<<" EnergyShort: "<<hit.sgate;
-  cout<<" Board: "<<hit.board<<" Channel: "<<hit.channel<<endl;
+  std::cout<<"Dumping out all data:"<<std::endl;
+  std::cout<<"Timestamp: "<<hit.timestamp<<" Energy: "<<hit.lgate<<" EnergyShort: "<<hit.sgate;
+  std::cout<<" Board: "<<hit.board<<" Channel: "<<hit.channel<<std::endl;
   if(hit.board == 400 || hit.channel == 400) {
-    cout<<"Illegal board/channel value, this one is dumped."<<endl;
+    std::cout<<"Illegal board/channel value, this one is dumped."<<std::endl;
   }
 }
 
@@ -111,32 +146,32 @@ bool CompassUnpacker::MoveToNextFile() {
   archiveWarning = archive_read_next_header(inputArchive, &entry);
   switch(archiveWarning) {
     case(ARCHIVE_EOF):
-      cout<<"Reached end of archive."<<endl;
+      std::cout<<"Reached end of archive."<<std::endl;
       return true;
     case(ARCHIVE_WARN): 
-      cerr<<"Received warning on accesing archive header"<<endl;
-      cerr<<"Warning value: "<<archive_error_string(inputArchive)<<endl;
-      cerr<<"Continuing operations..."<<endl;
+      std::cerr<<"Received warning on accesing archive header"<<std::endl;
+      std::cerr<<"Warning value: "<<archive_error_string(inputArchive)<<std::endl;
+      std::cerr<<"Continuing operations..."<<std::endl;
       return false;
     case(ARCHIVE_FATAL):
-      cerr<<"Received fatal signal from archive!"<<endl;
-      cerr<<"Killing operations."<<endl;
+      std::cerr<<"Received fatal signal from archive!"<<std::endl;
+      std::cerr<<"Killing operations."<<std::endl;
       return true;
     case(ARCHIVE_OK):
-      cout<<"Parsing next file in archive: "<<archive_entry_pathname(entry)<<endl;
+      std::cout<<"Parsing next file in archive: "<<archive_entry_pathname(entry)<<std::endl;
       return false;
     case(ARCHIVE_FAILED):
-      cerr<<"Undefined archive entry, unable to parse."<<endl;
-      cerr<<"Killing operations"<<endl;
+      std::cerr<<"Undefined archive entry, unable to parse."<<std::endl;
+      std::cerr<<"Killing operations"<<std::endl;
       return true;
   }
-  cerr<<"Undefined archive behavior... Killing operations."<<endl;
+  std::cerr<<"Undefined archive behavior... Killing operations."<<std::endl;
   return true;
 }
 
-void CompassUnpacker::Run(string output_name) {
+void CompassUnpacker::Run(std::string output_name) {
   if(fatalFlag) {
-    cerr<<"Fatal error detected, ending program abnormally."<<endl;
+    std::cerr<<"Fatal error detected, ending program abnormally."<<std::endl;
     return;
   } else {
     TFile *outputFile = new TFile(output_name.c_str(), "RECREATE");
