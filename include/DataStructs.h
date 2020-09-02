@@ -11,7 +11,6 @@ using namespace std;
 struct DPPChannel {
   Double_t Timestamp;
   Int_t Channel, Board, Energy, EnergyShort;
-  string Name;
   Int_t Flags;
 };
 

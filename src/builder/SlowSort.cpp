@@ -10,21 +10,15 @@
 #include "EventBuilder.h"
 #include "SlowSort.h"
 
-/*UNUSED*/
-bool MySort(DPPChannel i, DPPChannel j) {
-  return (i.Timestamp<j.Timestamp);
-}
-
 /*Sort the Sabre Data in order of descending energy*/
 bool SabreSort(DetectorHit i, DetectorHit j) {
   return (i.Long>j.Long);
 }
 
 /*Constructor takes input of coincidence window size, and fills sabre channel map*/
-SlowSort::SlowSort(float windowSize, string mapfile, string gainfile) {
+SlowSort::SlowSort(float windowSize, string& mapfile) {
   coincWindow = windowSize;
  
-  illegalGains = !gains.SetFile(gainfile); 
   if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
   else illegalMap = 0; 
 }
@@ -56,10 +50,10 @@ void SlowSort::ProcessEvent() {
   int slCount=0, srCount=0, afCount=0, abCount=0;
   int safCount=0, sawCount = 0;
   DetectorHit dhit, dblank;
-  for(unsigned long i=0; i<hitList.size(); i++) {
-    DPPChannel curHit = hitList[i];
+  int gchan;
+  for(DPPChannel& curHit: hitList) {
     dhit = dblank; //just in case one of the data points is bad
-    int gchan = curHit.Channel + curHit.Board*16; //global channel
+    gchan = curHit.Channel + curHit.Board*16; //global channel
     switch(gchan) {//switch over focal plane
       case delayFL_id:
         dhit.Time = ((Double_t)curHit.Timestamp)/1.0e3;
@@ -123,8 +117,27 @@ void SlowSort::ProcessEvent() {
         dhit.Long = curHit.Energy;
         event.focalPlane.cathode.push_back(dhit);
         break;
+      default: 
+      {
+        auto iter = smap.find(gchan);
+        if(iter == smap.end()) {
+          break;
+        } else if(iter->second.side_pos.first == "RING" && curHit.Energy < 16384) {
+          dhit.Long = curHit.Energy;
+          dhit.Time = (Double_t) curHit.Timestamp/1.0e3;
+          dhit.Ch = curHit.Channel+curHit.Board*16;
+          event.sabreArray[iter->second.detID].rings.push_back(dhit);
+          safCount++;
+        } else if(iter->second.side_pos.first == "WEDGE" && curHit.Energy < 16384) {
+          dhit.Long = curHit.Energy;
+          dhit.Time = (Double_t) curHit.Timestamp/1.0e3;
+          dhit.Ch = curHit.Channel+curHit.Board*16;
+          event.sabreArray[iter->second.detID].wedges.push_back(dhit);
+          sawCount++;
+        }
+      }
     }
-    try {/*see if this is a sabre channel*/
+    /*try {//see if this is a sabre channel
       sabrechan sc = smap.at(gchan); //throws out_of_range if not a valid member
       if(sc.side_pos.first == "RING" && curHit.Energy<16384 && (curHit.Energy<sc.ECutLo || curHit.Energy>sc.ECutHi) ) {
         dhit.Long = curHit.Energy;
@@ -140,7 +153,7 @@ void SlowSort::ProcessEvent() {
         event.sabreArray[sc.detID].wedges.push_back(dhit);
         sawCount++;
       }
-    } catch (out_of_range& orr) {} //dont do anything if not sabre
+    } catch (out_of_range& orr) {}*/ //dont do anything if not sabre
   }
   //Organize the SABRE data in descending energy order
   for(int s=0; s<5; s++) {
@@ -149,7 +162,8 @@ void SlowSort::ProcessEvent() {
   }
 
   //Event Building Stats
-  if((dflCount&&dfrCount&&dblCount&&dbrCount&&afCount&&abCount&&slCount&&srCount)&&(sawCount||safCount)) {
+  /*FOR TESTING*/
+  /*if((dflCount&&dfrCount&&dblCount&&dbrCount&&afCount&&abCount&&slCount&&srCount)&&(sawCount||safCount)) {
     completeFP_SABRE++;
     if(dflCount>1 || dfrCount>1 || dblCount>1 || dbrCount>1 || afCount>1 || abCount>1 || slCount>1 || srCount>1) {
       FPextras++;
@@ -175,7 +189,7 @@ void SlowSort::ProcessEvent() {
       FPorphans_nogas++;
     }
   }
-  totalEvents++;
+  totalEvents++;*/
 }
 
 /*Loop over all input events, function called by main*/
@@ -184,9 +198,7 @@ void SlowSort::Run(const char *infile_name, const char *outfile_name) {
     cerr<<"Unable to process with illegal map!"<<endl;
     return;
   }
-  if(illegalGains) {
-    cout<<"Warning: bad gain matching file! Gains will not be matched"<<endl;
-  }
+
   TFile* compFile = new TFile(infile_name, "READ");
   TTree* compassTree = (TTree*) compFile->Get("Data");
   TFile* outputFile = new TFile(outfile_name, "RECREATE");
@@ -203,25 +215,28 @@ void SlowSort::Run(const char *infile_name, const char *outfile_name) {
   startTime = 0; previousHitTime = 0; //initialize
   
   Int_t blentries = compassTree->GetEntries();
-  cout<<setprecision(5)<<fixed;
+  cout<<setprecision(0)<<fixed;
  
   /*SetMaxVirtualSize supposedly increases the tree buffer size to the specified size;
    *behavior is not trivial, and is not reasonable for large files
    */
-  compassTree->SetMaxVirtualSize(4000000000);
-  compassTree->BuildIndex("0", "Timestamp");//Sort tree based on Timestamp
+  //compassTree->SetMaxVirtualSize(4000000000);
+  //compassTree->BuildIndex("0", "Timestamp");//Sort tree based on Timestamp
   /*Next two steps get the index of the sorted tree*/
-  TTreeIndex *tindex = (TTreeIndex*) compassTree->GetTreeIndex();
-  Long64_t *index = tindex->GetIndex();
+  //TTreeIndex *tindex = (TTreeIndex*) compassTree->GetTreeIndex();
+  //Long64_t *index = tindex->GetIndex();
   Float_t place;
   completeFP = 0; completeFP_SABRE = 0; SABREorphans = 0; FPorphans = 0; FPextras = 0; totalEvents = 0;
   FPorphans_partial = 0; FPorphans_noscint=0; FPorphans_nogas = 0; SABREorphans_noscint = 0;
   for(ULong64_t i=0; i<compassTree->GetEntries(); i++) {
-    compassTree->GetEntry(index[i]);
+    //compassTree->GetEntry(index[i]);
+    compassTree->GetEntry(i);
+
     place = ((long double)i)/blentries*100;
     if(fmod(place, 10.0) == 0) { //Non-continuous progress update
       cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
     }
+
     if(hitList.empty()) {//first hit in file starts first event
       StartEvent();
     } else if (hit.Timestamp < previousHitTime) {//out of order check
@@ -236,6 +251,7 @@ void SlowSort::Run(const char *infile_name, const char *outfile_name) {
       hitList.resize(0);
       StartEvent();
     }
+
     previousHitTime = hit.Timestamp;
   }
   cout<<endl;

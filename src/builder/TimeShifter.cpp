@@ -14,6 +14,10 @@
 
 using namespace std;
 
+bool MySort(DPPChannel& i, DPPChannel& j) {
+  return (i.Timestamp<j.Timestamp);
+}
+
 /*Take unsigned int inputs and store in signed ints, as this is the type of the timestamp*/
 TimeShifter::TimeShifter(Int_t plast, string mapfile, string shiftfile) {
   SCINT_OFFSET = plast;
@@ -27,6 +31,7 @@ TimeShifter::~TimeShifter(){}
 
 /*Actual work of class*/
 void TimeShifter::Run(string in, string out) {
+  vector<DPPChannel> entry_list;
   if(illegalMap) {
     cerr<<"Unable to timeshift with illegal map!"<<endl;
     return;
@@ -61,10 +66,12 @@ void TimeShifter::Run(string in, string out) {
   cout<<"Shifting the timestamps of SABRE and the scintillator..."<<endl;
   Float_t blentries = intree->GetEntries();
   Float_t place;
+
+  entry_list.reserve(intree->GetEntries());
   for(ULong64_t i=0; i<intree->GetEntries(); i++) {
     intree->GetEntry(i);
 
-    /*Convert out of unsigned land (that we were in for no reason)*/
+    /*Convert out of unsigned land (that we were in for no reason other than I guess bit minimization)*/
     hit.Energy = e;
     hit.EnergyShort = es;
     hit.Channel = c;
@@ -79,22 +86,29 @@ void TimeShifter::Run(string in, string out) {
     gchan = hit.Board*16+hit.Channel;
     if(smap[gchan].side_pos.first=="RING" || smap[gchan].side_pos.first=="WEDGE"){
       hit.Timestamp += shifts.GetShift(hit.Board);
-      /*if(hit.Board == 3) { //GWM temporary measure to account for board offsets... these should be for each board, not just scint & si
-        hit.Timestamp += (SI_OFFSET-3e5);
-      } else {
-        hit.Timestamp += SI_OFFSET;
-      }*/
     } else if (hit.Board == 8 && (hit.Channel == 0 || hit.Channel == 1)) {/*Scint*/
       hit.Timestamp += SCINT_OFFSET;
     }
-    outtree->Fill();
+    entry_list.push_back(hit);
+    //outtree->Fill();
   }
   cout<<endl;
   cout<<"Timestamps succesfully shifted"<<endl;
   input->Close();
+
+  //Time-order data
+  sort(entry_list.begin(), entry_list.end(), MySort);
+  cout<<"Time-ordering data..."<<endl;
+  for(auto& entry: entry_list) {
+    hit = entry;
+    outtree->Fill();
+  }
+  cout<<"Data written in order."<<endl;
+
   output->cd();
   outtree->Write(outtree->GetName(), TObject::kOverwrite);
   output->Close();
   delete input;
   delete output;
+
 }

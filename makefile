@@ -39,6 +39,9 @@ DICTLIB=$(LIBDIR)/libSPSDict
 RCSRC=$(SRCDIR)/RunCollector.cpp
 RCOBJ=$(OBJDIR)/RunCollector.o
 
+SWSRC=$(SRCDIR)/Stopwatch.cpp
+SWOBJ=$(OBJDIR)/Stopwatch.o
+
 PCH_FILE=$(INCLDIR)/EventBuilder.h
 PCH=$(INCLDIR)/EventBuilder.h.gch
 
@@ -48,7 +51,7 @@ PEXE=$(BINDIR)/plotter
 BIEXE=$(BINDIR)/binary2root
 
 EXES = $(BUEXE) $(MEXE) $(PEXE) $(BIEXE)
-OBJS = $(BUOBJS) $(MOBJS) $(POBJS) $(BIOBJS) $(DICTOBJ) $(RCOBJ)
+OBJS = $(BUOBJS) $(MOBJS) $(POBJS) $(BIOBJS) $(DICTOBJ) $(RCOBJ) $(SWOBJ)
 
 .PHONY: all clean clean_header
 
@@ -57,16 +60,16 @@ all: $(PCH) $(BUEXE) $(MEXE) $(PEXE) $(BIEXE)
 $(PCH): $(PCH_FILE)
 	$(CC) $(CFLAGS) -x c++-header $^
 
-$(BUEXE): $(DICTOBJ) $(RCOBJ) $(BUOBJS)
+$(BUEXE): $(DICTOBJ) $(RCOBJ) $(SWOBJ) $(BUOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS) 
 
-$(MEXE): $(DICTOBJ) $(RCOBJ) $(MOBJS)
+$(MEXE): $(DICTOBJ) $(RCOBJ) $(SWOBJ) $(MOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(PEXE): $(DICTOBJ) $(RCOBJ) $(POBJS)
+$(PEXE): $(DICTOBJ) $(RCOBJ) $(SWOBJ) $(POBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(BIEXE): $(LIBARCHIVE) $(RCOBJ) $(BIOBJS)
+$(BIEXE): $(LIBARCHIVE) $(RCOBJ) $(SWOBJ) $(BIOBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(DICTOBJ): $(DICT)

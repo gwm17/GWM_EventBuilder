@@ -14,7 +14,7 @@
 #include "RunCollector.h"
 #include "SlowSort.h"
 #include "FastSort.h"
-#include <chrono>
+#include "Stopwatch.h"
 #include <unistd.h>
 
 using namespace std;
@@ -32,6 +32,7 @@ struct options {
 } options;
 
 int main(int argc, char *argv[]) {
+  Stopwatch clocker;
   if(argc == 2 || argc == 3) {
     
     int c;
@@ -142,7 +143,7 @@ int main(int argc, char *argv[]) {
           this_analyzed = analyzed+suffix;
 
           TimeShifter rt(scint, map, shifts);
-          SlowSort no_hope(cw, map, gains);
+          SlowSort no_hope(cw, map);
           FastSort help_me(si_fcw, ion_fcw, map);
           SFPAnalyzer doa(zt,at,zp,ap,ze,ae,ep,angle,b);
 
@@ -165,7 +166,8 @@ int main(int argc, char *argv[]) {
             doa.Run(this_fast.c_str(), this_analyzed.c_str());
             continue;
           }
-
+          //Begin timer
+          clocker.Start();
           rt.Run(raw, this_shifted);
           cout<<"Sorting the file by timestamp..."<<endl;
           no_hope.Run(this_shifted.c_str(), this_sorted.c_str());
@@ -194,6 +196,10 @@ int main(int argc, char *argv[]) {
             cout<<"--------------------------------------------------"<<endl;
           }
         }
+        //End timer
+        clocker.Stop();
+        cout<<"Elapsed time in seconds: "<<clocker.GetElapsedSeconds()<<endl;
+        cout<<"Elapsed time in milliseconds: "<<clocker.GetElapsedMilliseconds()<<endl;
         log<<"---------'Good' Events-----------"<<endl;
         log<<"Total number of events found: "<<totalEvents<<endl;
         log<<"Number of complete (2 anode, all delay line, scint) FP events: "

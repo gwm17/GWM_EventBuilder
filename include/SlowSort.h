@@ -13,14 +13,13 @@
 #include "TTreeIndex.h"
 #include "DataStructs.h"
 #include "SabreMap.h"
-#include "GainMatcher.h"
 
 using namespace std;
 
 class SlowSort {
 
   public:
-    SlowSort(float windowSize, string mapfile, string gainfile);
+    SlowSort(float windowSize, string& mapfile);
     ~SlowSort();
     void Run(const char *infile_name, const char *outfile_name);
 
@@ -44,15 +43,13 @@ class SlowSort {
 
     float coincWindow;
     int illegalMap;
-    bool illegalGains;
     vector<DPPChannel> hitList;
     DPPChannel hit;
     CoincEvent event;
     CoincEvent blank;
   
-    ULong64_t startTime, previousHitTime;    
+    double startTime, previousHitTime;    
     unordered_map<int, sabrechan> smap;
-    GainMatcher gains;
 
     /****** Focal Plane Global Channel Map ******/
     enum fpChMap {

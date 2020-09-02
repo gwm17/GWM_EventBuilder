@@ -1,6 +1,6 @@
 DataDir: /Volumes/LaCie/9BMarch2020/analyzed/
 MinRun: 99 MaxRun: 99
-HistogramFile: /Volumes/LaCie/9BMarch2020/9b_histograms/run99_windowtest.root
+HistogramFile: /Volumes/LaCie/9BMarch2020/9b_histograms/run99_speedtest.root
 E_dE_CutFile: /Volumes/LaCie/9BMarch2020/cuts/alphaCut_dbr_sl.root
 x1_x2_CutFile: /Volumes/LaCie/9BMarch2020//cuts/x1x2Cut.root
 E_positon_CutFile: /Volumes/LaCie/9BMarch2020/cuts/scintXavgCut.root
