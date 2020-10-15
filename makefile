@@ -1,11 +1,8 @@
-
 OS_NAME := $(shell uname -s)
 CC=g++
 ROOTCFLAGS= `root-config --cflags`
 ROOTGLIBS=`root-config --glibs`
 
-LIBARCHIVE=/usr/local/opt/libarchive/lib/libarchive.dylib
-LIBARCHIVE_INCL=/usr/local/opt/libarchive/include
 ROOTDICT_INCL=./
 CFLAGS= -std=c++11 -fPIC -g -Wall $(ROOTCFLAGS)
 INCLDIR=./include
@@ -15,59 +12,68 @@ LIBDIR=./lib
 CPPFLAGS= -I$(INCLDIR)
 LDFLAGS=$(ROOTGLIBS)
 
-ASRCDIR=$(SRCDIR)/analyzer
-MSRCDIR=$(SRCDIR)/merger
-CSRCDIR=$(SRCDIR)/cleaner
-BSRCDIR=$(SRCDIR)/binary2root
+BUSRCDIR=$(SRCDIR)/builder
+PSRCDIR=$(SRCDIR)/plotter
+BISRCDIR=$(SRCDIR)/binary2root
+GUISRCDIR=$(SRCDIR)/gui
 
 OBJDIR=./objs
-AOBJDIR=$(OBJDIR)/analyzer
-MOBJDIR=$(OBJDIR)/merger
-COBJDIR=$(OBJDIR)/cleaner
-BOBJDIR=$(OBJDIR)/binary2root
 
-ASRC=$(wildcard $(ASRCDIR)/*.cpp)
-MSRC=$(wildcard $(MSRCDIR)/*.cpp)
-CSRC=$(wildcard $(CSRCDIR)/*.cpp)
-BSRC=$(wildcard $(BSRCDIR)/*.cpp)
-AOBJS=$(ASRC:$(ASRCDIR)/%.cpp=$(AOBJDIR)/%.o)
-MOBJS=$(MSRC:$(MSRCDIR)/%.cpp=$(MOBJDIR)/%.o)
-COBJS=$(CSRC:$(CSRCDIR)/%.cpp=$(COBJDIR)/%.o)
-BOBJS=$(BSRC:$(BSRCDIR)/%.cpp=$(BOBJDIR)/%.o)
+BUSRC=$(wildcard $(BUSRCDIR)/*.cpp)
+PSRC=$(wildcard $(PSRCDIR)/*.cpp)
+BISRC=$(wildcard $(BISRCDIR)/*.cpp)
+GUISRC=$(wildcard $(GUISRCDIR)/*.cpp)
+BUOBJS=$(BUSRC:$(BUSRCDIR)/%.cpp=$(OBJDIR)/%.o)
+POBJS=$(PSRC:$(PSRCDIR)/%.cpp=$(OBJDIR)/%.o)
+BIOBJS=$(BISRC:$(BISRCDIR)/%.cpp=$(OBJDIR)/%.o)
+GUIOBJS=$(GUISRC:$(GUISRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 DICT_PAGES= $(INCLDIR)/DataStructs.h $(INCLDIR)/LinkDef_sps.h
 DICT=$(SRCDIR)/sps_dict.cxx
 DICTOBJ=$(OBJDIR)/sps_dict.o
 DICTLIB=$(LIBDIR)/libSPSDict
 
+GDICT_PAGES=$(INCLDIR)/EVBMainFrame.h $(INCLDIR)/FileViewFrame.h $(INCLDIR)/LinkDef_Gui.h
+GDICT=$(SRCDIR)/gui_dict.cxx
+GDICTOBJ=$(OBJDIR)/gui_dict.o
+
 RCSRC=$(SRCDIR)/RunCollector.cpp
 RCOBJ=$(OBJDIR)/RunCollector.o
+
+SWSRC=$(SRCDIR)/Stopwatch.cpp
+SWOBJ=$(OBJDIR)/Stopwatch.o
+
+EVBSRC=$(SRCDIR)/GWMEventBuilder.cpp
+EVBOBJ=$(OBJDIR)/GWMEventBuilder.o
+
+#entry points
+EVBGUIMSRC=$(SRCDIR)/gui_main.cpp
+EVBGUIMAIN=$(OBJDIR)/gui_main.o
+
+EVBMSRC=$(SRCDIR)/main.cpp
+EVBMAIN=$(OBJDIR)/main.o
 
 PCH_FILE=$(INCLDIR)/EventBuilder.h
 PCH=$(INCLDIR)/EventBuilder.h.gch
 
-AEXE=$(BINDIR)/analyzer
-MEXE=$(BINDIR)/merger
-CEXE=$(BINDIR)/cleaner
-BEXE=$(BINDIR)/binary2root
+EVBEXE=$(BINDIR)/GWMEVB
+EVBCLEXE=$(BINDIR)/GWMEVB_CL
+
+EXES = $(BUEXE) $(PEXE) $(BIEXE) $(EVBEXE) $(EVBCLEXE)
+OBJS = $(BUOBJS) $(POBJS) $(BIOBJS) $(GUIOBJS) $(DICTOBJ) $(GDICTOBJ) $(RCOBJ) $(SWOBJ) $(EVBOBJ) $(EVBGUIMAIN) $(EVBMAIN)
+
 
 .PHONY: all clean clean_header
 
-all: $(PCH) $(ALIBS) $(AEXE) $(MEXE) $(CEXE) $(BEXE)
+all: $(PCH) $(EVBEXE) $(EVBCLEXE)
 
 $(PCH): $(PCH_FILE)
 	$(CC) $(CFLAGS) -x c++-header $^
 
-$(AEXE): $(DICTOBJ) $(RCOBJ) $(AOBJS)
-	$(CC) $^ -o $@ $(LDFLAGS) 
-
-$(MEXE): $(DICTOBJ) $(RCOBJ) $(MOBJS)
+$(EVBEXE): $(DICTOBJ) $(GDICTOBJ) $(RCOBJ) $(SWOBJ) $(BUOBJS) $(MOBJS) $(BIOBJS) $(GUIOBJS) $(POBJS) $(EVBOBJ) $(EVBGUIMAIN)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(CEXE): $(DICTOBJ) $(RCOBJ) $(COBJS)
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-$(BEXE): $(LIBARCHIVE) $(RCOBJ) $(BOBJS)
+$(EVBCLEXE): $(DICTOBJ) $(RCOBJ) $(SWOBJ) $(BUOBJS) $(MOBJS) $(BIOBJS) $(POBJS) $(EVBOBJ) $(EVBMAIN)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(DICTOBJ): $(DICT)
@@ -83,32 +89,23 @@ endif
 endif
 	mv $(SRCDIR)/*.pcm ./$(BINDIR)/
 
+$(GDICTOBJ): $(GDICT)
+	$(CC) $(CFLAGS) -I $(ROOTDICT_INCL) -o $@ -c $^
+	mv $(SRCDIR)/*.pcm $(BINDIR)/
+
 $(DICT): $(DICT_PAGES)
 	rootcint -f $@ $^
 
-$(RCOBJ): $(RCSRC)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(AOBJDIR)/%.o: $(ASRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(MOBJDIR)/%.o: $(MSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(COBJDIR)/%.o: $(CSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
-
-$(BOBJDIR)/%.o: $(BSRCDIR)/%.cpp
-	$(CC) $(CFLAGS) $(CPPFLAGS) -I $(LIBARCHIVE_INCL) -o $@ -c $^
-
-$(LIBDIR)/lib%.dylib: $(AOBJDIR)/%.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -dynamiclib -o $@
-
-$(LIBDIR)/lib%.so: $(AOBJDIR)/%.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -shared -o $@
+$(GDICT): $(GDICT_PAGES)
+	rootcint -f $@ $^
 
 clean:
-	$(RM) $(AOBJS) $(MOBJS) $(COBJS) $(BOBJS) $(AEXE) $(ALIBS) $(MEXE) $(CEXE) $(BEXE) $(DICT) $(DICTOBJ) $(DICTLIB) $(RCOBJ) ./$(LIBDIR)/*.pcm ./$(BINDIR)/*.pcm
+	$(RM) $(OBJS) $(EXES) $(DICT) $(GDICT) $(DICTLIB) ./$(LIBDIR)/*.pcm ./$(BINDIR)/*.pcm
 
 clean_header:
 	$(RM) $(PCH)
+
+VPATH= $(SRCDIR):$(BUSRCDIR):$(BISRCDIR):$(PSRCDIR):$(GUISRCDIR)
+
+$(OBJDIR)/%.o: %.cpp
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^

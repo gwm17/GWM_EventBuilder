@@ -21,16 +21,24 @@ using namespace std;
 
 class RunCollector {
   public:
+    RunCollector();
     RunCollector(string dirname, string prefix, string suffix);
     RunCollector(string dirname, string prefix, string suffix, int min, int max);
     ~RunCollector();
+    void SetSearchParams(string& dirname, string& prefix, string& suffix, int min, int max);
     int Merge_hadd(string outname);
     int Merge_TChain(string outname);
     int GrabAllFiles();
     int GrabFilesInRange();
+    inline const char*  GetSearchDir() {return dir.Data();};
+    inline const char*  GetSearchPrefix() {return run.Data();};
+    inline const char* GetSearchSuffix() {return end.Data();};
+    inline int GetRunMin() {return MinRun;};
+    inline int GetRunMax() {return MaxRun;};
     vector<TString> filelist;
 
   private:
+    bool initFlag;
     TString dir;
     TString run;
     TString end;

@@ -3,6 +3,11 @@
 
 using namespace std;
 
+RunCollector::RunCollector():
+  initFlag(false), dir(""), run(""), end(""), MaxRun(0), MinRun(0)
+{
+}
+
 RunCollector::RunCollector(string dirname, string prefix, string suffix) {
   dir = dirname.c_str();
   run = prefix.c_str();
@@ -11,6 +16,7 @@ RunCollector::RunCollector(string dirname, string prefix, string suffix) {
       <<" and ending with: "<<end.Data()<<endl;
 
   MinRun = 0; MaxRun = LITERALMAX;
+  initFlag = true;
 }
 
 RunCollector::RunCollector(string dirname, string prefix, string suffix, int min, int max) {
@@ -21,13 +27,24 @@ RunCollector::RunCollector(string dirname, string prefix, string suffix, int min
       <<" and ending with: "<<end.Data()<<" from run no. "<<min<<" to run no. "<<max<<endl;
 
   MinRun = min; MaxRun = max;
+  initFlag = true;
 }
 
 RunCollector::~RunCollector() {}
 
+void RunCollector::SetSearchParams(string& dirname, string& prefix, string& suffix, int min, int max) {
+  dir = dirname.c_str();
+  run = prefix.c_str();
+  end = suffix.c_str();
+  MinRun = min; MaxRun = max;
+  initFlag = true;
+}
+
 int RunCollector::GrabAllFiles() {
+  if(!initFlag) {return 0;}
   TSystemDirectory sysdir(dir.Data(), dir.Data());
   TList *flist = sysdir.GetListOfFiles();
+  filelist.clear();
   int counter = 0;
   if(flist) { //Make sure list is real. If not, means no directory
     TSystemFile *file;
@@ -37,8 +54,7 @@ int RunCollector::GrabAllFiles() {
       temp = file->GetName();
       if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(end.Data())) {
         counter++;
-        fname = dir+temp; //need fullpath for other functions /*no longer true, just useful for cout*/
-        cout<<"Found file: "<<fname.Data()<<endl;
+        fname = dir+temp;
         filelist.push_back(fname);
       } 
     }
@@ -59,8 +75,10 @@ int RunCollector::GrabAllFiles() {
 
 /*Grabs all files within a specified run range*/
 int RunCollector::GrabFilesInRange() {
+  if(!initFlag) {return 0;}
   TSystemDirectory sysdir(dir.Data(), dir.Data());
   TList *flist = sysdir.GetListOfFiles();
+  filelist.clear();
   int counter = 0;
   if(flist) {
     TSystemFile *file;
@@ -74,7 +92,6 @@ int RunCollector::GrabFilesInRange() {
         if(!file->IsDirectory()&&temp.BeginsWith(run.Data())&&temp.EndsWith(runno.c_str())){
           counter++;
           fname = dir+temp;
-          cout<<"Found file: "<<fname.Data()<<endl;
           filelist.push_back(fname);
           break; //if we find the file, break out of iterator loop
         }
@@ -96,6 +113,7 @@ int RunCollector::GrabFilesInRange() {
 }
 
 int RunCollector::Merge_hadd(string outname) {
+  if(!initFlag) {return 0;}
   if(MaxRun == LITERALMAX) {
     if(GrabAllFiles()) { 
       TString clump = "hadd "+outname;
@@ -126,8 +144,9 @@ int RunCollector::Merge_hadd(string outname) {
 }
 
 int RunCollector::Merge_TChain(string outname) {
+  if(!initFlag) {return 0;}
   TFile *output = new TFile(outname.c_str(), "RECREATE");
-  TChain *chain = new TChain("SortTree", "SortTree");
+  TChain *chain = new TChain("SPSTree", "SPSTree");
   
   if(MaxRun == LITERALMAX) {
     if(GrabAllFiles()) { 

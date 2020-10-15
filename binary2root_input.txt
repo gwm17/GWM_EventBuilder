@@ -1,3 +1,0 @@
-DataFile: /data1/gwm17/10B3He/March2020/raw_binary/
-MinRun: 9 MaxRun: -9
-OutputFile: /data1/gwm17/10B3He/March2020/raw_root/
