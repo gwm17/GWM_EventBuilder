@@ -96,7 +96,7 @@ void CompassRun::Convert(std::string& name) {
 
 	if(!m_smap.IsSet()) {
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
-		return;
+		std::cerr<<"Shifts will be locked to 0"<<std::endl;
 	}
 
 	std::cout<<"Getting a mess of files..."<<std::endl;

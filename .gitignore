@@ -8,6 +8,7 @@
 *.o
 *.cxx
 *.root
+*.bin
 *.pcm
 *.jpg
 *.png

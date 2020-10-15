@@ -42,6 +42,8 @@ void NewShiftMap::SetFile(const char* filename) {
 }
 
 Long64_t NewShiftMap::GetShift(int gchan) {
+	if(!is_set) return 0.0;
+	
 	auto iter = m_map.find(gchan);
 	if(iter == m_map.end()) {
 		return 0.0;
