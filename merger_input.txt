@@ -1,3 +1,0 @@
-DataDir: /Volumes/LaCie/9BMarch2020/analyzed/
-MinRun: 0  MaxRun: 102
-RawFile: /Volumes/LaCie/9BMarch2020/combined/combined_sorted_0.65sco_1.5cw_fixedTheta.root

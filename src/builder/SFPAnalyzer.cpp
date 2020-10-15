@@ -75,9 +75,10 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
   rootObj = new THashTable();
   rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
 
-  outputTree->Branch("event", &pevent);
+  outputTree->Branch("event", "ProcessedEvent", &pevent);
   Float_t place;
   Float_t blentries = inputTree->GetEntries();
+  cout<<"Number of entries: "<<blentries<<endl;
   cout<<setprecision(2);
   for(long double i=0; i<inputTree->GetEntries(); i++) {
     inputTree->GetEntry(i);

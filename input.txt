@@ -1,0 +1,31 @@
+-------Data Locations----------
+ROOTDirectory: /Volumes/LaCie/9BMarch2020/
+BinaryArchiveDirectory: /Volumes/LaCie/9BMarch2020/raw_binary/
+BinaryFileDirectory: none
+MergeInputDirectory: none
+MergeOutputFile: none
+PlotOutputFile: /Volumes/LaCie/9BMarch2020/test_run99_v2.root
+-------------------------------
+------Experimental Inputs------
+ChannelMapFile: ./etc/ChannelMap_March2020_newFormat_092020.txt
+CutListFile: ./etc/CutList_March2020.txt
+ZT: 5
+AT: 10
+ZP: 2
+AP: 3
+ZE: 2
+AE: 4
+BField(G): 9511.0
+BeamKE(MeV): 24
+Theta(deg): 20
+-------------------------------
+-------Timing Information------
+BoardOffsetFile: ./etc/ShiftMap_April2020_newFormat_10102020.txt
+SlowCoincidenceWindow(ps): 1.5e6
+FastCoincidenceWindow_IonCh(ps): 0.125e6
+FastCoincidenceWindow_SABRE(ps): 0.25e6
+-------------------------------
+--------Run Information--------
+MinRun: 99
+MaxRun: 99
+-------------------------------

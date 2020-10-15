@@ -1,3 +1,10 @@
+/*
+	Stopwatch.h
+	Simple class designed to provide timing info on parts of the process.
+	Only for use in development.
+
+	Written by G.W. McCann Oct. 2020
+*/
 #ifndef STOPWATCH_H
 #define STOPWATCH_H
 

@@ -6,7 +6,6 @@
 #ifndef FASTSORT_H
 #define FASTSORT_H
 
-#include "SabreMap.h"
 #include "DataStructs.h"
 
 using namespace std;
@@ -14,7 +13,7 @@ using namespace std;
 class FastSort {
   
   public:
-    FastSort(float si_windowSize, float ion_windowSize, string mapfile);
+    FastSort(float si_windowSize, float ion_windowSize);
     ~FastSort();
     void Run(const char *infile_name, const char *outfile_name);
 
@@ -29,9 +28,7 @@ class FastSort {
     CoincEvent fastEvent, blank;
     SabreDetector sblank;
     FPDetector fpblank;
-    int illegalMap;
 
-    unordered_map<int, sabrechan> smap;
 };
 
 #endif

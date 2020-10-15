@@ -1,13 +1,10 @@
 #include "EventBuilder.h"
 #include "FastSort.h"
 
-FastSort::FastSort(float si_windowSize, float ion_windowSize, string mapfile) {
+FastSort::FastSort(float si_windowSize, float ion_windowSize) {
   si_coincWindow = si_windowSize/1.0e3; //given in pico s, want in nano s
   ion_coincWindow = ion_windowSize/1.0e3; 
   event_address = NULL;
-
-  if(!FillSabreMap(mapfile, smap)) illegalMap = 1;
-  else illegalMap = 0;
 }
 
 FastSort::~FastSort() {
@@ -117,13 +114,9 @@ void FastSort::ProcessSABRE(unsigned int scint_index) {
 }
 
 void FastSort::Run(const char *infile_name, const char *outfile_name) {
-  if(illegalMap) {
-    cerr<<"Unable to process with illegal map!"<<endl;
-    return;
-  }
+
   TFile *input = new TFile(infile_name, "READ");
   TTree *intree = (TTree*) input->Get("SortTree");
-  intree->SetMaxVirtualSize(4000000000);
 
   TFile *output = new TFile(outfile_name, "RECREATE");
   TTree *outtree = new TTree("SortTree","SortTree");

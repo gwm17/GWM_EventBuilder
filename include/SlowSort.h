@@ -7,12 +7,12 @@
  *
  *Refurbished and updated Jan 2020 GWM
  */
-#ifndef TIME_SORT_H
-#define TIME_SORT_H
+#ifndef SLOW_SORT_H
+#define SLOW_SORT_H
 
 #include "TTreeIndex.h"
 #include "DataStructs.h"
-#include "SabreMap.h"
+#include "ChannelMap.h"
 
 using namespace std;
 
@@ -23,33 +23,23 @@ class SlowSort {
     ~SlowSort();
     void Run(const char *infile_name, const char *outfile_name);
 
-    /****** Data Counters *******/
-    /*Use these for statistics on the event building*/
-    double totalEvents;
-    double completeFP;
-    double completeFP_SABRE;
-    double SABREorphans;
-    double SABREorphans_noscint;
-    double FPorphans;
-    double FPorphans_partial;
-    double FPorphans_noscint;
-    double FPorphans_nogas;
-    double FPextras;
-
   private:
     void Reset();
+    void InitVariableMaps();
     void StartEvent();
     void ProcessEvent();
 
     float coincWindow;
-    int illegalMap;
     vector<DPPChannel> hitList;
     DPPChannel hit;
     CoincEvent event;
     CoincEvent blank;
   
     double startTime, previousHitTime;    
-    unordered_map<int, sabrechan> smap;
+    unordered_map<int, vector<DetectorHit>*> fpVMap;
+    unordered_map<int, vector<DetectorHit>*> sabreVMap;
+
+    ChannelMap cmap;
 
     /****** Focal Plane Global Channel Map ******/
     enum fpChMap {

@@ -19,6 +19,7 @@ class SFPPlotter {
     SFPPlotter(bool tf);
     ~SFPPlotter();
     int SetCuts(string edename, string dexname, string exname, string xxname);
+    int ReadCutlist(string& listname);
     void Run(vector<TString> files, string output);
 
   private:

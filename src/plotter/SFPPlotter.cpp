@@ -109,6 +109,19 @@ int SFPPlotter::SetCuts(string edename, string dexname, string exname, string xx
   }
 }
 
+int SFPPlotter::ReadCutlist(string& listname) {
+  ifstream input(listname);
+  string junk, edename, dexname, exname, xxname;
+  if(!input.is_open()) return 0;
+
+  input>>junk>>edename>>junk>>dexname>>junk>>exname>>junk>>xxname;
+
+  input.close();
+
+  return SetCuts(edename, dexname, exname, xxname);
+
+}
+
 /*Makes histograms where only rejection is unset data*/
 void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
   if(ev.x1 != -1e6 && ev.x2 != -1e6) {
