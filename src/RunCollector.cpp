@@ -32,7 +32,7 @@ RunCollector::RunCollector(string dirname, string prefix, string suffix, int min
 
 RunCollector::~RunCollector() {}
 
-void RunCollector::SetSearchParams(string& dirname, string& prefix, string& suffix, int min, int max) {
+void RunCollector::SetSearchParams(string& dirname, string prefix, string suffix, int min, int max) {
   dir = dirname.c_str();
   run = prefix.c_str();
   end = suffix.c_str();
@@ -71,6 +71,28 @@ int RunCollector::GrabAllFiles() {
     delete flist;
     return 0;
   } 
+}
+
+const char* RunCollector::GrabFile(int runNum) {
+  if(!initFlag) return "";
+  TSystemDirectory sysdir(dir.Data(), dir.Data());
+  TList* flist = sysdir.GetListOfFiles();
+
+  if(!flist) return "";
+
+  TSystemFile *file;
+  TString fname = "", temp;
+  string runno = "_"+to_string(runNum)+end.Data();
+  TIter next_element(flist);
+  while((file = (TSystemFile*)next_element())) {
+    temp = file->GetName();
+    if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(runno.c_str())) {
+      fname = dir+temp;
+      break;
+    }
+  }
+
+  return fname.Data();
 }
 
 /*Grabs all files within a specified run range*/

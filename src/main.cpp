@@ -1,5 +1,6 @@
 #include "EventBuilder.h"
 #include "GWMEventBuilder.h"
+#include "Stopwatch.h"
 
 int main(int argc, char** argv) {
 	if(argc != 3) {
@@ -28,7 +29,8 @@ int main(int argc, char** argv) {
 	if(!theBuilder.ReadConfigFile(filename)) {
 		return 1;
 	}
-
+	Stopwatch timer;
+	timer.Start();
 	if(operation == "buildAll") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_ALL);
 		theBuilder.BuildEvents();
@@ -60,10 +62,14 @@ int main(int argc, char** argv) {
 	} else if(operation == "plot") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::PLOT);
 		theBuilder.PlotHistograms();
+	} else if (operation == "test"){
+		theBuilder.Convert2FastAnalyzedRoot();
 	} else {
 		std::cerr<<"Unidentified type of operation! Check your first argument."<<std::endl;
 		return 1;
 	}
+	timer.Stop();
+	std::cout<<"Elapsed time (ms): "<<timer.GetElapsedMilliseconds()<<std::endl;
 
 	return 0;
 }

@@ -25,11 +25,12 @@ class RunCollector {
     RunCollector(string dirname, string prefix, string suffix);
     RunCollector(string dirname, string prefix, string suffix, int min, int max);
     ~RunCollector();
-    void SetSearchParams(string& dirname, string& prefix, string& suffix, int min, int max);
+    void SetSearchParams(string& dirname, string prefix, string suffix, int min, int max);
     int Merge_hadd(string outname);
     int Merge_TChain(string outname);
     int GrabAllFiles();
     int GrabFilesInRange();
+    const char* GrabFile(int runNum);
     inline const char*  GetSearchDir() {return dir.Data();};
     inline const char*  GetSearchPrefix() {return run.Data();};
     inline const char* GetSearchSuffix() {return end.Data();};

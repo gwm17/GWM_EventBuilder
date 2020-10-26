@@ -16,10 +16,14 @@ bool SabreSort(DetectorHit i, DetectorHit j) {
 }
 
 /*Constructor takes input of coincidence window size, and fills sabre channel map*/
-SlowSort::SlowSort(float windowSize, string& mapfile) :
-  event(), cmap(mapfile)
+SlowSort::SlowSort() :
+  coincWindow(-1.0), eventFlag(false), event(), cmap()
 {
-  coincWindow = windowSize;
+}
+
+SlowSort::SlowSort(double windowSize, string& mapfile) :
+  coincWindow(windowSize), eventFlag(false), event(), cmap(mapfile)
+{
   InitVariableMaps(); 
 }
 
@@ -54,6 +58,49 @@ void SlowSort::InitVariableMaps() {
 /*Reset output structure to blank*/
 void SlowSort::Reset() {
   event = blank;
+}
+
+bool SlowSort::AddHitToEvent(CompassHit& mhit) {
+  DPPChannel curHit;
+  curHit.Timestamp = mhit.timestamp;
+  curHit.Energy = mhit.lgate;
+  curHit.EnergyShort = mhit.sgate;
+  curHit.Channel = mhit.channel;
+  curHit.Board = mhit.board;
+  curHit.Flags = mhit.flags;
+
+  if(hitList.empty()) {
+    startTime = curHit.Timestamp;
+    hitList.push_back(curHit);
+  } else if (curHit.Timestamp < previousHitTime) {
+    return false;
+  } else if ((curHit.Timestamp - startTime) < coincWindow) {
+    hitList.push_back(curHit);
+  } else {
+    ProcessEvent();
+    hitList.clear();
+    startTime = curHit.Timestamp;
+    hitList.push_back(curHit);
+    eventFlag = true;
+  }
+
+  return true;
+}
+
+void SlowSort::FlushHitsToEvent() {
+  if(hitList.empty()) {
+    eventFlag = false;
+    return;
+  }
+
+  ProcessEvent();
+  hitList.clear();
+  eventFlag = true;
+}
+
+CoincEvent SlowSort::GetEvent() {
+  eventFlag = false;
+  return event;
 }
 
 /*Function called when a start of a coincidence event is detected*/
@@ -148,7 +195,7 @@ void SlowSort::Run(const char *infile_name, const char *outfile_name) {
     hit.Board = board;
     hit.Channel = channel;
     hit.Flags = flags;
-    /****/
+    
     place = ((long double)i)/blentries*100;
     if(fmod(place, 10.0) == 0) { //Non-continuous progress update
       cout<<"\rPercent of file processed: "<<place<<"%"<<flush;

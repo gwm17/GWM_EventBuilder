@@ -15,6 +15,7 @@ class FastSort {
   public:
     FastSort(float si_windowSize, float ion_windowSize);
     ~FastSort();
+    std::vector<CoincEvent> GetFastEvents(CoincEvent& event);
     void Run(const char *infile_name, const char *outfile_name);
 
   private:

@@ -8,6 +8,7 @@ PlotOutputFile: /Volumes/LaCie/9BMarch2020/test_run99_v2.root
 -------------------------------
 ------Experimental Inputs------
 ChannelMapFile: ./etc/ChannelMap_March2020_newFormat_092020.txt
+ScalerFile: ./etc/ScalerFile.txt
 CutListFile: ./etc/CutList_March2020.txt
 ZT: 5
 AT: 10
