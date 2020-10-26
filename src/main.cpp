@@ -14,13 +14,17 @@ int main(int argc, char** argv) {
 
 
 	/* DEFAULT Operation Types:
-		buildSlow (through slowSort and then analyze)
-		buildFast (start with slowSorted and then fast and analyze)
-		buildAll (all steps through analyze)
-		analyzeSlow (analyze from slowSorted)
-		analyzeFast (analyze from fastSorted)
+		buildSlow (through slowSort and then analyze) DEPRECATED
+		buildFast (start with slowSorted and then fast and analyze) DEPRECATED
+		buildAll (all steps through analyze) DEPRECATED
+		analyzeSlow (analyze from slowSorted) DEPRECATED
+		analyzeFast (analyze from fastSorted) DEPRECATED
 		archive (make an archive of raw binary data)
 		convert (convert binary archive to root data)
+		convertSlow (convert binary arhcive to event slow data)
+		convertFast (convert binary archive to event fast data)
+		convertSlowA (convert binary archive to analyzed slow event data)
+		convertFastA (convert binary archive to analyzed fast event data)
 		merge (combine root files)
 		plot (generate a default histogram file from analyzed data)
 	*/
@@ -62,7 +66,17 @@ int main(int argc, char** argv) {
 	} else if(operation == "plot") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::PLOT);
 		theBuilder.PlotHistograms();
-	} else if (operation == "test"){
+	} else if (operation == "convertSlow"){
+		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_S);
+		theBuilder.Convert2SortedRoot();
+	} else if (operation == "convertFast"){
+		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_F);
+		theBuilder.Convert2FastSortedRoot();
+	} else if (operation == "convertSlowA"){
+		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_SA);
+		theBuilder.Convert2SlowAnalyzedRoot();
+	} else if (operation == "convertFastA"){
+		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_FA);
 		theBuilder.Convert2FastAnalyzedRoot();
 	} else {
 		std::cerr<<"Unidentified type of operation! Check your first argument."<<std::endl;
