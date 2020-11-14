@@ -113,6 +113,35 @@ void FastSort::ProcessSABRE(unsigned int scint_index) {
   }
 }
 
+std::vector<CoincEvent> FastSort::GetFastEvents(CoincEvent& event) {
+  slowEvent = event;
+  std::vector<CoincEvent> fast_events;
+
+  unsigned int sizeArray[7];
+  sizeArray[0] = slowEvent.focalPlane.delayFL.size();
+  sizeArray[1] = slowEvent.focalPlane.delayFR.size();
+  sizeArray[2] = slowEvent.focalPlane.delayBL.size();
+  sizeArray[3] = slowEvent.focalPlane.delayBR.size();
+  sizeArray[4] = slowEvent.focalPlane.anodeF.size();
+  sizeArray[5] = slowEvent.focalPlane.anodeB.size();
+  sizeArray[6] = slowEvent.focalPlane.cathode.size();
+  unsigned int maxSize = *max_element(sizeArray, sizeArray+7);
+  //loop over scints
+  for(unsigned int i=0; i<slowEvent.focalPlane.scintL.size(); i++) {
+    ResetSABRE();
+    ProcessSABRE(i);
+    //loop over ion chamber
+    //NOTE: as written, this dumps data that does not have an ion chamber hit!
+    //If you want scint/SABRE singles, move the fill outside of this loop
+    for(unsigned int j=0; j<maxSize; j++) {
+      ResetFocalPlane();
+      ProcessFocalPlane(i, j);
+      fast_events.push_back(fastEvent);
+    }
+  }
+  return fast_events;
+}
+
 void FastSort::Run(const char *infile_name, const char *outfile_name) {
 
   TFile *input = new TFile(infile_name, "READ");

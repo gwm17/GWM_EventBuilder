@@ -21,11 +21,14 @@ class SFPAnalyzer {
     SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep, double angle,
                 double b);
     ~SFPAnalyzer();
+    ProcessedEvent GetProcessedEvent(CoincEvent& event);
+    inline THashTable* GetHashTable() { return rootObj; };
     void Run(const char *input, const char *output);
 
   private:
     void Reset(); //Sets ouput structure back to "zero"
     void GetWeights(); //weights for xavg
+    void AnalyzeEvent(CoincEvent& event);
 
     /*Fill wrappers for use with THashTable*/
     void MyFill(string name, int binsx, double minx, double maxx, double valuex,
