@@ -7,8 +7,7 @@
 #define FASTSORT_H
 
 #include "DataStructs.h"
-
-using namespace std;
+#include <TH2.h>
 
 class FastSort {
   

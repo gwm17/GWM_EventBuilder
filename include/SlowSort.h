@@ -13,6 +13,7 @@
 #include "CompassHit.h"
 #include "DataStructs.h"
 #include "ChannelMap.h"
+#include <TH2.h>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ class SlowSort {
     inline bool SetMapFile(std::string& mapfile) { return cmap.FillMap(mapfile); };
     bool AddHitToEvent(CompassHit& mhit);
     CoincEvent GetEvent();
+    inline TH2F* GetEventStats() { return event_stats; };
     void FlushHitsToEvent(); //For use with *last* hit list
     inline bool IsEventReady() { return eventFlag; };
     void Run(const char *infile_name, const char *outfile_name);
@@ -46,6 +48,8 @@ class SlowSort {
     double startTime, previousHitTime;    
     unordered_map<int, vector<DetectorHit>*> fpVMap;
     unordered_map<int, vector<DetectorHit>*> sabreVMap;
+
+    TH2F* event_stats;
 
     ChannelMap cmap;
  

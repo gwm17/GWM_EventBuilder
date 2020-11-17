@@ -62,9 +62,11 @@ void FastSort::ProcessFocalPlane(unsigned int scint_index, unsigned int ionch_in
 /*Assign a set of SABRE data that falls within the coincidence window*/
 void FastSort::ProcessSABRE(unsigned int scint_index) {
   for(int i=0; i<5; i++) { //loop over SABRE silicons
-    vector<DetectorHit> rings;
-    vector<DetectorHit> wedges;
-    //if(i==0 || i==1) cout<<"Detector"<<i<<": ringsize = "<<slowEvent.sabreArray[i].rings.size()<<" wedgesize = "<<slowEvent.sabreArray[i].wedges.size()<<endl;
+    std::vector<DetectorHit> rings;
+    std::vector<DetectorHit> wedges;
+
+    if(slowEvent.sabreArray[i].rings.size() == 0 || slowEvent.sabreArray[i].wedges.size() == 0) continue; //save some time on empties
+
     /*Dump sabre data that doesnt fall within the fast coincidence window with the scint*/
     for(unsigned int j=0; j<slowEvent.sabreArray[i].rings.size(); j++) {
       float sabreRelTime = fabs(slowEvent.sabreArray[i].rings[j].Time - slowEvent.focalPlane.scintL[scint_index].Time);
@@ -92,10 +94,10 @@ void FastSort::ProcessSABRE(unsigned int scint_index) {
       } else {
         wedges.erase(wedges.begin()+depth, wedges.end()); //erase is [start, stop)
       }
-      if(wedges.size() != rings.size()) {
-        cerr<<endl<<"Failed si vector at wedge reduction!"<<endl;
-        cerr<<"Ring size: "<<rings.size()<<" wedge size: "<<wedges.size()<<endl;
-      } 
+      /*if(wedges.size() != rings.size()) {
+        std::cerr<<endl<<"Failed si vector at wedge reduction!"<<endl;
+        std::cerr<<"Ring size: "<<rings.size()<<" wedge size: "<<wedges.size()<<endl;
+      }*/
     } else if (unpairedSi>0) { //too many rings
       int depth = wedges.size();
       if(depth == 0) {
@@ -103,10 +105,10 @@ void FastSort::ProcessSABRE(unsigned int scint_index) {
       } else {
         rings.erase(rings.begin()+depth, rings.end());
       }
-      if(rings.size() != wedges.size()) {
-        cerr<<endl<<"Failed si vector at ring reduction!"<<endl;
-        cerr<<"Ring size: "<<rings.size()<<" wedge size: "<<wedges.size()<<endl;
-      }
+      /*if(rings.size() != wedges.size()) {
+        std::cerr<<endl<<"Failed si vector at ring reduction!"<<endl;
+        std::cerr<<"Ring size: "<<rings.size()<<" wedge size: "<<wedges.size()<<endl;
+      }*/
     }
     fastEvent.sabreArray[i].rings = rings;
     fastEvent.sabreArray[i].wedges = wedges;
@@ -160,7 +162,7 @@ void FastSort::Run(const char *infile_name, const char *outfile_name) {
     intree->GetEntry(i);
     place = ((long double)i)/blentries*100;
     if(fmod(place,10.0) == 0) {
-      cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
+      std::cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
     }
     slowEvent = *event_address;
     /*To know how many ion chamber sets there are, only need 
