@@ -17,10 +17,13 @@ SFPAnalyzer::SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double 
                          double angle, double b) {
   zfp = Delta_Z(zt, at, zp, ap, ze, ae, ep, angle, b);
   event_address = new CoincEvent();
+  rootObj = new THashTable();
   GetWeights();
 }
 
 SFPAnalyzer::~SFPAnalyzer() {
+  rootObj->Clear();
+  delete rootObj;
   delete event_address;
 }
 
@@ -64,6 +67,106 @@ void SFPAnalyzer::MyFill(string name, int binsx, double minx, double maxx, doubl
   }
 }
 
+void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
+  Reset();
+  if(!event.focalPlane.anodeF.empty()) {
+    pevent.anodeFront = event.focalPlane.anodeF[0].Long;
+    pevent.anodeFrontTime = event.focalPlane.anodeF[0].Time;
+  }
+  if(!event.focalPlane.anodeB.empty()) {
+    pevent.anodeBack = event.focalPlane.anodeB[0].Long;
+    pevent.anodeBackTime = event.focalPlane.anodeB[0].Time;
+  }
+  if(!event.focalPlane.scintL.empty()) {
+    pevent.scintLeft = event.focalPlane.scintL[0].Long;
+    pevent.scintLeftTime = event.focalPlane.scintL[0].Time;
+  }
+  if(!event.focalPlane.scintR.empty()) {
+    pevent.scintRight = event.focalPlane.scintR[0].Long;
+    pevent.scintRightTime = event.focalPlane.scintR[0].Time;
+  }
+  if(!event.focalPlane.cathode.empty()) {
+    pevent.cathode = event.focalPlane.cathode[0].Long;
+    pevent.cathodeTime = event.focalPlane.cathode[0].Time;
+  }
+
+  /*Delay lines and all that*/
+  if(!event.focalPlane.delayFR.empty()) {
+    pevent.delayFrontRightE = event.focalPlane.delayFR[0].Long;
+  }
+  if(!event.focalPlane.delayFL.empty()) {
+    pevent.delayFrontLeftE = event.focalPlane.delayFL[0].Long;
+  }
+  if(!event.focalPlane.delayBR.empty()) {
+    pevent.delayBackRightE = event.focalPlane.delayBR[0].Long;
+  }
+  if(!event.focalPlane.delayBL.empty()) {
+    pevent.delayBackLeftE = event.focalPlane.delayBL[0].Long;
+  }
+  if(!event.focalPlane.delayFL.empty() && !event.focalPlane.delayFR.empty()) { 
+    pevent.fp1_tdiff = (event.focalPlane.delayFL[0].Time-event.focalPlane.delayFR[0].Time)*0.5;
+    pevent.fp1_tsum = (event.focalPlane.delayFL[0].Time+event.focalPlane.delayFR[0].Time);
+    pevent.fp1_tcheck = (pevent.fp1_tsum)/2.0-pevent.anodeFrontTime;
+    pevent.delayFrontMaxTime = max(event.focalPlane.delayFL[0].Time, event.focalPlane.delayFR[0].Time);
+    pevent.x1 = pevent.fp1_tdiff*1.0/1.98; //position from time, based on total delay
+    //pevent.x1 = 0.52*pevent.fp1_tdiff - 0.128; //position from time, based on delay chips
+    MyFill("x1",1200,-300,300,pevent.x1);
+    MyFill("x1 vs anodeBack",600,-300,300,pevent.x1,512,0,4096,pevent.anodeBack);
+  }
+  if(!event.focalPlane.delayBL.empty() && !event.focalPlane.delayBR.empty()) {
+    pevent.fp2_tdiff = (event.focalPlane.delayBL[0].Time-event.focalPlane.delayBR[0].Time)*0.5;
+    pevent.fp2_tsum = (event.focalPlane.delayBL[0].Time+event.focalPlane.delayBR[0].Time);
+    pevent.fp2_tcheck = (pevent.fp2_tsum)/2.0-pevent.anodeBackTime;
+    pevent.delayBackMaxTime = max(event.focalPlane.delayBL[0].Time, event.focalPlane.delayBR[0].Time);
+    pevent.x2 = pevent.fp2_tdiff*1.0/2.10; //position from time, based on total delay
+    //pevent.x2 = 0.48*pevent.fp2_tdiff - 2.365; //position from time, based on delay chips
+    MyFill("x2",1200,-300,300,pevent.x2);
+    MyFill("x2 vs anodeBack",600,-300,300,pevent.x2,512,0,4096,pevent.anodeBack);
+  }
+  /*SABRE data*/
+  for(int j=0; j<5; j++) {
+    if(!event.sabreArray[j].rings.empty()) {
+      pevent.sabreRingE[j] = event.sabreArray[j].rings[0].Long;
+      pevent.sabreRingChannel[j] = event.sabreArray[j].rings[0].Ch;
+      pevent.sabreRingTime[j] = event.sabreArray[j].rings[0].Time;
+    }
+    if(!event.sabreArray[j].wedges.empty()) {
+      pevent.sabreWedgeE[j] = event.sabreArray[j].wedges[0].Long;
+      pevent.sabreWedgeChannel[j] = event.sabreArray[j].wedges[0].Ch;
+      pevent.sabreWedgeTime[j] = event.sabreArray[j].wedges[0].Time;
+    }
+    /*Aaaand passes on all of the rest. 4/24/20 GWM*/
+    pevent.sabreArray[j] = event.sabreArray[j];
+  }
+
+  /*Make some histograms and xavg*/
+  MyFill("anodeBack vs scintLeft",512,0,4096,pevent.scintLeft,512,0,4096,pevent.anodeBack);
+  if(pevent.x1 != -1e6 && pevent.x2 != -1e6) {
+    pevent.xavg = pevent.x1*w1+pevent.x2*w2;
+    MyFill("xavg",1200,-300,300,pevent.xavg);
+    if((pevent.x2-pevent.x1) > 0) {
+      pevent.theta = atan((pevent.x2-pevent.x1)/36.0);
+    } else if((pevent.x2-pevent.x1) < 0) {
+      pevent.theta = TMath::Pi() + atan((pevent.x2-pevent.x1)/36.0);
+    } else {
+      pevent.theta = TMath::Pi()/2.0;
+    }
+    MyFill("xavg vs theta",600,-300,300,pevent.xavg,314,0,3.14,pevent.theta);
+    MyFill("x1 vs x2",600,-300,300,pevent.x1,600,-300,300,pevent.x2);
+  }
+  if(pevent.anodeFrontTime != -1 && pevent.scintRightTime != -1) {
+    pevent.fp1_y = pevent.anodeFrontTime-pevent.scintRightTime;
+  }
+  if(pevent.anodeBackTime != -1 && pevent.scintRightTime != -1) {
+    pevent.fp2_y = pevent.anodeBackTime-pevent.scintRightTime;
+  }
+}
+
+ProcessedEvent SFPAnalyzer::GetProcessedEvent(CoincEvent& event) {
+  AnalyzeEvent(event);
+  return pevent;
+}
+
 /*Bulk of the work done here*/
 void SFPAnalyzer::Run(const char *input, const char *output) {
   TFile* inputFile = new TFile(input, "READ");
@@ -72,7 +175,6 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
 
   TFile* outputFile = new TFile(output, "RECREATE");
   TTree* outputTree = new TTree("SPSTree", "SPSTree");
-  rootObj = new THashTable();
   rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
 
   outputTree->Branch("event", "ProcessedEvent", &pevent);
@@ -85,105 +187,13 @@ void SFPAnalyzer::Run(const char *input, const char *output) {
     place = ((long double)i)/blentries*100;
     /*Non-continuous progress update*/
     if(fmod(place, 10.0) == 0) cout<<"\rPercent of file processed: "<<ceil(place)<<"%"<<flush;
-    Reset();
-    /*Focal plane parts*/
-    if(!event_address->focalPlane.anodeF.empty()) {
-      pevent.anodeFront = event_address->focalPlane.anodeF[0].Long;
-      pevent.anodeFrontTime = event_address->focalPlane.anodeF[0].Time;
-    }
-    if(!event_address->focalPlane.anodeB.empty()) {
-      pevent.anodeBack = event_address->focalPlane.anodeB[0].Long;
-      pevent.anodeBackTime = event_address->focalPlane.anodeB[0].Time;
-    }
-    if(!event_address->focalPlane.scintL.empty()) {
-      pevent.scintLeft = event_address->focalPlane.scintL[0].Long;
-      pevent.scintLeftTime = event_address->focalPlane.scintL[0].Time;
-    }
-    if(!event_address->focalPlane.scintR.empty()) {
-      pevent.scintRight = event_address->focalPlane.scintR[0].Long;
-      pevent.scintRightTime = event_address->focalPlane.scintR[0].Time;
-    }
-    if(!event_address->focalPlane.cathode.empty()) {
-      pevent.cathode = event_address->focalPlane.cathode[0].Long;
-      pevent.cathodeTime = event_address->focalPlane.cathode[0].Time;
-    }
-
-    /*Delay lines and all that*/
-    if(!event_address->focalPlane.delayFR.empty()) {
-      pevent.delayFrontRightE = event_address->focalPlane.delayFR[0].Long;
-    }
-    if(!event_address->focalPlane.delayFL.empty()) {
-      pevent.delayFrontLeftE = event_address->focalPlane.delayFL[0].Long;
-    }
-    if(!event_address->focalPlane.delayBR.empty()) {
-      pevent.delayBackRightE = event_address->focalPlane.delayBR[0].Long;
-    }
-    if(!event_address->focalPlane.delayBL.empty()) {
-      pevent.delayBackLeftE = event_address->focalPlane.delayBL[0].Long;
-    }
-    if(!event_address->focalPlane.delayFL.empty() && !event_address->focalPlane.delayFR.empty()) { 
-      pevent.fp1_tdiff = (event_address->focalPlane.delayFL[0].Time-event_address->focalPlane.delayFR[0].Time)*0.5;
-      pevent.fp1_tsum = (event_address->focalPlane.delayFL[0].Time+event_address->focalPlane.delayFR[0].Time);
-      pevent.fp1_tcheck = (pevent.fp1_tsum)/2.0-pevent.anodeFrontTime;
-      pevent.delayFrontMaxTime = max(event_address->focalPlane.delayFL[0].Time, event_address->focalPlane.delayFR[0].Time);
-      pevent.x1 = pevent.fp1_tdiff*1.0/1.98; //position from time, based on total delay
-      //pevent.x1 = 0.52*pevent.fp1_tdiff - 0.128; //position from time, based on delay chips
-      MyFill("x1",1200,-300,300,pevent.x1);
-      MyFill("x1 vs anodeBack",600,-300,300,pevent.x1,512,0,4096,pevent.anodeBack);
-    }
-    if(!event_address->focalPlane.delayBL.empty() && !event_address->focalPlane.delayBR.empty()) {
-      pevent.fp2_tdiff = (event_address->focalPlane.delayBL[0].Time-event_address->focalPlane.delayBR[0].Time)*0.5;
-      pevent.fp2_tsum = (event_address->focalPlane.delayBL[0].Time+event_address->focalPlane.delayBR[0].Time);
-      pevent.fp2_tcheck = (pevent.fp2_tsum)/2.0-pevent.anodeBackTime;
-      pevent.delayBackMaxTime = max(event_address->focalPlane.delayBL[0].Time, event_address->focalPlane.delayBR[0].Time);
-      pevent.x2 = pevent.fp2_tdiff*1.0/2.10; //position from time, based on total delay
-      //pevent.x2 = 0.48*pevent.fp2_tdiff - 2.365; //position from time, based on delay chips
-      MyFill("x2",1200,-300,300,pevent.x2);
-      MyFill("x2 vs anodeBack",600,-300,300,pevent.x2,512,0,4096,pevent.anodeBack);
-    }
-    /*SABRE data*/
-    for(int j=0; j<5; j++) {
-      if(!event_address->sabreArray[j].rings.empty()) {
-        pevent.sabreRingE[j] = event_address->sabreArray[j].rings[0].Long;
-        pevent.sabreRingChannel[j] = event_address->sabreArray[j].rings[0].Ch;
-        pevent.sabreRingTime[j] = event_address->sabreArray[j].rings[0].Time;
-      }
-      if(!event_address->sabreArray[j].wedges.empty()) {
-        pevent.sabreWedgeE[j] = event_address->sabreArray[j].wedges[0].Long;
-        pevent.sabreWedgeChannel[j] = event_address->sabreArray[j].wedges[0].Ch;
-        pevent.sabreWedgeTime[j] = event_address->sabreArray[j].wedges[0].Time;
-      }
-      /*Aaaand passes on all of the rest. 4/24/20 GWM*/
-      pevent.sabreArray[j] = event_address->sabreArray[j];
-    }
-
-    /*Make some histograms and xavg*/
-    MyFill("anodeBack vs scintLeft",512,0,4096,pevent.scintLeft,512,0,4096,pevent.anodeBack);
-    if(pevent.x1 != -1e6 && pevent.x2 != -1e6) {
-      pevent.xavg = pevent.x1*w1+pevent.x2*w2;
-      MyFill("xavg",1200,-300,300,pevent.xavg);
-      if((pevent.x2-pevent.x1) > 0) {
-        pevent.theta = atan((pevent.x2-pevent.x1)/36.0);
-      } else if((pevent.x2-pevent.x1) < 0) {
-        pevent.theta = TMath::Pi() + atan((pevent.x2-pevent.x1)/36.0);
-      } else {
-        pevent.theta = TMath::Pi()/2.0;
-      }
-      MyFill("xavg vs theta",600,-300,300,pevent.xavg,314,0,3.14,pevent.theta);
-      MyFill("x1 vs x2",600,-300,300,pevent.x1,600,-300,300,pevent.x2);
-    }
-    if(pevent.anodeFrontTime != -1 && pevent.scintRightTime != -1) {
-      pevent.fp1_y = pevent.anodeFrontTime-pevent.scintRightTime;
-    }
-    if(pevent.anodeBackTime != -1 && pevent.scintRightTime != -1) {
-      pevent.fp2_y = pevent.anodeBackTime-pevent.scintRightTime;
-    }
+    AnalyzeEvent(*event_address);
     outputTree->Fill();
   }
   cout<<endl;
   outputFile->cd();
   rootObj->Write();
-  delete rootObj;
+  rootObj->Clear();
   outputTree->Write(outputTree->GetName(), TObject::kOverwrite);
   outputFile->Close();
   inputFile->Close();

@@ -16,11 +16,17 @@ bool SabreSort(DetectorHit i, DetectorHit j) {
 }
 
 /*Constructor takes input of coincidence window size, and fills sabre channel map*/
-SlowSort::SlowSort(float windowSize, string& mapfile) :
-  event(), cmap(mapfile)
+SlowSort::SlowSort() :
+  coincWindow(-1.0), eventFlag(false), event(), cmap()
 {
-  coincWindow = windowSize;
-  InitVariableMaps(); 
+  event_stats = new TH2F("coinc_event_stats","coinc_events_stats;global channel;number of coincident hits;counts",144,0,144,20,0,20);
+}
+
+SlowSort::SlowSort(double windowSize, string& mapfile) :
+  coincWindow(windowSize), eventFlag(false), event(), cmap(mapfile)
+{
+  event_stats = new TH2F("coinc_event_stats","coinc_events_stats;global channel;number of coincident hits;counts",144,0,144,20,0,20);
+  InitVariableMaps();
 }
 
 SlowSort::~SlowSort() {
@@ -56,6 +62,49 @@ void SlowSort::Reset() {
   event = blank;
 }
 
+bool SlowSort::AddHitToEvent(CompassHit& mhit) {
+  DPPChannel curHit;
+  curHit.Timestamp = mhit.timestamp;
+  curHit.Energy = mhit.lgate;
+  curHit.EnergyShort = mhit.sgate;
+  curHit.Channel = mhit.channel;
+  curHit.Board = mhit.board;
+  curHit.Flags = mhit.flags;
+
+  if(hitList.empty()) {
+    startTime = curHit.Timestamp;
+    hitList.push_back(curHit);
+  } else if (curHit.Timestamp < previousHitTime) {
+    return false;
+  } else if ((curHit.Timestamp - startTime) < coincWindow) {
+    hitList.push_back(curHit);
+  } else {
+    ProcessEvent();
+    hitList.clear();
+    startTime = curHit.Timestamp;
+    hitList.push_back(curHit);
+    eventFlag = true;
+  }
+
+  return true;
+}
+
+void SlowSort::FlushHitsToEvent() {
+  if(hitList.empty()) {
+    eventFlag = false;
+    return;
+  }
+
+  ProcessEvent();
+  hitList.clear();
+  eventFlag = true;
+}
+
+CoincEvent SlowSort::GetEvent() {
+  eventFlag = false;
+  return event;
+}
+
 /*Function called when a start of a coincidence event is detected*/
 void SlowSort::StartEvent() {
   if(hitList.size() != 0) {
@@ -72,8 +121,10 @@ void SlowSort::ProcessEvent() {
   Reset();
   DetectorHit dhit;
   int gchan;
+  int size = hitList.size();
   for(DPPChannel& curHit: hitList) {
     gchan = curHit.Channel + curHit.Board*16; //global channel
+    event_stats->Fill(gchan, size);
     dhit.Time = curHit.Timestamp/1.0e3;
     dhit.Ch = gchan;
     dhit.Long = curHit.Energy;
@@ -148,7 +199,7 @@ void SlowSort::Run(const char *infile_name, const char *outfile_name) {
     hit.Board = board;
     hit.Channel = channel;
     hit.Flags = flags;
-    /****/
+    
     place = ((long double)i)/blentries*100;
     if(fmod(place, 10.0) == 0) { //Non-continuous progress update
       cout<<"\rPercent of file processed: "<<place<<"%"<<flush;
