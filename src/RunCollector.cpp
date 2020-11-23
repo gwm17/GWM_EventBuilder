@@ -73,7 +73,7 @@ int RunCollector::GrabAllFiles() {
   } 
 }
 
-const char* RunCollector::GrabFile(int runNum) {
+std::string RunCollector::GrabFile(int runNum) {
   if(!initFlag) return "";
   TSystemDirectory sysdir(dir.Data(), dir.Data());
   TList* flist = sysdir.GetListOfFiles();

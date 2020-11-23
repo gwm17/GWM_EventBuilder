@@ -30,7 +30,7 @@ class RunCollector {
     int Merge_TChain(string outname);
     int GrabAllFiles();
     int GrabFilesInRange();
-    const char* GrabFile(int runNum);
+    std::string GrabFile(int runNum);
     inline const char*  GetSearchDir() {return dir.Data();};
     inline const char*  GetSearchPrefix() {return run.Data();};
     inline const char* GetSearchSuffix() {return end.Data();};
