@@ -22,6 +22,7 @@ class SFPAnalyzer {
                 double b);
     ~SFPAnalyzer();
     ProcessedEvent GetProcessedEvent(CoincEvent& event);
+    inline void ClearHashTable() { rootObj->Clear(); };
     inline THashTable* GetHashTable() { return rootObj; };
     void Run(const char *input, const char *output);
 

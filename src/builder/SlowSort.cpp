@@ -19,12 +19,14 @@ bool SabreSort(DetectorHit i, DetectorHit j) {
 SlowSort::SlowSort() :
   coincWindow(-1.0), eventFlag(false), event(), cmap()
 {
+  event_stats = new TH2F("coinc_event_stats","coinc_events_stats;global channel;number of coincident hits;counts",144,0,144,20,0,20);
 }
 
 SlowSort::SlowSort(double windowSize, string& mapfile) :
   coincWindow(windowSize), eventFlag(false), event(), cmap(mapfile)
 {
-  InitVariableMaps(); 
+  event_stats = new TH2F("coinc_event_stats","coinc_events_stats;global channel;number of coincident hits;counts",144,0,144,20,0,20);
+  InitVariableMaps();
 }
 
 SlowSort::~SlowSort() {
@@ -119,8 +121,10 @@ void SlowSort::ProcessEvent() {
   Reset();
   DetectorHit dhit;
   int gchan;
+  int size = hitList.size();
   for(DPPChannel& curHit: hitList) {
     gchan = curHit.Channel + curHit.Board*16; //global channel
+    event_stats->Fill(gchan, size);
     dhit.Time = curHit.Timestamp/1.0e3;
     dhit.Ch = gchan;
     dhit.Long = curHit.Energy;

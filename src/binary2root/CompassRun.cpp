@@ -6,6 +6,8 @@
 	and writes to a ROOT file for further processing.
 
 	Written by G.W. McCann Oct. 2020
+
+	Updated to also handle scaler data. -- GWM Oct. 2020
 */
 #include "EventBuilder.h"
 #include "CompassRun.h"
@@ -34,6 +36,8 @@ CompassRun::CompassRun(const char* dir) :
 
 CompassRun::~CompassRun() {}
 
+
+/*Load em into a map*/
 void CompassRun::SetScalers() {
 	std::ifstream input(m_scalerinput);
 	if(!input.is_open()) return;
@@ -43,6 +47,7 @@ void CompassRun::SetScalers() {
 	Long64_t init = 0;
 	std::getline(input, junk);
 	std::getline(input, junk);
+	m_scaler_map.clear();
 	while(input>>filename) {
 		input>>varname;
 		filename = directory+filename+"_run_"+to_string(runNum)+".bin";
@@ -85,6 +90,10 @@ bool CompassRun::GetBinaryFiles() {
 	return true;
 }
 
+/*
+	Pure counting of scalers. Potential upgrade path to something like
+	average count rate etc. 
+*/
 void CompassRun::ReadScalerData() {
 	if(!m_scaler_flag) return;
 
@@ -222,6 +231,7 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 	for(auto& entry : m_scaler_map) {
 		entry.second.Write();
 	}
+	coincidizer.GetEventStats()->Write();
 	output->Close();
 	std::cout<<"Data written."<<std::endl;
 }
@@ -279,6 +289,7 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 	for(auto& entry : m_scaler_map) {
 		entry.second.Write();
 	}
+	coincidizer.GetEventStats()->Write();
 	output->Close();
 	std::cout<<"Data written."<<std::endl;
 }
@@ -350,7 +361,9 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 	for(auto& entry : parvec) {
 		entry.Write();
 	}
+	coincidizer.GetEventStats()->Write();
 	analyzer.GetHashTable()->Write();
+	analyzer.ClearHashTable();
 	output->Close();
 	std::cout<<"Data written."<<std::endl;
 }
@@ -427,7 +440,9 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 	for(auto& entry : parvec) {
 		entry.Write();
 	}
+	coincidizer.GetEventStats()->Write();
 	analyzer.GetHashTable()->Write();
+	analyzer.ClearHashTable();
 	output->Close();
 	std::cout<<"Data written."<<std::endl;
 }

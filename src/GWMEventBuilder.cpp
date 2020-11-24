@@ -287,6 +287,7 @@ bool GWMEventBuilder::CollectRuns(std::string& dir, std::string prefix, std::str
 	}
 }
 
+/*DEPRECATED*/
 void GWMEventBuilder::BuildFullEvents() {
 
 	std::string raw = m_rootpath+"/raw_root/";
@@ -499,6 +500,7 @@ void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	*m_stream<<"-------------------------------------------"<<std::endl;
 }
 
+/*DEPRECATED*/
 void GWMEventBuilder::BuildSlowEvents() {
 
 	std::string raw = m_rootpath+"/raw_root/";
@@ -530,6 +532,7 @@ void GWMEventBuilder::BuildSlowEvents() {
 	*m_stream<<std::endl;
 }
 
+/*DEPRECATED*/
 void GWMEventBuilder::BuildFastEvents() {
 	std::string sorted = m_rootpath+"/sorted/";
 	std::string fast = m_rootpath+"/fast/";
@@ -584,6 +587,7 @@ void GWMEventBuilder::AnalyzeSlowEvents() {
 	*m_stream<<std::endl;
 }
 
+/*DEPRECATED*/
 void GWMEventBuilder::AnalyzeFastEvents() {
 	std::string fast = m_rootpath+"/fast/";
 	std::string analyzed = m_rootpath+"/analyzed/";

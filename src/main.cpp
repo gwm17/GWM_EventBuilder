@@ -36,18 +36,23 @@ int main(int argc, char** argv) {
 	Stopwatch timer;
 	timer.Start();
 	if(operation == "buildAll") {
+		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
 		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_ALL);
 		theBuilder.BuildEvents();
 	} else if(operation == "buildSlow") {
+		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
 		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_SLOW);
 		theBuilder.BuildEvents();
 	} else if(operation == "buildFast") {
+		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
 		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_FAST);
 		theBuilder.BuildEvents();
 	} else if(operation == "analyzeSlow") {
+		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
 		theBuilder.SetAnalysisType(GWMEventBuilder::ANALYZE_SLOW);
 		theBuilder.BuildEvents();
 	} else if(operation == "analyzeFast") {
+		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
 		theBuilder.SetAnalysisType(GWMEventBuilder::ANALYZE_FAST);
 		theBuilder.BuildEvents();
 	} else if(operation == "archive") {
