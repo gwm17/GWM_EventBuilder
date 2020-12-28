@@ -89,4 +89,5 @@ Only compatible with MacOSX and Linux of most flavors
 ## Compliling and Running
 To compile use the command `make`
 It is recommended to make a simple shell script that runs the full pipeline if using the command line version.
+Or whatever works best for you I guess.
 
