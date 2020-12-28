@@ -27,6 +27,7 @@ enum DetAttribute {
 	DELAYBR,
 	DELAYBL,
 	CATHODE,
+	MONITOR,
 	SABRERING = 88, //These are offset to avoid interference at the variable mapping phase
 	SABREWEDGE = 99 //Just don't add any new attributes with values greater than 88
 };

@@ -448,7 +448,7 @@ void GWMEventBuilder::Convert2SlowAnalyzedRoot() {
 		wipe_command = "rm -rf "+unpack_dir+"*";
 
 		system(unpack_command.c_str());
-		converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
+		converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
 		system(wipe_command.c_str());
 
 	}
@@ -466,6 +466,8 @@ void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	*m_stream<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
 	*m_stream<<"Channel Map File: "<<m_mapfile<<std::endl;
 	*m_stream<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
+	*m_stream<<"Fast Ion Chamber Coincidence Window(ps): "<<m_FastWindowIonCh<<std::endl;
+	*m_stream<<"Fast SABRE Coincidence Window(ps): "<<m_FastWindowSABRE<<std::endl;
 	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
 	
 	grabber.SetSearchParams(m_binpath,"",".tar.gz",m_rmin,m_rmax);

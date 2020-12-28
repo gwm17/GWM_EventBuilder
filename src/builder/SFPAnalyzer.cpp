@@ -89,19 +89,27 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
     pevent.cathode = event.focalPlane.cathode[0].Long;
     pevent.cathodeTime = event.focalPlane.cathode[0].Time;
   }
+  if(!event.focalPlane.monitor.empty()) {
+    pevent.monitorE = event.focalPlane.monitor[0].Long;
+    pevent.monitorTime = event.focalPlane.monitor[0].Time;
+  }
 
   /*Delay lines and all that*/
   if(!event.focalPlane.delayFR.empty()) {
     pevent.delayFrontRightE = event.focalPlane.delayFR[0].Long;
+    pevent.delayFrontRightTime = event.focalPlane.delayFR[0].Time;
   }
   if(!event.focalPlane.delayFL.empty()) {
     pevent.delayFrontLeftE = event.focalPlane.delayFL[0].Long;
+    pevent.delayFrontLeftTime = event.focalPlane.delayFL[0].Time;
   }
   if(!event.focalPlane.delayBR.empty()) {
     pevent.delayBackRightE = event.focalPlane.delayBR[0].Long;
+    pevent.delayBackRightTime = event.focalPlane.delayBR[0].Time;
   }
   if(!event.focalPlane.delayBL.empty()) {
     pevent.delayBackLeftE = event.focalPlane.delayBL[0].Long;
+    pevent.delayBackLeftTime = event.focalPlane.delayBL[0].Time;
   }
   if(!event.focalPlane.delayFL.empty() && !event.focalPlane.delayFR.empty()) { 
     pevent.fp1_tdiff = (event.focalPlane.delayFL[0].Time-event.focalPlane.delayFR[0].Time)*0.5;

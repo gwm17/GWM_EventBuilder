@@ -56,6 +56,7 @@ private:
 
 	//what run is this
 	int runNum;
+	unsigned int m_totalHits;
 
 	//Scaler switch
 	bool m_scaler_flag;

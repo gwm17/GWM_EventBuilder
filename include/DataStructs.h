@@ -27,6 +27,7 @@ struct SabreDetector {
 struct FPDetector {
   vector<DetectorHit> delayFL, delayFR, delayBL, delayBR;
   vector<DetectorHit> anodeF, anodeB, scintL, scintR, cathode;
+  vector<DetectorHit> monitor;
 };
 
 struct CoincEvent {
@@ -51,7 +52,13 @@ struct ProcessedEvent {
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
   Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;
+  Double_t delayFrontLeftTime = -1, delayFrontRightTime = -1;
+  Double_t delayBackLeftTime = -1, delayBackRightTime = -1;
   Double_t cathodeTime = -1;
+
+  Double_t monitorE = -1;
+  Double_t monitorTime = -1;
+
 
   SabreDetector sabreArray[5]; //index = ChannelMap Id# -1
 };

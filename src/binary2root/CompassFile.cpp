@@ -38,6 +38,15 @@ void CompassFile::Open(std::string& filename) {
 	hitUsedFlag = true;
 	m_filename = filename;
 	m_file->open(m_filename, std::ios::binary | std::ios::in);
+
+	m_file->seekg(0, std::ios_base::end);
+	m_size = m_file->tellg();
+	m_nHits = m_size/24;
+	if(m_size == 0) {
+		eofFlag = true;
+	} else {
+		m_file->seekg(0, std::ios_base::beg);
+	}
 }
 
 void CompassFile::Open(const char* filename) {
@@ -45,6 +54,15 @@ void CompassFile::Open(const char* filename) {
 	hitUsedFlag = true;
 	m_filename = filename;
 	m_file->open(m_filename, std::ios::binary | std::ios::in);
+
+	m_file->seekg(0, std::ios_base::end);
+	m_size = m_file->tellg();
+	m_nHits = m_size/24;
+	if(m_size == 0) {
+		eofFlag = true;
+	} else {
+		m_file->seekg(0, std::ios_base::beg);
+	}
 }
 
 void CompassFile::Close() {
@@ -64,7 +82,7 @@ void CompassFile::Close() {
 bool CompassFile::GetNextHit() {
 	if(!IsOpen()) return true;
 
-	if(bufferIter == nullptr || bufferIter == bufferEnd) {
+	if((bufferIter == nullptr || bufferIter == bufferEnd) && !IsEOF()) {
 		GetNextBuffer();
 	}
 

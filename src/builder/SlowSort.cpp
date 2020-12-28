@@ -54,6 +54,7 @@ void SlowSort::InitVariableMaps() {
   fpVMap[DELAYBR] = &event.focalPlane.delayBR;
   fpVMap[ANODEFRONT] = &event.focalPlane.anodeF;
   fpVMap[ANODEBACK] = &event.focalPlane.anodeB;
+  fpVMap[MONITOR] = &event.focalPlane.monitor;
 
 }
 

@@ -33,6 +33,8 @@ public:
 	inline bool IsEOF() { return eofFlag; }; //see if we've read all available data
 	inline bool* GetUsedFlagPtr() { return &hitUsedFlag; };
 	inline void AttachShiftMap(NewShiftMap* map) { m_smap = map; };
+	inline unsigned int GetSize() { return m_size; };
+	inline unsigned int GetNumberOfHits() { return m_nHits; };
 
 
 private:
@@ -54,6 +56,8 @@ private:
 	CompassHit m_currentHit;
 	FilePointer m_file;
 	bool eofFlag;
+	unsigned int m_size; //size of the file in bytes
+	unsigned int m_nHits; //number of hits in the file (m_size/24)
 
 };
 
