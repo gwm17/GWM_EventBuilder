@@ -142,11 +142,12 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGHorizontalFrame *RunFrame = new TGHorizontalFrame(InputFrame, w*0.5, h*0.1);
 	TGLabel *typelabel = new TGLabel(RunFrame, "Operation Type:");
 	fTypeBox = new TGComboBox(RunFrame, TYPEBOX);
-	fTypeBox->AddEntry("Build Events", GWMEventBuilder::BUILD_ALL);
+	//Needs modification for new conversion based sorting GWM -- Dec 2020
+	/*fTypeBox->AddEntry("Build Events", GWMEventBuilder::BUILD_ALL);
 	fTypeBox->AddEntry("Build Slow Events", GWMEventBuilder::BUILD_SLOW);
 	fTypeBox->AddEntry("Build Fast Events", GWMEventBuilder::BUILD_FAST);
 	fTypeBox->AddEntry("Analyze Slow Events", GWMEventBuilder::ANALYZE_SLOW);
-	fTypeBox->AddEntry("Analyze Fast Events", GWMEventBuilder::ANALYZE_FAST);
+	fTypeBox->AddEntry("Analyze Fast Events", GWMEventBuilder::ANALYZE_FAST);*/
 	fTypeBox->AddEntry("Convert Archive to ROOT", GWMEventBuilder::CONVERT);
 	fTypeBox->AddEntry("Archive BIN Files", GWMEventBuilder::ARCHIVE);
 	fTypeBox->AddEntry("Merge ROOT Files", GWMEventBuilder::MERGE);
@@ -247,7 +248,7 @@ void EVBMainFrame::DoRun() {
 		}
 		default :
 		{
-			fBuilder.BuildEvents();
+			//Used to do build, now need to do convert GWM -- Dec 2020
 		}
 	}
 	//fWorkerThread->SetCancelAsynchronous();

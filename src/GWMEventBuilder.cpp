@@ -124,38 +124,6 @@ void GWMEventBuilder::WriteConfigFile(std::string& fullpath) {
 
 }
 
-void GWMEventBuilder::BuildEvents() {
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"WARNING!!! These operations are DEPRECATED. There is no support";
-	*m_stream<<" for scalers or paramters, and performance will vary."<<std::endl;
-	*m_stream<<"If possible use the CONVERT methods instead."<<std::endl;
-	*m_stream<<"Perfoming Event Operation: ";
-	switch(m_analysisType) {
-		case BUILD_ALL:
-			*m_stream<<"Build Full Events"<<std::endl;
-			BuildFullEvents();
-			break;
-		case BUILD_SLOW:
-			*m_stream<<"Build Slow Events"<<std::endl;
-			BuildSlowEvents();
-			break;
-		case BUILD_FAST:
-			*m_stream<<"Build Fast Events"<<std::endl;
-			BuildFastEvents();
-			break;
-		case ANALYZE_SLOW:
-			*m_stream<<"Analyze Slow Events"<<std::endl;
-			AnalyzeSlowEvents();
-			break;
-		case ANALYZE_FAST:
-			*m_stream<<"Analyze Fast Events"<<std::endl;
-			AnalyzeFastEvents();
-			break;
-	}
-	*m_stream<<"Completed."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
-}
-
 void GWMEventBuilder::PlotHistograms() {
 	std::string analyze_dir = m_rootpath+"/analyzed/";
 	SFPPlotter grammer;
@@ -285,44 +253,6 @@ bool GWMEventBuilder::CollectRuns(std::string& dir, std::string prefix, std::str
 			return false;
 		}
 	}
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::BuildFullEvents() {
-
-	std::string raw = m_rootpath+"/raw_root/";
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string fast = m_rootpath+"/fast/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Raw ROOT Directory: "<<raw<<std::endl;
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Fast Sorted Directory: "<<fast<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(raw,"",".root",m_rmin,m_rmax);
-
-	SlowSort slower(m_SlowWindow, m_mapfile);
-	FastSort faster(m_FastWindowSABRE, m_FastWindowIonCh);
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	std::string this_raw, this_sorted, this_fast, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_raw = grabber.GrabFile(i);
-		if(this_raw == "") continue;
-		*m_stream<<"Processing "<<this_raw<<std::endl;
-
-		this_sorted = sorted+"run_"+to_string(i)+".root";
-		this_fast = fast+"run_"+to_string(i)+".root";
-		this_analyzed = analyzed+"run_"+to_string(i)+".root";
-
-		slower.Run(this_raw.c_str(), this_sorted.c_str());
-		faster.Run(this_sorted.c_str(), this_fast.c_str());
-		analyzey.Run(this_fast.c_str(), this_analyzed.c_str());
-
-	}
-	*m_stream<<std::endl;
 }
 
 void GWMEventBuilder::Convert2SortedRoot() {
@@ -500,119 +430,6 @@ void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	}
 	*m_stream<<std::endl<<"Conversion complete."<<std::endl;
 	*m_stream<<"-------------------------------------------"<<std::endl;
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::BuildSlowEvents() {
-
-	std::string raw = m_rootpath+"/raw_root/";
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Raw ROOT Directory: "<<raw<<std::endl;
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(raw,"",".root",m_rmin, m_rmax);
-
-	SlowSort slower(m_SlowWindow, m_mapfile);
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	std::string this_raw, this_sorted, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_raw = grabber.GrabFile(i);
-		if(this_raw == "") continue;
-		*m_stream<<"Processing "<<this_raw<<std::endl;
-
-		this_sorted	 = sorted + "run_" + to_string(i) + ".root";
-		this_analyzed = analyzed + "run_" + to_string(i) + ".root";
-
-		slower.Run(this_raw.c_str(), this_sorted.c_str());
-		analyzey.Run(this_sorted.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::BuildFastEvents() {
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string fast = m_rootpath+"/fast/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Fast Sorted Directory: "<<fast<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(sorted, "", ".root", m_rmin, m_rmax);
-	FastSort faster(m_FastWindowSABRE, m_FastWindowIonCh);
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	string this_sorted, this_fast, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_sorted = grabber.GrabFile(i);
-		if(this_sorted == "") continue;
-		*m_stream<<"Processing "<<this_sorted<<std::endl;
-		
-		this_fast = fast+"run_"+to_string(i)+".root";
-		this_analyzed = analyzed + "run_"+to_string(i)+".root";
-
-		faster.Run(this_sorted.c_str(), this_fast.c_str());
-		analyzey.Run(this_fast.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
-}
-
-void GWMEventBuilder::AnalyzeSlowEvents() {
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(sorted, "", ".root", m_rmin, m_rmax);
-
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	string this_sorted, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_sorted = grabber.GrabFile(i);
-		if(this_sorted == "") continue;
-		*m_stream<<"Processing "<<this_sorted<<std::endl;
-		
-		this_analyzed = analyzed + "run_"+to_string(i)+".root";
-
-		analyzey.Run(this_sorted.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::AnalyzeFastEvents() {
-	std::string fast = m_rootpath+"/fast/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Data Fast Sorted Directory: "<<fast<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(fast, "", ".root", m_rmin, m_rmax);
-
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	string this_fast, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_fast = grabber.GrabFile(i);
-		if(this_fast == "") continue;
-		*m_stream<<"Processing "<<this_fast<<std::endl;
-		
-		this_analyzed = analyzed + "run_"+to_string(i)+".root";
-
-		analyzey.Run(this_fast.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
 }
 
 bool GWMEventBuilder::SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke) {

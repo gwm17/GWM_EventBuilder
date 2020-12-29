@@ -19,7 +19,6 @@ public:
 	bool ReadConfigFile(std::string& filename);
 	void WriteConfigFile(std::string& filename);
 
-	void BuildEvents();
 	void PlotHistograms();
 	void ConvertBin2ROOT();
 	void MergeROOTFiles();
@@ -81,11 +80,6 @@ public:
 	inline void SetStream(std::ostream* stream) { m_stream = stream; };
 
 	enum BuildType {
-		BUILD_ALL,
-		BUILD_SLOW,
-		BUILD_FAST,
-		ANALYZE_FAST,
-		ANALYZE_SLOW,
 		ARCHIVE,
 		CONVERT,
 		CONVERT_S,
@@ -123,12 +117,6 @@ private:
 
 	bool CollectRuns(std::string& dir, std::string prefix, std::string suffix, int min, int max, bool ranged=true);
 	bool GetRun(int runno);
-
-	void BuildFullEvents();
-	void BuildSlowEvents();
-	void BuildFastEvents();
-	void AnalyzeSlowEvents();
-	void AnalyzeFastEvents();
 
 };
 

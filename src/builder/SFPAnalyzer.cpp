@@ -174,37 +174,3 @@ ProcessedEvent SFPAnalyzer::GetProcessedEvent(CoincEvent& event) {
   AnalyzeEvent(event);
   return pevent;
 }
-
-/*Bulk of the work done here*/
-void SFPAnalyzer::Run(const char *input, const char *output) {
-  TFile* inputFile = new TFile(input, "READ");
-  TTree* inputTree = (TTree*) inputFile->Get("SortTree");
-  inputTree->SetBranchAddress("event", &event_address);
-
-  TFile* outputFile = new TFile(output, "RECREATE");
-  TTree* outputTree = new TTree("SPSTree", "SPSTree");
-  rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
-
-  outputTree->Branch("event", "ProcessedEvent", &pevent);
-  Float_t place;
-  Float_t blentries = inputTree->GetEntries();
-  cout<<"Number of entries: "<<blentries<<endl;
-  cout<<setprecision(2);
-  for(long double i=0; i<inputTree->GetEntries(); i++) {
-    inputTree->GetEntry(i);
-    place = ((long double)i)/blentries*100;
-    /*Non-continuous progress update*/
-    if(fmod(place, 10.0) == 0) cout<<"\rPercent of file processed: "<<ceil(place)<<"%"<<flush;
-    AnalyzeEvent(*event_address);
-    outputTree->Fill();
-  }
-  cout<<endl;
-  outputFile->cd();
-  rootObj->Write();
-  rootObj->Clear();
-  outputTree->Write(outputTree->GetName(), TObject::kOverwrite);
-  outputFile->Close();
-  inputFile->Close();
-  delete outputFile;
-  delete inputFile;
-}
