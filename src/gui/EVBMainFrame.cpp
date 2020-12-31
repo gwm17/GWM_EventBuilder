@@ -7,7 +7,7 @@
 #include <TSystem.h>
 
 EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) : 
-	TGMainFrame(p, w, h, kHorizontalFrame)
+	TGMainFrame(p, w, h, kVerticalFrame)
 {
 	SetCleanup(kDeepCleanup);
 	MAIN_W = w; MAIN_H = h;
@@ -15,25 +15,18 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	//Organization hints
 	TGLayoutHints *fchints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5);
 	TGLayoutHints *fhints = new TGLayoutHints(kLHintsExpandX|kLHintsCenterY,5,5,5,5);
-	TGLayoutHints *lchints = new TGLayoutHints(kLHintsTop|kLHintsLeft,5,5,5,5);
 	TGLayoutHints *lhints = new TGLayoutHints(kLHintsCenterY|kLHintsLeft,5,5,5,5);
 	TGLayoutHints *bhints = new TGLayoutHints(kLHintsLeft|kLHintsCenterY,5,5,5,5);
+	TGLayoutHints *fpbhints = new TGLayoutHints(kLHintsExpandX|kLHintsBottom,5,5,5,5);
+	TGLayoutHints *mhints = new TGLayoutHints(kLHintsTop|kLHintsLeft,0,4,0,0);
 
 	//Make the containers and link up all signals/slots
 
-	TGVerticalFrame *ConsoleFrame = new TGVerticalFrame(this, w*0.5, h);
-	TGLabel *consLabel = new TGLabel(ConsoleFrame, "Console");
-	fConsole = new TGTextViewostream(ConsoleFrame, w, h*0.3);
-	ConsoleFrame->AddFrame(consLabel, lchints);
-	ConsoleFrame->AddFrame(fConsole, fchints);
+	TGVerticalFrame *InputFrame = new TGVerticalFrame(this, w, h*0.9);
 
-	fBuilder.SetStream(fConsole);
+	TGVerticalFrame *NameFrame = new TGVerticalFrame(InputFrame, w, h*0.4);
 
-	TGVerticalFrame *InputFrame = new TGVerticalFrame(this, w*0.5, h);
-
-	TGVerticalFrame *NameFrame = new TGVerticalFrame(InputFrame, w*0.5, h);
-
-	TGHorizontalFrame *ROOTFrame = new TGHorizontalFrame(NameFrame, w*0.5, h*0.1);
+	TGHorizontalFrame *ROOTFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* rootLabel = new TGLabel(ROOTFrame, "ROOT Directory:");
 	fROOTField = new TGTextEntry(ROOTFrame, new TGTextBuffer(120), ROOTDIR);
 	fROOTField->Resize(w*0.25, fROOTField->GetDefaultHeight());
@@ -44,7 +37,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	ROOTFrame->AddFrame(fROOTField, fhints);
 	ROOTFrame->AddFrame(fOpenROOTButton, bhints);
 
-	TGHorizontalFrame *BINFrame = new TGHorizontalFrame(NameFrame, w*0.5, h*0.1);
+	TGHorizontalFrame *BINFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* binlabel = new TGLabel(BINFrame, "BIN Archive Directory:");
 	fBINField = new TGTextEntry(BINFrame, new TGTextBuffer(120), BINDIR);
 	fBINField->Resize(w*0.25, fBINField->GetDefaultHeight());
@@ -55,7 +48,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	BINFrame->AddFrame(fBINField, fhints);
 	BINFrame->AddFrame(fOpenBINButton, bhints);
 
-	TGHorizontalFrame *CMapFrame = new TGHorizontalFrame(NameFrame, w*0.5, h*0.1);
+	TGHorizontalFrame *CMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* cmaplabel = new TGLabel(CMapFrame, "Channel Map File:");
 	fCMapField = new TGTextEntry(CMapFrame, new TGTextBuffer(120), CMAP);
 	fCMapField->Resize(w*0.25, fCMapField->GetDefaultHeight());
@@ -66,7 +59,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	CMapFrame->AddFrame(fCMapField, fhints);
 	CMapFrame->AddFrame(fOpenCMapButton, bhints);
 
-	TGHorizontalFrame *SMapFrame = new TGHorizontalFrame(NameFrame, w*0.5, h*0.1);
+	TGHorizontalFrame *SMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* smaplabel = new TGLabel(SMapFrame, "Board Shift File:");
 	fSMapField = new TGTextEntry(SMapFrame, new TGTextBuffer(120), SMAP);
 	fSMapField->Resize(w*0.25, fSMapField->GetDefaultHeight());
@@ -77,81 +70,98 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	SMapFrame->AddFrame(fSMapField, fhints);
 	SMapFrame->AddFrame(fOpenSMapButton, bhints);
 
+	TGHorizontalFrame *ScalerFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGLabel* sclabel = new TGLabel(ScalerFrame, "Scaler File: ");
+	fScalerField = new TGTextEntry(ScalerFrame, new TGTextBuffer(120), SCALER);
+	fScalerField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateScaler()");
+	fOpenScalerButton = new TGTextButton(ScalerFrame, "Open");
+	fOpenScalerButton->Connect("Clicked()","EVBMainFrame", this, "DoOpenScalerfile()");
+	ScalerFrame->AddFrame(sclabel, lhints);
+	ScalerFrame->AddFrame(fScalerField, fhints);
+	ScalerFrame->AddFrame(fOpenScalerButton, bhints);
+
+	TGHorizontalFrame *CutFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGLabel* clabel = new TGLabel(CutFrame, "Cut List: ");
+	fCutField = new TGTextEntry(CutFrame, new TGTextBuffer(120), CUT);
+	fCutField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateCut()");
+	fOpenCutButton = new TGTextButton(CutFrame, "Open");
+	fOpenCutButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenCutfile()");
+	CutFrame->AddFrame(clabel, lhints);
+	CutFrame->AddFrame(fCutField, fhints);
+	CutFrame->AddFrame(fOpenCutButton, bhints);
+
 	NameFrame->AddFrame(ROOTFrame, fhints);
 	NameFrame->AddFrame(BINFrame, fhints);
 	NameFrame->AddFrame(CMapFrame, fhints);
 	NameFrame->AddFrame(SMapFrame, fhints);
+	NameFrame->AddFrame(ScalerFrame, fhints);
+	NameFrame->AddFrame(CutFrame, fhints);
 
 
-	TGHorizontalFrame *ParamMagFrame = new TGHorizontalFrame(InputFrame, w*0.5, h*0.1);
-	TGLabel *bkelabel = new TGLabel(ParamMagFrame, "Beam KE (MeV):");
-	fBKEField = new TGNumberEntryField(ParamMagFrame, BKE, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
-	TGLabel *bfieldlabel = new TGLabel(ParamMagFrame, "B-Field (G):");
-	fBField = new TGNumberEntryField(ParamMagFrame, BFIELD, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
-	TGLabel *thetalabel = new TGLabel(ParamMagFrame, "Angle (deg):");
-	fThetaField = new TGNumberEntryField(ParamMagFrame, THETA, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
-	ParamMagFrame->AddFrame(bkelabel, lhints);
-	ParamMagFrame->AddFrame(fBKEField, fhints);
-	ParamMagFrame->AddFrame(bfieldlabel, lhints);
-	ParamMagFrame->AddFrame(fBField, fhints);
-	ParamMagFrame->AddFrame(thetalabel, lhints);
-	ParamMagFrame->AddFrame(fThetaField, fhints);
+	TGHorizontalFrame *ParamFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
+	TGLabel *bkelabel = new TGLabel(ParamFrame, "Beam KE (MeV):");
+	fBKEField = new TGNumberEntryField(ParamFrame, BKE, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	TGLabel *bfieldlabel = new TGLabel(ParamFrame, "B-Field (G):");
+	fBField = new TGNumberEntryField(ParamFrame, BFIELD, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	TGLabel *thetalabel = new TGLabel(ParamFrame, "Angle (deg):");
+	fThetaField = new TGNumberEntryField(ParamFrame, THETA, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	TGLabel *ztlabel = new TGLabel(ParamFrame, "ZT:");
+	fZTField = new TGNumberEntryField(ParamFrame, ZT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	TGLabel *atlabel = new TGLabel(ParamFrame, "AT:");
+	fATField = new TGNumberEntryField(ParamFrame, AT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	TGLabel *zplabel = new TGLabel(ParamFrame, "ZP:");
+	fZPField = new TGNumberEntryField(ParamFrame, ZP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	TGLabel *aplabel = new TGLabel(ParamFrame, "AP:");
+	fAPField = new TGNumberEntryField(ParamFrame, AP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	TGLabel *zelabel = new TGLabel(ParamFrame, "ZE:");
+	fZEField = new TGNumberEntryField(ParamFrame, ZE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	TGLabel *aelabel = new TGLabel(ParamFrame, "AE:");
+	fAEField = new TGNumberEntryField(ParamFrame, AE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	ParamFrame->AddFrame(bkelabel, lhints);
+	ParamFrame->AddFrame(fBKEField, fhints);
+	ParamFrame->AddFrame(bfieldlabel, lhints);
+	ParamFrame->AddFrame(fBField, fhints);
+	ParamFrame->AddFrame(thetalabel, lhints);
+	ParamFrame->AddFrame(fThetaField, fhints);
+	ParamFrame->AddFrame(ztlabel, lhints);
+	ParamFrame->AddFrame(fZTField, fhints);
+	ParamFrame->AddFrame(atlabel, lhints);
+	ParamFrame->AddFrame(fATField, fhints);
+	ParamFrame->AddFrame(zplabel, lhints);
+	ParamFrame->AddFrame(fZPField, fhints);
+	ParamFrame->AddFrame(aplabel, lhints);
+	ParamFrame->AddFrame(fAPField, fhints);
+	ParamFrame->AddFrame(zelabel, lhints);
+	ParamFrame->AddFrame(fZEField, fhints);
+	ParamFrame->AddFrame(aelabel, lhints);
+	ParamFrame->AddFrame(fAEField, fhints);
 
-	TGHorizontalFrame *ParamNucFrame = new TGHorizontalFrame(InputFrame, w*0.5, h*0.1);
-	TGLabel *ztlabel = new TGLabel(ParamNucFrame, "ZT:");
-	fZTField = new TGNumberEntryField(ParamNucFrame, ZT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *atlabel = new TGLabel(ParamNucFrame, "AT:");
-	fATField = new TGNumberEntryField(ParamNucFrame, AT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *zplabel = new TGLabel(ParamNucFrame, "ZP:");
-	fZPField = new TGNumberEntryField(ParamNucFrame, ZP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *aplabel = new TGLabel(ParamNucFrame, "AP:");
-	fAPField = new TGNumberEntryField(ParamNucFrame, AP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *zelabel = new TGLabel(ParamNucFrame, "ZE:");
-	fZEField = new TGNumberEntryField(ParamNucFrame, ZE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *aelabel = new TGLabel(ParamNucFrame, "AE:");
-	fAEField = new TGNumberEntryField(ParamNucFrame, AE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	ParamNucFrame->AddFrame(ztlabel, lhints);
-	ParamNucFrame->AddFrame(fZTField, fhints);
-	ParamNucFrame->AddFrame(atlabel, lhints);
-	ParamNucFrame->AddFrame(fATField, fhints);
-	ParamNucFrame->AddFrame(zplabel, lhints);
-	ParamNucFrame->AddFrame(fZPField, fhints);
-	ParamNucFrame->AddFrame(aplabel, lhints);
-	ParamNucFrame->AddFrame(fAPField, fhints);
-	ParamNucFrame->AddFrame(zelabel, lhints);
-	ParamNucFrame->AddFrame(fZEField, fhints);
-	ParamNucFrame->AddFrame(aelabel, lhints);
-	ParamNucFrame->AddFrame(fAEField, fhints);
+	TGHorizontalFrame *WindowFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
+	TGLabel *slowlabel = new TGLabel(WindowFrame, "Slow Coincidence Window (ps):");
+	fSlowWindowField = new TGNumberEntryField(WindowFrame, SLOWWIND, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	TGLabel *fasticlabel = new TGLabel(WindowFrame, "Fast Coincidence Window IC (ps):");
+	fFastICField = new TGNumberEntryField(WindowFrame, FASTWIND_IC, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	TGLabel *fastsabrelabel = new TGLabel(WindowFrame, "Fast Coincidence Window SABRE (ps):");
+	fFastSABREField = new TGNumberEntryField(WindowFrame, FASTWIND_SABRE, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	WindowFrame->AddFrame(slowlabel, lhints);
+	WindowFrame->AddFrame(fSlowWindowField, fhints);
+	WindowFrame->AddFrame(fasticlabel, lhints);
+	WindowFrame->AddFrame(fFastICField, fhints);
+	WindowFrame->AddFrame(fastsabrelabel, lhints);
+	WindowFrame->AddFrame(fFastSABREField, fhints);
 
-	TGHorizontalFrame *Window1Frame = new TGHorizontalFrame(InputFrame, w*0.5, h*0.1);
-	TGLabel *slowlabel = new TGLabel(Window1Frame, "Slow Coincidence Window (ps):");
-	fSlowWindowField = new TGNumberEntryField(Window1Frame, SLOWWIND, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
-	Window1Frame->AddFrame(slowlabel, lhints);
-	Window1Frame->AddFrame(fSlowWindowField, fhints);
-
-	TGHorizontalFrame *Window2Frame = new TGHorizontalFrame(InputFrame, w*0.5, h*0.1);
-	TGLabel *fasticlabel = new TGLabel(Window2Frame, "Fast Coincidence Window IC (ps):");
-	fFastICField = new TGNumberEntryField(Window2Frame, FASTWIND_IC, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
-	TGLabel *fastsabrelabel = new TGLabel(Window2Frame, "Fast Coincidence Window SABRE (ps):");
-	fFastSABREField = new TGNumberEntryField(Window2Frame, FASTWIND_SABRE, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
-	Window2Frame->AddFrame(fasticlabel, lhints);
-	Window2Frame->AddFrame(fFastICField, fhints);
-	Window2Frame->AddFrame(fastsabrelabel, lhints);
-	Window2Frame->AddFrame(fFastSABREField, fhints);
-
-	TGHorizontalFrame *RunFrame = new TGHorizontalFrame(InputFrame, w*0.5, h*0.1);
+	TGHorizontalFrame *RunFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
 	TGLabel *typelabel = new TGLabel(RunFrame, "Operation Type:");
 	fTypeBox = new TGComboBox(RunFrame, TYPEBOX);
 	//Needs modification for new conversion based sorting GWM -- Dec 2020
-	/*fTypeBox->AddEntry("Build Events", GWMEventBuilder::BUILD_ALL);
-	fTypeBox->AddEntry("Build Slow Events", GWMEventBuilder::BUILD_SLOW);
-	fTypeBox->AddEntry("Build Fast Events", GWMEventBuilder::BUILD_FAST);
-	fTypeBox->AddEntry("Analyze Slow Events", GWMEventBuilder::ANALYZE_SLOW);
-	fTypeBox->AddEntry("Analyze Fast Events", GWMEventBuilder::ANALYZE_FAST);*/
-	fTypeBox->AddEntry("Convert Archive to ROOT", GWMEventBuilder::CONVERT);
-	fTypeBox->AddEntry("Archive BIN Files", GWMEventBuilder::ARCHIVE);
-	fTypeBox->AddEntry("Merge ROOT Files", GWMEventBuilder::MERGE);
-	fTypeBox->AddEntry("Make Histograms", GWMEventBuilder::PLOT);
+	fTypeBox->AddEntry("Convert Slow", GWMEventBuilder::CONVERT_S);
+	fTypeBox->AddEntry("Convert Fast", GWMEventBuilder::CONVERT_F);
+	fTypeBox->AddEntry("Convert SlowA", GWMEventBuilder::CONVERT_SA);
+	fTypeBox->AddEntry("Convert FastA", GWMEventBuilder::CONVERT_FA);
+	fTypeBox->AddEntry("Convert", GWMEventBuilder::CONVERT);
+	fTypeBox->AddEntry("Archive BIN", GWMEventBuilder::ARCHIVE);
+	fTypeBox->AddEntry("Merge ROOT", GWMEventBuilder::MERGE);
+	fTypeBox->AddEntry("Plot", GWMEventBuilder::PLOT);
 	fTypeBox->Resize(200,20);
 	fTypeBox->Connect("Selected(Int_t, Int_t)","EVBMainFrame",this,"HandleTypeSelection(Int_t,Int_t)");
 	TGLabel *rminlabel = new TGLabel(RunFrame, "Min Run:");
@@ -170,38 +180,50 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	RunFrame->AddFrame(fRunButton, bhints);
 
 	InputFrame->AddFrame(NameFrame, fhints);
-	InputFrame->AddFrame(ParamMagFrame, fhints);
-	InputFrame->AddFrame(ParamNucFrame, fhints);
-	InputFrame->AddFrame(Window1Frame, fhints);
-	InputFrame->AddFrame(Window2Frame, fhints);
+	InputFrame->AddFrame(ParamFrame, fhints);
+	InputFrame->AddFrame(WindowFrame, fhints);
 	InputFrame->AddFrame(RunFrame, fhints);
 
-	//fUpdateTimer = new TTimer(100);
-	//fUpdateTimer->Connect("Timeout()","EVBMainFrame",this,"UpdateConsole()");
+	TGVerticalFrame *PBFrame = new TGVerticalFrame(this, w, h*0.1);
+	TGLabel *pbLabel = new TGLabel(PBFrame, "Build Progress");
+	fProgressBar = new TGHProgressBar(PBFrame, TGProgressBar::kFancy, w);
+	fProgressBar->ShowPosition();
+	fProgressBar->SetBarColor("lightblue");
+	fBuilder.AttachProgressBar(fProgressBar);
+	PBFrame->AddFrame(pbLabel, lhints);
+	PBFrame->AddFrame(fProgressBar, fhints);
 
-	AddFrame(ConsoleFrame, fchints);
+	TGMenuBar* menuBar = new TGMenuBar(this, w, h*0.1, kHorizontalFrame);
+	fFileMenu = new TGPopupMenu(gClient->GetRoot());
+	fFileMenu->AddEntry("Load...", M_LOAD_CONFIG);
+	fFileMenu->AddEntry("Save...", M_SAVE_CONFIG);
+	fFileMenu->Connect("Activated(Int_t)","EVBMainFrame", this, "HandleMenuSelection(Int_t)");
+	menuBar->AddPopup("File", fFileMenu, mhints);
+
+	AddFrame(menuBar, new TGLayoutHints(kLHintsTop|kLHintsLeft,0,0,0,0));
 	AddFrame(InputFrame, fchints);
+	AddFrame(PBFrame, fpbhints);
 
 	SetWindowName("GWM Event Builder");
 	MapSubwindows();
 	Resize();
 	MapWindow();
-	//fUpdateTimer->TurnOn();
 
 }
 
 EVBMainFrame::~EVBMainFrame() {
 	Cleanup();
-	//delete fUpdateTimer;
 	delete this;
 }
 
 void EVBMainFrame::CloseWindow() {
-	//fUpdateTimer->TurnOff();
 	gApplication->Terminate();
 }
 
-void EVBMainFrame::HandleMenuSelection(int id) {}
+void EVBMainFrame::HandleMenuSelection(int id) {
+	if(id == M_SAVE_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_SAVE_CONFIG);
+	else if(id == M_LOAD_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_LOAD_CONFIG);
+}
 
 void EVBMainFrame::DoOpenROOTdir() {
 	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, ROOTDIR);
@@ -219,8 +241,15 @@ void EVBMainFrame::DoOpenSMapfile() {
 	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, SMAP);	
 }
 
+void EVBMainFrame::DoOpenScalerfile() {
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, SCALER);
+}
+
+void EVBMainFrame::DoOpenCutfile() {
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, CUT);
+}
+
 void EVBMainFrame::DoRun() {
-	fConsole->Clear();
 
 	DisableAllInput();
 
@@ -228,7 +257,7 @@ void EVBMainFrame::DoRun() {
 
 	int type = fTypeBox->GetSelected();
 	fBuilder.SetAnalysisType(type);
-	//fWorkerThread->Run(this);
+
 	switch(type) {
 		case GWMEventBuilder::ARCHIVE : 
 		{
@@ -236,22 +265,39 @@ void EVBMainFrame::DoRun() {
 		}
 		case GWMEventBuilder::PLOT :
 		{
+			new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, PLOTF);
 			break;
 		}
 		case GWMEventBuilder::CONVERT :
 		{
+			fBuilder.Convert2RawRoot();
 			break;
 		}
 		case GWMEventBuilder::MERGE :
 		{
 			break;
 		}
-		default :
+		case GWMEventBuilder::CONVERT_S :
 		{
-			//Used to do build, now need to do convert GWM -- Dec 2020
+			fBuilder.Convert2SortedRoot();
+			break;
+		}
+		case GWMEventBuilder::CONVERT_F :
+		{
+			fBuilder.Convert2FastSortedRoot();
+			break;
+		}
+		case GWMEventBuilder::CONVERT_SA :
+		{
+			fBuilder.Convert2SlowAnalyzedRoot();
+			break;
+		}
+		case GWMEventBuilder::CONVERT_FA :
+		{
+			fBuilder.Convert2FastAnalyzedRoot();
+			break;
 		}
 	}
-	//fWorkerThread->SetCancelAsynchronous();
 
 	EnableAllInput();
 }
@@ -293,6 +339,51 @@ void EVBMainFrame::DisplaySMap(const char* file) {
 	fBuilder.SetBoardShiftFile(file);
 }
 
+void EVBMainFrame::DisplayScaler(const char* file) {
+	fScalerField->SetText(file);
+	fBuilder.SetScalerFile(file);
+}
+
+void EVBMainFrame::DisplayCut(const char* file) {
+	fCutField->SetText(file);
+	fBuilder.SetCutList(file);
+}
+
+void EVBMainFrame::SaveConfig(const char* file) {
+	std::string filename = file;
+	fBuilder.WriteConfigFile(filename);
+}
+
+void EVBMainFrame::LoadConfig(const char* file) {
+	std::string filename = file;
+	fBuilder.ReadConfigFile(filename);
+
+	fROOTField->SetText(fBuilder.GetROOTDirectory());
+	fBINField->SetText(fBuilder.GetBinaryDirectory());
+	fCMapField->SetText(fBuilder.GetChannelMap());
+	fSMapField->SetText(fBuilder.GetBoardShiftFile());
+	fCutField->SetText(fBuilder.GetCutList());
+	fScalerField->SetText(fBuilder.GetScalerFile());
+	
+	fZTField->SetIntNumber(fBuilder.GetTargetZ());
+	fATField->SetIntNumber(fBuilder.GetTargetA());
+	fZPField->SetIntNumber(fBuilder.GetProjectileZ());
+	fAPField->SetIntNumber(fBuilder.GetProjectileA());
+	fZEField->SetIntNumber(fBuilder.GetEjectileZ());
+	fAEField->SetIntNumber(fBuilder.GetEjectileA());
+	fBKEField->SetNumber(fBuilder.GetBeamKE());
+	fBField->SetNumber(fBuilder.GetBField());
+	fThetaField->SetNumber(fBuilder.GetTheta());
+
+	fSlowWindowField->SetNumber(fBuilder.GetSlowCoincidenceWindow());
+	fFastSABREField->SetNumber(fBuilder.GetFastWindowSABRE());
+	fFastICField->SetNumber(fBuilder.GetFastWindowIonChamber());
+
+	fRMaxField->SetIntNumber(fBuilder.GetRunMax());
+	fRMinField->SetIntNumber(fBuilder.GetRunMin());
+
+}
+
 void EVBMainFrame::UpdateROOTdir() {
 	const char* dir = fROOTField->GetText();
 	fBuilder.SetROOTDirectory(dir);
@@ -313,9 +404,23 @@ void EVBMainFrame::UpdateCMap() {
 	fBuilder.SetChannelMap(file);
 }
 
+void EVBMainFrame::UpdateScaler() {
+	const char* file = fScalerField->GetText();
+	fBuilder.SetScalerFile(file);
+}
+
+void EVBMainFrame::UpdateCut() {
+	const char* file = fCutField->GetText();
+	fBuilder.SetCutList(file);
+}
+
 void EVBMainFrame::RunArchive(const char* dir, int number) {}
 
-void EVBMainFrame::RunPlot(const char* file, const char* cutlist) {}
+void EVBMainFrame::RunPlot(const char* file) {
+	std::string plotfile = file;
+	fBuilder.SetPlotFile(plotfile.c_str());
+	fBuilder.PlotHistograms();
+}
 
 void EVBMainFrame::RunMerge(const char* file, const char* dir) {}
 
@@ -325,11 +430,15 @@ void EVBMainFrame::DisableAllInput() {
 	fOpenBINButton->SetState(kButtonDisabled);
 	fOpenCMapButton->SetState(kButtonDisabled);
 	fOpenSMapButton->SetState(kButtonDisabled);
+	fOpenScalerButton->SetState(kButtonDisabled);
+	fOpenCutButton->SetState(kButtonDisabled);
 
 	fROOTField->SetState(false);
 	fBINField->SetState(false);
 	fCMapField->SetState(false);
 	fSMapField->SetState(false);
+	fScalerField->SetState(false);
+	fCutField->SetState(false);
 
 	fTypeBox->SetEnabled(false);
 
@@ -358,11 +467,15 @@ void EVBMainFrame::EnableAllInput() {
 	fOpenBINButton->SetState(kButtonUp);
 	fOpenCMapButton->SetState(kButtonUp);
 	fOpenSMapButton->SetState(kButtonUp);
+	fOpenScalerButton->SetState(kButtonUp);
+	fOpenCutButton->SetState(kButtonUp);
 
 	fROOTField->SetState(true);
 	fBINField->SetState(true);
 	fCMapField->SetState(true);
 	fSMapField->SetState(true);
+	fScalerField->SetState(true);
+	fCutField->SetState(true);
 
 	fTypeBox->SetEnabled(true);
 
@@ -384,9 +497,4 @@ void EVBMainFrame::EnableAllInput() {
 	fFastICField->SetState(true);
 	fFastSABREField->SetState(true);
 
-}
-
-void EVBMainFrame::UpdateConsole() {
-	fConsole->ShowBottom();
-	fConsole->Update();
 }

@@ -1,5 +1,5 @@
 /*
-	NewShiftMap.h
+	ShiftMap.h
 	New class to act a go-between for timestamp shifts to channels. Takes in a
 	formated file containing data for shifts and then stores them in an unordered_map.
 	Key is a global compass channel (board#*16 + channel). Shifts in ps.
@@ -9,15 +9,15 @@
 
 	Written by G.W. McCann Oct. 2020
 */
-#ifndef NEWSHIFTMAP_H
-#define NEWSHIFTMAP_H
+#ifndef SHIFTMAP_H
+#define SHIFTMAP_H
 
-class NewShiftMap {
+class ShiftMap {
 public:
-	NewShiftMap();
-	NewShiftMap(std::string& filename);
-	NewShiftMap(const char* filename);
-	~NewShiftMap();
+	ShiftMap();
+	ShiftMap(std::string& filename);
+	ShiftMap(const char* filename);
+	~ShiftMap();
 	void SetFile(std::string& filename);
 	void SetFile(const char* filename);
 	inline bool IsSet() { return is_set; };

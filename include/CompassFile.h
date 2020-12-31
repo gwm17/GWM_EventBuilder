@@ -12,7 +12,7 @@
 #define COMPASSFILE_H
 
 #include "CompassHit.h"
-#include "NewShiftMap.h"
+#include "ShiftMap.h"
 #include <memory>
 
 class CompassFile {
@@ -32,7 +32,7 @@ public:
 	inline void SetHitHasBeenUsed() { hitUsedFlag = true; }; //flip the flag to indicate the current hit has been used
 	inline bool IsEOF() { return eofFlag; }; //see if we've read all available data
 	inline bool* GetUsedFlagPtr() { return &hitUsedFlag; };
-	inline void AttachShiftMap(NewShiftMap* map) { m_smap = map; };
+	inline void AttachShiftMap(ShiftMap* map) { m_smap = map; };
 	inline unsigned int GetSize() { return m_size; };
 	inline unsigned int GetNumberOfHits() { return m_nHits; };
 
@@ -49,7 +49,7 @@ private:
 	Buffer hitBuffer;
 	char* bufferIter;
 	char* bufferEnd;
-	NewShiftMap* m_smap; //NOT owned by CompassFile. DO NOT delete
+	ShiftMap* m_smap; //NOT owned by CompassFile. DO NOT delete
 	bool hitUsedFlag;
 	static const int bufsize = 4800000; //number of bytes to read at a time (hitsize*nhits)
 	static const int hitsize = 24; //size of a CompassHit in bytes (without alignment padding); bufsize *MUST* be a factor times this

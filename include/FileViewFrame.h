@@ -39,7 +39,6 @@ private:
 	TGTextEntry *fNameField;
 	TGFileContainer *fContents;
 	TGListView *fViewer;
-	bool dirFlag;
 	std::string suffix;
 };
 

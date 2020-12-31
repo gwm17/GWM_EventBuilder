@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 		theBuilder.ArchiveBinaryFiles(runNum);
 	} else if(operation == "convert") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT);
-		theBuilder.ConvertBin2ROOT();
+		theBuilder.Convert2RawRoot();
 	} else if(operation == "merge") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::MERGE);
 		theBuilder.MergeROOTFiles();

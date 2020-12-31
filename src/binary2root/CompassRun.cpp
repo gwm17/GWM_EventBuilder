@@ -18,19 +18,19 @@
 #include "FlagHandler.h"
 
 CompassRun::CompassRun() :
-	directory(""), m_scalerinput(""), runNum(0), m_scaler_flag(false)
+	directory(""), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
 
 CompassRun::CompassRun(std::string& dir) :
-	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false)
+	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
 
 CompassRun::CompassRun(const char* dir) :
-	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false)
+	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
@@ -171,15 +171,24 @@ void CompassRun::Convert2RawRoot(std::string& name) {
 		return;
 	}
 
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0; //Reset the startIndex
 	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 	while(true) {
 		count++;
-		if(count == flush) {
-			count = 0;
-			flush_count++;
-			std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+		if(count == flush) { //Progress Log
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}	
 		}
+
 		if(!GetHitsFromFiles()) break;
 		outtree->Fill();
 	}
@@ -212,6 +221,8 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 		return;
 	}
 
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	SlowSort coincidizer(window, mapfile);
 	bool killFlag = false;
@@ -219,10 +230,17 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 	while(true) {
 		count++;
 		if(count == flush) {
-			count = 0;
-			flush_count++;
-			std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
 		}
+
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
@@ -266,6 +284,8 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 		return;
 	}
 
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	CoincEvent this_event;
 	std::vector<CoincEvent> fast_events;
@@ -279,10 +299,17 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 	while(true) {
 		count++;
 		if(count == flush) {
-			count = 0;
-			flush_count++;
-			std::cout<<"\rPercent of run built: "<<flush_count*flush<<std::flush;
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
 		}
+		
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
@@ -335,6 +362,8 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 		return;
 	}
 
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	CoincEvent this_event;
 	SlowSort coincidizer(window, mapfile);
@@ -357,10 +386,17 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 	while(true) {
 		count++;
 		if(count == flush) {
-			count = 0;
-			flush_count++;
-			std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
 		}
+
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
@@ -412,6 +448,8 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 		return;
 	}
 
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	CoincEvent this_event;
 	std::vector<CoincEvent> fast_events;
@@ -434,16 +472,21 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 	FlagHandler flagger;
 
 	bool killFlag = false;
-	std::cout<<"Total Bytes to Build: "<<m_totalHits<<std::endl;
 	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
-	std::cout<<"Flush increment: "<<flush<<std::endl;
 	while(true) {
 		count++;
 		if(count == flush) {
-			count = 0;
-			flush_count++;
-			std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
 		}
+
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
@@ -478,4 +521,11 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 	analyzer.GetHashTable()->Write();
 	analyzer.ClearHashTable();
 	output->Close();
+}
+
+void CompassRun::SetProgressBar() {
+	m_pb->SetMax(m_totalHits);
+	m_pb->SetMin(0);
+	m_pb->SetPosition(0);
+	gSystem->ProcessEvents();
 }

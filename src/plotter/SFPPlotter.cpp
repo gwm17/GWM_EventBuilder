@@ -8,32 +8,21 @@
 
 #include "EventBuilder.h"
 #include "SFPPlotter.h"
+#include <TSystem.h>
 
 /*Generates storage and initializes pointers*/
 SFPPlotter::SFPPlotter() {
   rootObj = new THashTable();
   rootObj->SetOwner(false);//THashTable doesnt own members; avoid double delete
   event_address = new ProcessedEvent();
-  treeFlag = false;
   edefile = NULL;
   dexfile = NULL;
   exfile = NULL;
   xxfile = NULL;
   EdECut = NULL, ExCut = NULL, dExCut = NULL, x1x2Cut = NULL;
   chain = new TChain("SPSTree");
-}
-
-/*UNUSED*/
-SFPPlotter::SFPPlotter(bool tf) {
-  rootObj = new THashTable();
-  rootObj->SetOwner(false);
-  event_address = new ProcessedEvent();
-  treeFlag = tf;
-  edefile = NULL;
-  dexfile = NULL;
-  exfile = NULL;
-  xxfile = NULL;
-  EdECut = NULL, ExCut = NULL, dExCut = NULL, x1x2Cut = NULL;
+  m_pb = NULL;
+  cutFlag = false;
 }
 
 SFPPlotter::~SFPPlotter() {
@@ -103,6 +92,7 @@ int SFPPlotter::SetCuts(string edename, string dexname, string exname, string xx
     rootObj->Add(x1x2Cut);
   }
   if(EdECut != NULL && dExCut != NULL && x1x2Cut != NULL && ExCut != NULL) {
+    cutFlag = true;
     return 1;
   } else {
     return 0;
@@ -276,19 +266,27 @@ void SFPPlotter::Run(vector<TString> files, string output) {
   Chain(files);
   chain->SetBranchAddress("event", &event_address);
   TFile *outfile = new TFile(output.c_str(), "RECREATE");
- 
-  Float_t blentries = chain->GetEntries();
-  cout<<"Total number of events: "<<(Int_t)blentries<<endl;
-  cout<<setprecision(5);
-  float place;
+
+  long blentries = chain->GetEntries();
+  if(m_pb) SetProgressBar(blentries);
+  cout<<"Total number of events: "<<blentries<<endl;
+  long count=0, flush=blentries*0.1, nflushes=0;
   for(long double i=0; i<chain->GetEntries(); i++) {
-    chain->GetEntry(i);
-    place = ((long double)i)/blentries*100; 
-    if(fmod(place, 10.0) == 0.0) {/*Non-continuous progress update*/
-      cout<<"\rPercent of file processed: "<<ceil(place)<<"%"<<flush;
+    count++;
+    if(count == flush) {
+      if(m_pb) {
+        m_pb->Increment(count);
+        gSystem->ProcessEvents();
+        count = 0;
+      } else {
+        nflushes++;
+        count=0;
+        std::cout<<"\rPercent of data processed: "<<nflushes*10<<"%"<<std::flush;
+      }
     }
+    chain->GetEntry(i);
     MakeUncutHistograms(*event_address);
-    MakeCutHistograms(*event_address);
+    if(cutFlag) MakeCutHistograms(*event_address);
   }
   cout<<endl;
   outfile->cd();
@@ -303,4 +301,12 @@ void SFPPlotter::Chain(vector<TString> files) {
   for(unsigned int i=0; i<files.size(); i++) {
     chain->Add(files[i]); 
   }
+}
+
+
+void SFPPlotter::SetProgressBar(long total) {
+  m_pb->SetMax(total);
+  m_pb->SetMin(0);
+  m_pb->SetPosition(0);
+  gSystem->ProcessEvents();
 }

@@ -10,6 +10,7 @@
 #define GWMEVENTBUILDER_H
 
 #include "RunCollector.h"
+#include <TGProgressBar.h>
 
 class GWMEventBuilder {
 public:
@@ -20,7 +21,6 @@ public:
 	void WriteConfigFile(std::string& filename);
 
 	void PlotHistograms();
-	void ConvertBin2ROOT();
 	void MergeROOTFiles();
 	void ArchiveBinaryFiles(int runNum, bool segmented=false);
 	void Convert2SortedRoot();
@@ -75,9 +75,7 @@ public:
 	inline const char* GetMergeInputDirectory() { return m_mergeIndir.c_str(); };
 	inline const char* GetScalerFile() { return m_scalerfile.c_str(); };
 
-
-
-	inline void SetStream(std::ostream* stream) { m_stream = stream; };
+	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
 
 	enum BuildType {
 		ARCHIVE,
@@ -109,11 +107,11 @@ private:
 
 	int m_analysisType;
 
-	std::ostream* m_stream;
-
 	std::vector<TString> m_currentFiles;
 
 	RunCollector grabber;
+
+	TGProgressBar* m_pb;
 
 	bool CollectRuns(std::string& dir, std::string prefix, std::string suffix, int min, int max, bool ranged=true);
 	bool GetRun(int runno);

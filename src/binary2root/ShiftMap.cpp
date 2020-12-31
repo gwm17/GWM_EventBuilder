@@ -1,5 +1,5 @@
 /*
-	NewShiftMap.h
+	ShiftMap.h
 	New class to act a go-between for timestamp shifts to channels. Takes in a
 	formated file containing data for shifts and then stores them in an unordered_map.
 	Key is a global compass channel (board#*16 + channel). Shifts in ps.
@@ -10,38 +10,38 @@
 	Written by G.W. McCann Oct. 2020
 */
 #include "EventBuilder.h"
-#include "NewShiftMap.h"
+#include "ShiftMap.h"
 
-NewShiftMap::NewShiftMap() :
+ShiftMap::ShiftMap() :
 	m_filename(""), is_set(false)
 {
 }
 
-NewShiftMap::NewShiftMap(std::string& filename) :
+ShiftMap::ShiftMap(std::string& filename) :
 	m_filename(filename), is_set(false)
 {
 	ParseFile();
 }
 
-NewShiftMap::NewShiftMap(const char* filename) :
+ShiftMap::ShiftMap(const char* filename) :
 	m_filename(filename), is_set(false)
 {
 	ParseFile();
 }
 
-NewShiftMap::~NewShiftMap() {}
+ShiftMap::~ShiftMap() {}
 
-void NewShiftMap::SetFile(std::string& filename) {
+void ShiftMap::SetFile(std::string& filename) {
 	m_filename = filename;
 	ParseFile();
 }
 
-void NewShiftMap::SetFile(const char* filename) {
+void ShiftMap::SetFile(const char* filename) {
 	m_filename = filename;
 	ParseFile();
 }
 
-Long64_t NewShiftMap::GetShift(int gchan) {
+Long64_t ShiftMap::GetShift(int gchan) {
 	if(!is_set) return 0.0;
 	
 	auto iter = m_map.find(gchan);
@@ -50,7 +50,7 @@ Long64_t NewShiftMap::GetShift(int gchan) {
 	} else return iter->second;
 }
 
-void NewShiftMap::ParseFile() {
+void ShiftMap::ParseFile() {
 	std::ifstream input(m_filename);
 	if(!input.is_open()) return;
 
