@@ -6,7 +6,7 @@ It can convert CoMPASS data to ROOT, sort the data in time, build events, perfor
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
 ## GWMEVB vs. GWMEVB_CL
-There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. NOTE: `GWMEVB` is still under development, do not use as of 10/14/2020! The second is a command line version, which takes in two arguments: the operation type and an input file. These both interact with the main API `GWMEventBuilder` which contains several different data operations. Below I'll hit some of the highlights.
+There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. The GUI currently supports all conversion methods and the plotting tool, however it does not currently perform merging or archiving.
 
 ### Binary2ROOT
 The binary2root operation takes binary CoMPASS data and converts it into a `ROOT` file with a tree.
@@ -82,9 +82,9 @@ size (again center the peak on 0, the width of the peak becomes the fast window)
 Currently the pipeline supports declaring individual digitizer channels as scalers. These channels will be used a pure counting measures. To make a channel a scaler, put the CoMPASS formated name of the channel and board (check the given etc/ScalerFile.txt for an example) in a text file along with a parameter name for the scaler to be saved as. These files are then processed outside of the event building loop, which can greatly increase the computational speed. Future versions will include scaler rates as well.
 
 ## System Requirements
-Only tested with `ROOT` 6.14, so compatibility with any other version is questionable
+Only tested with `ROOT` 6.14, mileage may vary
 Uses C++11 standards
-Only compatible with MacOSX and Linux of most flavors
+Only compatible with MacOSX and Linux
 
 ## Compliling and Running
 To compile use the command `make`

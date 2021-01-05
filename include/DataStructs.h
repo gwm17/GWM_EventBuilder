@@ -15,7 +15,7 @@ struct DPPChannel {
 };
 
 struct DetectorHit {
-  Double_t Long=-1, Time=-1;
+  Double_t Long=-1, Short=-1, Time=-1;
   Int_t Ch=-1;
 };
 
@@ -56,7 +56,7 @@ struct ProcessedEvent {
   Double_t delayBackLeftTime = -1, delayBackRightTime = -1;
   Double_t cathodeTime = -1;
 
-  Double_t monitorE = -1;
+  Double_t monitorE = -1, monitorShort = -1;
   Double_t monitorTime = -1;
 
 

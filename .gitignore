@@ -1,6 +1,7 @@
 ###directories to ignore###
 ./rootfiles/
 ./pics/
+./images/
 ./hotfixes/
 
 ###file types to ignore###

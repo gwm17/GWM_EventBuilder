@@ -129,6 +129,7 @@ void SlowSort::ProcessEvent() {
     dhit.Time = curHit.Timestamp/1.0e3;
     dhit.Ch = gchan;
     dhit.Long = curHit.Energy;
+    dhit.Short = curHit.EnergyShort;
     auto channel_info = cmap.FindChannel(gchan);
     if(channel_info == cmap.End()) {
       continue;

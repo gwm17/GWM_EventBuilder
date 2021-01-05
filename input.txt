@@ -2,8 +2,8 @@
 ROOTDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/
 BinaryArchiveDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/raw_binary/
 BinaryFileDirectory: none
-MergeInputDirectory: none
-MergeOutputFile: none
+MergeInputDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/analyzed/
+MergeOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/merged_25deg_runs.root
 PlotOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/histograms/run_70.root
 -------------------------------
 ------Experimental Inputs------
@@ -15,10 +15,10 @@ AT: 50
 ZP: 1
 AP: 2
 ZE: 1
-AE: 2
-BField(G): 10530.0
+AE: 1
+BField(G): 8030.0
 BeamKE(MeV): 16
-Theta(deg): 50
+Theta(deg): 25
 -------------------------------
 -------Timing Information------
 BoardOffsetFile: ./etc/ShiftMap_Nov2020_50Tidp.txt
@@ -27,6 +27,6 @@ FastCoincidenceWindow_IonCh(ps): 0.15e6
 FastCoincidenceWindow_SABRE(ps): 0.25e6
 -------------------------------
 --------Run Information--------
-MinRun: 67
-MaxRun: 67
+MinRun: 88
+MaxRun: 88
 -------------------------------

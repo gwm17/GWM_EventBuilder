@@ -91,6 +91,7 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
   }
   if(!event.focalPlane.monitor.empty()) {
     pevent.monitorE = event.focalPlane.monitor[0].Long;
+    pevent.monitorShort = event.focalPlane.monitor[0].Short;
     pevent.monitorTime = event.focalPlane.monitor[0].Time;
   }
 
