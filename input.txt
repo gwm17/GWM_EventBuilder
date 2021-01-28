@@ -1,10 +1,10 @@
 -------Data Locations----------
-ROOTDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/
-BinaryArchiveDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/raw_binary/
+ROOTDirectory: /data1/gwm17/50Tidp/
+BinaryArchiveDirectory: /data1/gwm17/50Tidp/raw_binary/
 BinaryFileDirectory: none
-MergeInputDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/analyzed/
-MergeOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/merged_25deg_runs.root
-PlotOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/histograms/run_70.root
+MergeInputDirectory: /data1/gwm17/50Tidp/analyzed/
+MergeOutputFile: /data1/gwm17/50Tidp/merged_25deg_runs.root
+PlotOutputFile: /data1/gwm17/50Tidp/histograms/run_70.root
 -------------------------------
 ------Experimental Inputs------
 ChannelMapFile: ./etc/ChannelMap_Nov2020_50Tidp.txt
@@ -27,6 +27,6 @@ FastCoincidenceWindow_IonCh(ps): 0.15e6
 FastCoincidenceWindow_SABRE(ps): 0.25e6
 -------------------------------
 --------Run Information--------
-MinRun: 88
-MaxRun: 88
+MinRun: 81
+MaxRun: 81
 -------------------------------

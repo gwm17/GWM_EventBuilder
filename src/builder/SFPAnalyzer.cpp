@@ -79,10 +79,12 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
   }
   if(!event.focalPlane.scintL.empty()) {
     pevent.scintLeft = event.focalPlane.scintL[0].Long;
+    pevent.scintLeftShort = event.focalPlane.scintL[0].Short;
     pevent.scintLeftTime = event.focalPlane.scintL[0].Time;
   }
   if(!event.focalPlane.scintR.empty()) {
     pevent.scintRight = event.focalPlane.scintR[0].Long;
+    pevent.scintRightShort = event.focalPlane.scintR[0].Short;
     pevent.scintRightTime = event.focalPlane.scintR[0].Time;
   }
   if(!event.focalPlane.cathode.empty()) {

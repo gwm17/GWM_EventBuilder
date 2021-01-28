@@ -70,7 +70,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 
 	/*Send signal to appropriate location*/
 	if(type == EVBMainFrame::ROOTDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayROOTdir(const char*)");
-	else if(type == EVBMainFrame::BINDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayBINDir(const char*)");
+	else if(type == EVBMainFrame::BINDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayBINdir(const char*)");
 	else if(type == EVBMainFrame::CMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCMap(const char*)");
 	else if(type == EVBMainFrame::SMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplaySMap(const char*)");
 	else if(type == EVBMainFrame::SCALER) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayScaler(const char*)");

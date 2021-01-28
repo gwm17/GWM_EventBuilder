@@ -40,6 +40,7 @@ struct ProcessedEvent {
            fp1_tcheck = -1, fp2_tcheck = -1;
   Double_t fp1_y=-1, fp2_y=-1;
   Double_t anodeFront = -1, anodeBack = -1, scintRight = -1, scintLeft = -1;
+  Double_t scintRightShort = -1, scintLeftShort = -1;
   Double_t cathode = -1;
   Double_t xavg = -1e6, x1 = -1e6, x2 = -1e6;
   Double_t theta = -1e6;
