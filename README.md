@@ -11,7 +11,7 @@ There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is
 ### Binary2ROOT
 The binary2root operation takes binary CoMPASS data and converts it into a `ROOT` file with a tree.
 The conversion orgainzes the data in time and applies any shifts to the timestamps. It requires that
-the user gives a directory which contains an archive of binary data. It is then temporarily unpacked and converted. The unpacked data is then deleted. This is no longer a process independent of the event building; event building is done at conversion time.
+the user gives a directory which contains an archive of binary data. It is then temporarily unpacked and converted. The unpacked data is then deleted. This is no longer a process independent of the event building; event building is done at conversion time. A bash tool, `archivist` is included in the `bin` directory to perform quick generation of archived data from the raw CoMPASS directory. Simply modify the script to reflect your directory structure.
 
 ### Building Events
 The event building operation is the bulk of the analysis process. As files are being converted to ROOT from the raw CoMPASS binary, events are built using information given by the user. 
