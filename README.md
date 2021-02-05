@@ -6,12 +6,12 @@ It can convert CoMPASS data to ROOT, sort the data in time, build events, perfor
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
 ## GWMEVB vs. GWMEVB_CL
-There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. NOTE: `GWMEVB` is still under development, do not use as of 10/14/2020! The second is a command line version, which takes in two arguments: the operation type and an input file. These both interact with the main API `GWMEventBuilder` which contains several different data operations. Below I'll hit some of the highlights.
+There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. The GUI currently supports all conversion methods and the plotting tool, however it does not currently perform merging or archiving.
 
 ### Binary2ROOT
 The binary2root operation takes binary CoMPASS data and converts it into a `ROOT` file with a tree.
 The conversion orgainzes the data in time and applies any shifts to the timestamps. It requires that
-the user gives a directory which contains an archive of binary data. It is then temporarily unpacked and converted. The unpacked data is then deleted. This is no longer a process independent of the event building; event building is done at conversion time.
+the user gives a directory which contains an archive of binary data. It is then temporarily unpacked and converted. The unpacked data is then deleted. This is no longer a process independent of the event building; event building is done at conversion time. A bash tool, `archivist` is included in the `bin` directory to perform quick generation of archived data from the raw CoMPASS directory. Simply modify the script to reflect your directory structure.
 
 ### Building Events
 The event building operation is the bulk of the analysis process. As files are being converted to ROOT from the raw CoMPASS binary, events are built using information given by the user. 
@@ -82,9 +82,9 @@ size (again center the peak on 0, the width of the peak becomes the fast window)
 Currently the pipeline supports declaring individual digitizer channels as scalers. These channels will be used a pure counting measures. To make a channel a scaler, put the CoMPASS formated name of the channel and board (check the given etc/ScalerFile.txt for an example) in a text file along with a parameter name for the scaler to be saved as. These files are then processed outside of the event building loop, which can greatly increase the computational speed. Future versions will include scaler rates as well.
 
 ## System Requirements
-Only tested with `ROOT` 6.14, so compatibility with any other version is questionable
+Only tested with `ROOT` 6.14, mileage may vary
 Uses C++11 standards
-Only compatible with MacOSX and Linux of most flavors
+Only compatible with MacOSX and Linux
 
 ## Compliling and Running
 To compile use the command `make`

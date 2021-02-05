@@ -1,32 +1,32 @@
 -------Data Locations----------
-ROOTDirectory: /Volumes/LaCie/9BMarch2020/
-BinaryArchiveDirectory: /Volumes/LaCie/9BMarch2020/raw_binary/
+ROOTDirectory: /data1/gwm17/50Tidp/
+BinaryArchiveDirectory: /data1/gwm17/50Tidp/raw_binary/
 BinaryFileDirectory: none
-MergeInputDirectory: none
-MergeOutputFile: none
-PlotOutputFile: /Volumes/LaCie/9BMarch2020/test_run99_v2.root
+MergeInputDirectory: /data1/gwm17/50Tidp/analyzed/
+MergeOutputFile: /data1/gwm17/50Tidp/merged_25deg_runs.root
+PlotOutputFile: /data1/gwm17/50Tidp/histograms/run_70.root
 -------------------------------
 ------Experimental Inputs------
-ChannelMapFile: ./etc/ChannelMap_March2020_newFormat_092020.txt
+ChannelMapFile: ./etc/ChannelMap_Nov2020_50Tidp.txt
 ScalerFile: ./etc/ScalerFile.txt
-CutListFile: ./etc/CutList_March2020.txt
-ZT: 5
-AT: 10
-ZP: 2
-AP: 3
-ZE: 2
-AE: 4
-BField(G): 9511.0
-BeamKE(MeV): 24
-Theta(deg): 20
+CutListFile: ./etc/CutList_Nov2020_50Tidp.txt
+ZT: 22
+AT: 50
+ZP: 1
+AP: 2
+ZE: 1
+AE: 1
+BField(G): 8030.0
+BeamKE(MeV): 16
+Theta(deg): 25
 -------------------------------
 -------Timing Information------
-BoardOffsetFile: ./etc/ShiftMap_April2020_newFormat_10102020.txt
+BoardOffsetFile: ./etc/ShiftMap_Nov2020_50Tidp.txt
 SlowCoincidenceWindow(ps): 1.5e6
-FastCoincidenceWindow_IonCh(ps): 0.125e6
+FastCoincidenceWindow_IonCh(ps): 0.15e6
 FastCoincidenceWindow_SABRE(ps): 0.25e6
 -------------------------------
 --------Run Information--------
-MinRun: 99
-MaxRun: 99
+MinRun: 81
+MaxRun: 81
 -------------------------------

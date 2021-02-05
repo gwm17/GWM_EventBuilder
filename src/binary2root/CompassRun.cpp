@@ -15,21 +15,22 @@
 #include "SlowSort.h"
 #include "FastSort.h"
 #include "SFPAnalyzer.h"
+#include "FlagHandler.h"
 
 CompassRun::CompassRun() :
-	directory(""), m_scalerinput(""), runNum(0), m_scaler_flag(false)
+	directory(""), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
 
 CompassRun::CompassRun(std::string& dir) :
-	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false)
+	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
 
 CompassRun::CompassRun(const char* dir) :
-	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false)
+	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
@@ -61,10 +62,13 @@ bool CompassRun::GetBinaryFiles() {
 	std::string suffix = ".bin"; //binaries
 	RunCollector grabber(directory, prefix, suffix);
 	grabber.GrabAllFiles();
+
 	m_datafiles.clear(); //so that the CompassRun can be reused
 	m_scalerfiles.clear();
 	m_datafiles.reserve(grabber.filelist.size());
 	bool scalerd;
+	m_totalHits = 0; //reset total run size
+
 	for(auto& entry : grabber.filelist) {
 		//Handle scaler files, if they exist
 		if(m_scaler_flag) {
@@ -85,6 +89,7 @@ bool CompassRun::GetBinaryFiles() {
 		if(!m_datafiles[m_datafiles.size() - 1].IsOpen()) {
 			return false;
 		}
+		m_totalHits += m_datafiles[m_datafiles.size()-1].GetNumberOfHits();
 	}
 
 	return true;
@@ -161,19 +166,32 @@ void CompassRun::Convert2RawRoot(std::string& name) {
 
 	SetScalers();
 
-	std::cout<<"Getting a mess of files..."<<std::endl;
 	if(!GetBinaryFiles()) {
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	std::cout<<"Orgainizing data"<<std::endl;
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0; //Reset the startIndex
+	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 	while(true) {
+		count++;
+		if(count == flush) { //Progress Log
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}	
+		}
+
 		if(!GetHitsFromFiles()) break;
 		outtree->Fill();
 	}
-	std::cout<<"Data orgainzed."<<std::endl;
 
 	ReadScalerData();
 
@@ -183,7 +201,6 @@ void CompassRun::Convert2RawRoot(std::string& name) {
 		entry.second.Write();
 	}
 	output->Close();
-	std::cout<<"Data written."<<std::endl;
 }
 
 void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, double window) {
@@ -199,17 +216,31 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 
 	SetScalers();
 
-	std::cout<<"Getting a mess of files..."<<std::endl;
 	if(!GetBinaryFiles()) {
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	std::cout<<"Organizing the data..."<<std::endl;
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	SlowSort coincidizer(window, mapfile);
 	bool killFlag = false;
+	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 	while(true) {
+		count++;
+		if(count == flush) {
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
+		}
+
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
@@ -233,7 +264,6 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 	}
 	coincidizer.GetEventStats()->Write();
 	output->Close();
-	std::cout<<"Data written."<<std::endl;
 }
 
 void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window) {
@@ -249,24 +279,42 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 
 	SetScalers();
 
-	std::cout<<"Getting a mess of files..."<<std::endl;
 	if(!GetBinaryFiles()) {
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	std::cout<<"Organizing the data..."<<std::endl;
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	CoincEvent this_event;
 	std::vector<CoincEvent> fast_events;
 	SlowSort coincidizer(window, mapfile);
 	FastSort speedyCoincidizer(fsi_window, fic_window);
+
+	FlagHandler flagger;
+
 	bool killFlag = false;
+	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 	while(true) {
+		count++;
+		if(count == flush) {
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
+		}
+		
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
 		} else {
+			flagger.CheckFlag(hit.board, hit.channel, hit.flags);
 			coincidizer.AddHitToEvent(hit);
 		}
 
@@ -291,7 +339,6 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 	}
 	coincidizer.GetEventStats()->Write();
 	output->Close();
-	std::cout<<"Data written."<<std::endl;
 }
 
 
@@ -310,13 +357,13 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 
 	SetScalers();
 
-	std::cout<<"Getting a mess of files..."<<std::endl;
 	if(!GetBinaryFiles()) {
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	std::cout<<"Organizing the data..."<<std::endl;
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	CoincEvent this_event;
 	SlowSort coincidizer(window, mapfile);
@@ -335,7 +382,21 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 	parvec.emplace_back("Theta", theta);
 
 	bool killFlag = false;
+	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 	while(true) {
+		count++;
+		if(count == flush) {
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
+		}
+
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
@@ -365,7 +426,6 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 	analyzer.GetHashTable()->Write();
 	analyzer.ClearHashTable();
 	output->Close();
-	std::cout<<"Data written."<<std::endl;
 }
 
 void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window,
@@ -383,13 +443,13 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 
 	SetScalers();
 
-	std::cout<<"Getting a mess of files..."<<std::endl;
 	if(!GetBinaryFiles()) {
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	std::cout<<"Organizing the data..."<<std::endl;
+	if(m_pb) SetProgressBar();
+
 	startIndex = 0;
 	CoincEvent this_event;
 	std::vector<CoincEvent> fast_events;
@@ -409,12 +469,29 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 	parvec.emplace_back("BeamKE", bke);
 	parvec.emplace_back("Theta", theta);
 
+	FlagHandler flagger;
+
 	bool killFlag = false;
+	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 	while(true) {
+		count++;
+		if(count == flush) {
+			if(m_pb) {
+				m_pb->Increment(count);
+				gSystem->ProcessEvents();
+				count=0;
+			} else {
+				count = 0;
+				flush_count++;
+				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+			}
+		}
+
 		if(!GetHitsFromFiles()) {
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
 		} else {
+			flagger.CheckFlag(hit.board, hit.channel, hit.flags);
 			coincidizer.AddHitToEvent(hit);
 		}
 
@@ -444,5 +521,11 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 	analyzer.GetHashTable()->Write();
 	analyzer.ClearHashTable();
 	output->Close();
-	std::cout<<"Data written."<<std::endl;
+}
+
+void CompassRun::SetProgressBar() {
+	m_pb->SetMax(m_totalHits);
+	m_pb->SetMin(0);
+	m_pb->SetPosition(0);
+	gSystem->ProcessEvents();
 }

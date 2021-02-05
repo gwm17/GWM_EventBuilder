@@ -20,7 +20,7 @@ GWMEventBuilder::GWMEventBuilder() :
 	m_rmin(0), m_rmax(0), m_ZT(0), m_AT(0), m_ZP(0), m_AP(0), m_ZE(0), m_AE(0), m_ZR(0), m_AR(0),
 	m_B(0), m_Theta(0), m_BKE(0), m_binpath("none"), m_rootpath("none"), m_mapfile("none"), m_shiftfile("none"),
 	m_cutList("none"), m_plotfile("none"), m_binfilepath("none"), m_mergefile("none"), m_mergeIndir("none"),
-	m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0), m_stream(&std::cout)
+	m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0), m_pb(nullptr)
 {
 }
 
@@ -29,10 +29,10 @@ GWMEventBuilder::~GWMEventBuilder()
 }
 
 bool GWMEventBuilder::ReadConfigFile(std::string& fullpath) {
-	*m_stream<<"Reading in configuration from file: "<<fullpath<<std::endl;
+	std::cout<<"Reading in configuration from file: "<<fullpath<<std::endl;
 	std::ifstream input(fullpath);
 	if(!input.is_open()) {
-		*m_stream<<"Read failed! Unable to open input file!"<<std::endl;
+		std::cout<<"Read failed! Unable to open input file!"<<std::endl;
 		return false;
 	}
 	std::string junk;
@@ -71,17 +71,17 @@ bool GWMEventBuilder::ReadConfigFile(std::string& fullpath) {
 
 	input.close();
 
-	*m_stream<<"Completed."<<std::endl;
+	std::cout<<"Completed."<<std::endl;
 
 	return true;
 }
 
 void GWMEventBuilder::WriteConfigFile(std::string& fullpath) {
 
-	*m_stream<<"Writing out configuration to file: "<<fullpath<<std::endl;
+	std::cout<<"Writing out configuration to file: "<<fullpath<<std::endl;
 	std::ofstream output(fullpath);
 	if(!output.is_open()) {
-		*m_stream<<"Write failed! Unable to open output file!"<<std::endl;
+		std::cout<<"Write failed! Unable to open output file!"<<std::endl;
 		return;
 	}
 
@@ -120,79 +120,52 @@ void GWMEventBuilder::WriteConfigFile(std::string& fullpath) {
 
 	output.close();
 
-	*m_stream<<"Completed."<<std::endl;
+	std::cout<<"Completed."<<std::endl;
 
-}
-
-void GWMEventBuilder::BuildEvents() {
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"WARNING!!! These operations are DEPRECATED. There is no support";
-	*m_stream<<" for scalers or paramters, and performance will vary."<<std::endl;
-	*m_stream<<"If possible use the CONVERT methods instead."<<std::endl;
-	*m_stream<<"Perfoming Event Operation: ";
-	switch(m_analysisType) {
-		case BUILD_ALL:
-			*m_stream<<"Build Full Events"<<std::endl;
-			BuildFullEvents();
-			break;
-		case BUILD_SLOW:
-			*m_stream<<"Build Slow Events"<<std::endl;
-			BuildSlowEvents();
-			break;
-		case BUILD_FAST:
-			*m_stream<<"Build Fast Events"<<std::endl;
-			BuildFastEvents();
-			break;
-		case ANALYZE_SLOW:
-			*m_stream<<"Analyze Slow Events"<<std::endl;
-			AnalyzeSlowEvents();
-			break;
-		case ANALYZE_FAST:
-			*m_stream<<"Analyze Fast Events"<<std::endl;
-			AnalyzeFastEvents();
-			break;
-	}
-	*m_stream<<"Completed."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
 }
 
 void GWMEventBuilder::PlotHistograms() {
 	std::string analyze_dir = m_rootpath+"/analyzed/";
 	SFPPlotter grammer;
-	if(!grammer.ReadCutlist(m_cutList)) {
-		*m_stream<<"Bad cutlist at PlotHistograms"<<std::endl;
-		return;
+	if(m_cutList != "none") {
+		if(!grammer.ReadCutlist(m_cutList)) {
+			std::cout<<"Bad cutlist at PlotHistograms"<<std::endl;
+			return;
+		}
 	}
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Generating a histogram file from analyzed files"<<std::endl;
-	*m_stream<<"Analyzed directory: "<<analyze_dir<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-	*m_stream<<"Cut List File: "<<m_cutList<<std::endl;
-	*m_stream<<"Histogram File: "<<m_plotfile<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Generating a histogram file from analyzed files"<<std::endl;
+	std::cout<<"Analyzed directory: "<<analyze_dir<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"Cut List File: "<<m_cutList<<std::endl;
+	std::cout<<"Histogram File: "<<m_plotfile<<std::endl;
+
+	if(m_pb) grammer.AttachProgressBar(m_pb);
+
 	if(CollectRuns(analyze_dir, "", ".root", m_rmin, m_rmax)) {
-		*m_stream<<"Working...";
+		std::cout<<"Working...";
 		grammer.Run(m_currentFiles, m_plotfile);
-		*m_stream<<" Complete."<<std::endl;
+		std::cout<<" Complete."<<std::endl;
 	} else {
-		*m_stream<<"Unable to find files at PlotHistograms"<<std::endl;
+		std::cout<<"Unable to find files at PlotHistograms"<<std::endl;
 	}
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
-void GWMEventBuilder::ConvertBin2ROOT() {
+void GWMEventBuilder::Convert2RawRoot() {
 	std::string rawroot_dir = m_rootpath+"/raw_root/";
 	std::string unpack_dir = m_rootpath+"/temp_binary/";
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Converting Binary file Archive to ROOT file"<<std::endl;
-	*m_stream<<"Binary Archive Directory: "<<m_binpath<<std::endl;
-	*m_stream<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
-	*m_stream<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Converting Binary file Archive to ROOT file"<<std::endl;
+	std::cout<<"Binary Archive Directory: "<<m_binpath<<std::endl;
+	std::cout<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
+	std::cout<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
 	
 
 	grabber.SetSearchParams(m_binpath, "", ".tar.gz",0,1000);
 
-	*m_stream<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
+	std::cout<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
 
 	std::string rawfile, binfile;
 	std::string unpack_command, wipe_command;
@@ -200,65 +173,66 @@ void GWMEventBuilder::ConvertBin2ROOT() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
+	if(m_pb) converter.AttachProgressBar(m_pb);
 
-	*m_stream<<"Beginning conversion..."<<std::endl;
+	std::cout<<"Beginning conversion..."<<std::endl;
 
 	for(int i=m_rmin; i<=m_rmax; i++) {
 		binfile = grabber.GrabFile(i);
 		if(binfile == "") continue;
 		converter.SetRunNumber(i);
-		*m_stream<<"Converting file: "<<binfile<<std::endl;
+		std::cout<<"Converting file: "<<binfile<<std::endl;
 
 		rawfile = rawroot_dir + "compass_run_"+ to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-		wipe_command = "rm -rf "+unpack_dir+"*";
+		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
 		system(unpack_command.c_str());
 		converter.Convert2RawRoot(rawfile);
 		system(wipe_command.c_str());
 
 	}
-	*m_stream<<std::endl<<"Conversion complete."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<std::endl<<"Conversion complete."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 
 }
 
 void GWMEventBuilder::MergeROOTFiles() {
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Merging ROOT files into single ROOT file"<<std::endl;
-	*m_stream<<"ROOT file directory: "<<m_mergeIndir<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-	*m_stream<<"Output file: "<<m_mergefile<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Merging ROOT files into single ROOT file"<<std::endl;
+	std::cout<<"ROOT file directory: "<<m_mergeIndir<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"Output file: "<<m_mergefile<<std::endl;
 	std::string prefix = "";
 	std::string suffix = ".root";
 	grabber.SetSearchParams(m_mergeIndir, prefix, suffix,m_rmin,m_rmax);
 	m_currentFiles.clear();
-	*m_stream<<"Beginning the merge...";
+	std::cout<<"Beginning the merge...";
 	if(!grabber.Merge_TChain(m_mergefile)) {
-		*m_stream<<"Unable to find files at MergeROOTFiles"<<std::endl;
+		std::cout<<"Unable to find files at MergeROOTFiles"<<std::endl;
 		return;
 	}
-	*m_stream<<" Complete."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<" Complete."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
 void GWMEventBuilder::ArchiveBinaryFiles(int runNum, bool segmented) {
 	std::string location = m_binfilepath+"/"+to_string(runNum)+"/";
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Archiving binary data files"<<std::endl;
-	*m_stream<<"Binary file directory: "<<location<<std::endl;
-	*m_stream<<"Run Number: "<<runNum<<std::endl;
-	*m_stream<<"Binary archive directory: "<<m_binpath<<std::endl;
-	*m_stream<<"Archives are formated run_<run_number>.tar.gz"<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Archiving binary data files"<<std::endl;
+	std::cout<<"Binary file directory: "<<location<<std::endl;
+	std::cout<<"Run Number: "<<runNum<<std::endl;
+	std::cout<<"Binary archive directory: "<<m_binpath<<std::endl;
+	std::cout<<"Archives are formated run_<run_number>.tar.gz"<<std::endl;
 	if(segmented) {
-		*m_stream<<"Segmented files are currently not supported, archive not generated"<<std::endl;
+		std::cout<<"Segmented files are currently not supported, archive not generated"<<std::endl;
 		return;
 	}
-	*m_stream<<"Running tar command... Check your terminal..."<<std::endl;
+	std::cout<<"Running tar command... Check your terminal..."<<std::endl;
 	std::string command = "tar -cvzf "+m_binpath+"run_"+to_string(runNum)+".tar.gz "+location+"*.bin";
 	std::system(command.c_str());
-	*m_stream<<"Finished."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<"Finished."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
 bool GWMEventBuilder::CollectRuns(std::string& dir, std::string prefix, std::string suffix, int min, int max, bool ranged) {
@@ -287,59 +261,21 @@ bool GWMEventBuilder::CollectRuns(std::string& dir, std::string prefix, std::str
 	}
 }
 
-/*DEPRECATED*/
-void GWMEventBuilder::BuildFullEvents() {
-
-	std::string raw = m_rootpath+"/raw_root/";
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string fast = m_rootpath+"/fast/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Raw ROOT Directory: "<<raw<<std::endl;
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Fast Sorted Directory: "<<fast<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(raw,"",".root",m_rmin,m_rmax);
-
-	SlowSort slower(m_SlowWindow, m_mapfile);
-	FastSort faster(m_FastWindowSABRE, m_FastWindowIonCh);
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	std::string this_raw, this_sorted, this_fast, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_raw = grabber.GrabFile(i);
-		if(this_raw == "") continue;
-		*m_stream<<"Processing "<<this_raw<<std::endl;
-
-		this_sorted = sorted+"run_"+to_string(i)+".root";
-		this_fast = fast+"run_"+to_string(i)+".root";
-		this_analyzed = analyzed+"run_"+to_string(i)+".root";
-
-		slower.Run(this_raw.c_str(), this_sorted.c_str());
-		faster.Run(this_sorted.c_str(), this_fast.c_str());
-		analyzey.Run(this_fast.c_str(), this_analyzed.c_str());
-
-	}
-	*m_stream<<std::endl;
-}
-
 void GWMEventBuilder::Convert2SortedRoot() {
 	std::string sortroot_dir = m_rootpath+"/sorted/";
 	std::string unpack_dir = m_rootpath+"/temp_binary/";
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Converting Binary file Archive to ROOT file"<<std::endl;
-	*m_stream<<"Binary Archive Directory: "<<m_binpath<<std::endl;
-	*m_stream<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
-	*m_stream<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
-	*m_stream<<"Channel Map File: "<<m_mapfile<<std::endl;
-	*m_stream<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Converting Binary file Archive to ROOT file"<<std::endl;
+	std::cout<<"Binary Archive Directory: "<<m_binpath<<std::endl;
+	std::cout<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
+	std::cout<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
+	std::cout<<"Channel Map File: "<<m_mapfile<<std::endl;
+	std::cout<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
 
 	grabber.SetSearchParams(m_binpath,"",".tar.gz",m_rmin,m_rmax);
 
-	*m_stream<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
+	std::cout<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
 
 	std::string sortfile, binfile;
 	std::string unpack_command, wipe_command;
@@ -347,43 +283,44 @@ void GWMEventBuilder::Convert2SortedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
+	if(m_pb) converter.AttachProgressBar(m_pb);
 
-	*m_stream<<"Beginning conversion..."<<std::endl;
+	std::cout<<"Beginning conversion..."<<std::endl;
 
 	for(int i=m_rmin; i<= m_rmax; i++) {
 		binfile = grabber.GrabFile(i);
 		if(binfile == "") continue;
 		converter.SetRunNumber(i);
-		*m_stream<<"Converting file: "<<binfile<<std::endl;
+		std::cout<<"Converting file: "<<binfile<<std::endl;
 
 		sortfile = sortroot_dir +"run_"+to_string(i)+ ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-		wipe_command = "rm -rf "+unpack_dir+"*";
+		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
 		system(unpack_command.c_str());
 		converter.Convert2SortedRoot(sortfile, m_mapfile, m_SlowWindow);
 		system(wipe_command.c_str());
 
 	}
-	*m_stream<<std::endl<<"Conversion complete."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<std::endl<<"Conversion complete."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
 void GWMEventBuilder::Convert2FastSortedRoot() {
 	std::string sortroot_dir = m_rootpath+"/fast/";
 	std::string unpack_dir = m_rootpath+"/temp_binary/";
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Converting Binary file Archive to ROOT file"<<std::endl;
-	*m_stream<<"Binary Archive Directory: "<<m_binpath<<std::endl;
-	*m_stream<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
-	*m_stream<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
-	*m_stream<<"Channel Map File: "<<m_mapfile<<std::endl;
-	*m_stream<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Converting Binary file Archive to ROOT file"<<std::endl;
+	std::cout<<"Binary Archive Directory: "<<m_binpath<<std::endl;
+	std::cout<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
+	std::cout<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
+	std::cout<<"Channel Map File: "<<m_mapfile<<std::endl;
+	std::cout<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
 
 	grabber.SetSearchParams(m_binpath,"",".tar.gz",m_rmin,m_rmax);
 
-	*m_stream<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
+	std::cout<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
 
 	std::string sortfile, binfile;
 	std::string unpack_command, wipe_command;
@@ -391,42 +328,43 @@ void GWMEventBuilder::Convert2FastSortedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
+	if(m_pb) converter.AttachProgressBar(m_pb);
 
-	*m_stream<<"Beginning conversion..."<<std::endl;
+	std::cout<<"Beginning conversion..."<<std::endl;
 
 	for(int i=m_rmin; i<=m_rmax; i++) {
 		binfile = grabber.GrabFile(i);
 		if(binfile == "") continue;
 		converter.SetRunNumber(i);
-		*m_stream<<"Converting file: "<<binfile<<std::endl;
+		std::cout<<"Converting file: "<<binfile<<std::endl;
 
 		sortfile = sortroot_dir + "run_" + to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-		wipe_command = "rm -rf "+unpack_dir+"*";
+		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
 		system(unpack_command.c_str());
 		converter.Convert2FastSortedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh);
 		system(wipe_command.c_str());
 
 	}
-	*m_stream<<std::endl<<"Conversion complete."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<std::endl<<"Conversion complete."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
 void GWMEventBuilder::Convert2SlowAnalyzedRoot() {
 	std::string sortroot_dir = m_rootpath+"/analyzed/";
 	std::string unpack_dir = m_rootpath+"/temp_binary/";
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Converting Binary file Archive to ROOT file"<<std::endl;
-	*m_stream<<"Binary Archive Directory: "<<m_binpath<<std::endl;
-	*m_stream<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
-	*m_stream<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
-	*m_stream<<"Channel Map File: "<<m_mapfile<<std::endl;
-	*m_stream<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Converting Binary file Archive to ROOT file"<<std::endl;
+	std::cout<<"Binary Archive Directory: "<<m_binpath<<std::endl;
+	std::cout<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
+	std::cout<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
+	std::cout<<"Channel Map File: "<<m_mapfile<<std::endl;
+	std::cout<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
 	
 	grabber.SetSearchParams(m_binpath,"",".tar.gz",m_rmin, m_rmax);
-	*m_stream<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
+	std::cout<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
 
 	std::string sortfile, binfile;
 	std::string unpack_command, wipe_command;
@@ -434,43 +372,46 @@ void GWMEventBuilder::Convert2SlowAnalyzedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
+	if(m_pb) converter.AttachProgressBar(m_pb);
 
-	*m_stream<<"Beginning conversion..."<<std::endl;
+	std::cout<<"Beginning conversion..."<<std::endl;
 
 	for(int i=m_rmin; i<=m_rmax; i++) {
 		binfile = grabber.GrabFile(i);
 		if(binfile == "") continue;
 		converter.SetRunNumber(i);
-		*m_stream<<"Converting file: "<<binfile<<std::endl;
+		std::cout<<"Converting file: "<<binfile<<std::endl;
 
 		sortfile = sortroot_dir + "run_" + to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-		wipe_command = "rm -rf "+unpack_dir+"*";
+		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
 		system(unpack_command.c_str());
-		converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
+		converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
 		system(wipe_command.c_str());
 
 	}
-	*m_stream<<std::endl<<"Conversion complete."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
+	std::cout<<std::endl<<"Conversion complete."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
 void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	std::string sortroot_dir = m_rootpath+"/analyzed/";
 	std::string unpack_dir = m_rootpath+"/temp_binary/";
-	*m_stream<<"-------------GWM Event Builder-------------"<<std::endl;
-	*m_stream<<"Converting Binary file Archive to ROOT file"<<std::endl;
-	*m_stream<<"Binary Archive Directory: "<<m_binpath<<std::endl;
-	*m_stream<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
-	*m_stream<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
-	*m_stream<<"Channel Map File: "<<m_mapfile<<std::endl;
-	*m_stream<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
+	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
+	std::cout<<"Converting Binary file Archive to ROOT file"<<std::endl;
+	std::cout<<"Binary Archive Directory: "<<m_binpath<<std::endl;
+	std::cout<<"Temporary Unpack Directory: "<<unpack_dir<<std::endl;
+	std::cout<<"Timestamp Shift File: "<<m_shiftfile<<std::endl;
+	std::cout<<"Channel Map File: "<<m_mapfile<<std::endl;
+	std::cout<<"Slow Coincidence Window(ps): "<<m_SlowWindow<<std::endl;
+	std::cout<<"Fast Ion Chamber Coincidence Window(ps): "<<m_FastWindowIonCh<<std::endl;
+	std::cout<<"Fast SABRE Coincidence Window(ps): "<<m_FastWindowSABRE<<std::endl;
+	std::cout<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
 	
 	grabber.SetSearchParams(m_binpath,"",".tar.gz",m_rmin,m_rmax);
 
-	*m_stream<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
+	std::cout<<"ROOT Output Directory: "<<m_rootpath<<std::endl;
 
 	std::string sortfile, binfile;
 	std::string unpack_command, wipe_command;
@@ -478,145 +419,33 @@ void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
+	if(m_pb) converter.AttachProgressBar(m_pb);
 
-	*m_stream<<"Beginning conversion..."<<std::endl;
+	std::cout<<"Beginning conversion..."<<std::endl;
 
 	for(int i=m_rmin; i<=m_rmax; i++) {
 		binfile = grabber.GrabFile(i);
 		if(binfile == "") continue;
 		converter.SetRunNumber(i);
-		*m_stream<<"Converting file: "<<binfile<<std::endl;
+		std::cout<<"Converting file: "<<binfile<<std::endl;
 
 		sortfile = sortroot_dir + "run_" + to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-		wipe_command = "rm -rf "+unpack_dir+"*";
+		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
 		system(unpack_command.c_str());
 		converter.Convert2FastAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
 		system(wipe_command.c_str());
 
 	}
-	*m_stream<<std::endl<<"Conversion complete."<<std::endl;
-	*m_stream<<"-------------------------------------------"<<std::endl;
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::BuildSlowEvents() {
-
-	std::string raw = m_rootpath+"/raw_root/";
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Raw ROOT Directory: "<<raw<<std::endl;
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(raw,"",".root",m_rmin, m_rmax);
-
-	SlowSort slower(m_SlowWindow, m_mapfile);
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	std::string this_raw, this_sorted, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_raw = grabber.GrabFile(i);
-		if(this_raw == "") continue;
-		*m_stream<<"Processing "<<this_raw<<std::endl;
-
-		this_sorted	 = sorted + "run_" + to_string(i) + ".root";
-		this_analyzed = analyzed + "run_" + to_string(i) + ".root";
-
-		slower.Run(this_raw.c_str(), this_sorted.c_str());
-		analyzey.Run(this_sorted.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::BuildFastEvents() {
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string fast = m_rootpath+"/fast/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Fast Sorted Directory: "<<fast<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(sorted, "", ".root", m_rmin, m_rmax);
-	FastSort faster(m_FastWindowSABRE, m_FastWindowIonCh);
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	string this_sorted, this_fast, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_sorted = grabber.GrabFile(i);
-		if(this_sorted == "") continue;
-		*m_stream<<"Processing "<<this_sorted<<std::endl;
-		
-		this_fast = fast+"run_"+to_string(i)+".root";
-		this_analyzed = analyzed + "run_"+to_string(i)+".root";
-
-		faster.Run(this_sorted.c_str(), this_fast.c_str());
-		analyzey.Run(this_fast.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
-}
-
-void GWMEventBuilder::AnalyzeSlowEvents() {
-	std::string sorted = m_rootpath+"/sorted/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Data Slow Sorted Directory: "<<sorted<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(sorted, "", ".root", m_rmin, m_rmax);
-
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	string this_sorted, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_sorted = grabber.GrabFile(i);
-		if(this_sorted == "") continue;
-		*m_stream<<"Processing "<<this_sorted<<std::endl;
-		
-		this_analyzed = analyzed + "run_"+to_string(i)+".root";
-
-		analyzey.Run(this_sorted.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
-}
-
-/*DEPRECATED*/
-void GWMEventBuilder::AnalyzeFastEvents() {
-	std::string fast = m_rootpath+"/fast/";
-	std::string analyzed = m_rootpath+"/analyzed/";
-
-	*m_stream<<"Data Fast Sorted Directory: "<<fast<<std::endl;
-	*m_stream<<"Data Analyzed Directory: "<<analyzed<<std::endl;
-	*m_stream<<"Min Run: "<<m_rmin<<" Max Run: "<<m_rmax<<std::endl;
-
-	grabber.SetSearchParams(fast, "", ".root", m_rmin, m_rmax);
-
-	SFPAnalyzer analyzey(m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_Theta, m_B);
-
-	string this_fast, this_analyzed;
-	for(int i=m_rmin; i<=m_rmax; i++) {
-		this_fast = grabber.GrabFile(i);
-		if(this_fast == "") continue;
-		*m_stream<<"Processing "<<this_fast<<std::endl;
-		
-		this_analyzed = analyzed + "run_"+to_string(i)+".root";
-
-		analyzey.Run(this_fast.c_str(), this_analyzed.c_str());
-	}
-	*m_stream<<std::endl;
+	std::cout<<std::endl<<"Conversion complete."<<std::endl;
+	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
 bool GWMEventBuilder::SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke) {
 
 	if((at + ap - ae) < 0 || (zt + zp - ze) < 0) {
-		*m_stream<<"Invalid Parameters at SetKinematicParameters"<<std::endl;
+		std::cout<<"Invalid Parameters at SetKinematicParameters"<<std::endl;
 		return false;
 	}
 	m_ZT = zt; m_AT = at; m_ZP = zp; m_AP = ap; m_ZE = ze; m_AE = ae;

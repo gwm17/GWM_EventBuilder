@@ -15,7 +15,7 @@ struct DPPChannel {
 };
 
 struct DetectorHit {
-  Double_t Long=-1, Time=-1;
+  Double_t Long=-1, Short=-1, Time=-1;
   Int_t Ch=-1;
 };
 
@@ -27,6 +27,7 @@ struct SabreDetector {
 struct FPDetector {
   vector<DetectorHit> delayFL, delayFR, delayBL, delayBR;
   vector<DetectorHit> anodeF, anodeB, scintL, scintR, cathode;
+  vector<DetectorHit> monitor;
 };
 
 struct CoincEvent {
@@ -39,6 +40,7 @@ struct ProcessedEvent {
            fp1_tcheck = -1, fp2_tcheck = -1;
   Double_t fp1_y=-1, fp2_y=-1;
   Double_t anodeFront = -1, anodeBack = -1, scintRight = -1, scintLeft = -1;
+  Double_t scintRightShort = -1, scintLeftShort = -1;
   Double_t cathode = -1;
   Double_t xavg = -1e6, x1 = -1e6, x2 = -1e6;
   Double_t theta = -1e6;
@@ -51,7 +53,13 @@ struct ProcessedEvent {
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
   Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;
+  Double_t delayFrontLeftTime = -1, delayFrontRightTime = -1;
+  Double_t delayBackLeftTime = -1, delayBackRightTime = -1;
   Double_t cathodeTime = -1;
+
+  Double_t monitorE = -1, monitorShort = -1;
+  Double_t monitorTime = -1;
+
 
   SabreDetector sabreArray[5]; //index = ChannelMap Id# -1
 };

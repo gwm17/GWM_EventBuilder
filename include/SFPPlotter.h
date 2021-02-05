@@ -10,6 +10,7 @@
 #define SFPCLEANER_H
 
 #include "DataStructs.h"
+#include <TGProgressBar.h>
 
 using namespace std;
 
@@ -19,11 +20,13 @@ class SFPPlotter {
     SFPPlotter(bool tf);
     ~SFPPlotter();
     int SetCuts(string edename, string dexname, string exname, string xxname);
+    inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
     int ReadCutlist(string& listname);
     void Run(vector<TString> files, string output);
 
   private:
     void Reset();
+    void SetProgressBar(long total);
     void Chain(vector<TString> files); //Form TChain
     void MakeUncutHistograms(ProcessedEvent ev);
     void MakeCutHistograms(ProcessedEvent ev);
@@ -34,7 +37,6 @@ class SFPPlotter {
     void MyFill(string name, int binsx, double minx, double maxx, double valuex);
 
     ProcessedEvent *event_address, event, empty;
-    bool treeFlag; /*Unused currently... add option to fill a gated output tree*/
 
     /*ROOT Storage*/
     THashTable *rootObj;
@@ -44,8 +46,11 @@ class SFPPlotter {
      */
     TFile *edefile, *dexfile, *exfile, *xxfile;
     TCutG *EdECut, *dExCut, *x1x2Cut, *ExCut;
+    bool cutFlag;
 
     TChain *chain;
+
+    TGProgressBar* m_pb; //GUI progress
 
 };
 

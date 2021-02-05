@@ -30,7 +30,6 @@ class SlowSort {
     inline TH2F* GetEventStats() { return event_stats; };
     void FlushHitsToEvent(); //For use with *last* hit list
     inline bool IsEventReady() { return eventFlag; };
-    void Run(const char *infile_name, const char *outfile_name);
 
   private:
     void InitVariableMaps();

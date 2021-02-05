@@ -20,11 +20,15 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fMain->SetCleanup(kDeepCleanup); //delete all child frames
 	fMain->DontCallClose(); //Close button on window disabled
 
-	dirFlag = false;
+	bool dirFlag = false;
+	bool rootFlag = false;
 	suffix = ".txt";
 	if(type == EVBMainFrame::ROOTDIR || type == EVBMainFrame::BINDIR) {
 		dirFlag = true;
 		suffix = ".NOTHING";
+	} else if(type == EVBMainFrame::PLOTF) {
+		rootFlag = true;
+		suffix = ".root";
 	}
 
 	/*Layout orgainization hints*/
@@ -66,9 +70,14 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 
 	/*Send signal to appropriate location*/
 	if(type == EVBMainFrame::ROOTDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayROOTdir(const char*)");
-	else if(type == EVBMainFrame::BINDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayBINDir(const char*)");
+	else if(type == EVBMainFrame::BINDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayBINdir(const char*)");
 	else if(type == EVBMainFrame::CMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCMap(const char*)");
 	else if(type == EVBMainFrame::SMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplaySMap(const char*)");
+	else if(type == EVBMainFrame::SCALER) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayScaler(const char*)");
+	else if(type == EVBMainFrame::CUT) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCut(const char*)");
+	else if(type == EVBMainFrame::M_LOAD_CONFIG) Connect("SendText(const char*)","EVBMainFrame",parent,"LoadConfig(const char*)");
+	else if(type == EVBMainFrame::M_SAVE_CONFIG) Connect("SendText(const char*)","EVBMainFrame",parent,"SaveConfig(const char*)");
+	else if(type == EVBMainFrame::PLOTF) Connect("SendText(const char*)","EVBMainFrame",parent,"RunPlot(const char*)");
 
 	fMain->SetWindowName("Select File");
 	fMain->MapSubwindows();
@@ -77,8 +86,9 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fMain->MapWindow();
 
 	fContents->SetDefaultHeaders();
-	if(!dirFlag) fContents->SetFilter("*.txt"); //relevant extension
-	else fContents->SetFilter("*.NOTHING"); //only looking for dirs
+	if(dirFlag) fContents->SetFilter("*.NOTHING"); //relevant extension
+	else if(rootFlag) fContents->SetFilter("*.root");
+	else fContents->SetFilter("*.txt");
 	fContents->DisplayDirectory();
 	fContents->AddFile(".."); //go back a dir
 	fContents->Resize();

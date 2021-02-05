@@ -10,6 +10,7 @@
 #define GWMEVENTBUILDER_H
 
 #include "RunCollector.h"
+#include <TGProgressBar.h>
 
 class GWMEventBuilder {
 public:
@@ -19,9 +20,7 @@ public:
 	bool ReadConfigFile(std::string& filename);
 	void WriteConfigFile(std::string& filename);
 
-	void BuildEvents();
 	void PlotHistograms();
-	void ConvertBin2ROOT();
 	void MergeROOTFiles();
 	void ArchiveBinaryFiles(int runNum, bool segmented=false);
 	void Convert2SortedRoot();
@@ -76,16 +75,9 @@ public:
 	inline const char* GetMergeInputDirectory() { return m_mergeIndir.c_str(); };
 	inline const char* GetScalerFile() { return m_scalerfile.c_str(); };
 
-
-
-	inline void SetStream(std::ostream* stream) { m_stream = stream; };
+	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
 
 	enum BuildType {
-		BUILD_ALL,
-		BUILD_SLOW,
-		BUILD_FAST,
-		ANALYZE_FAST,
-		ANALYZE_SLOW,
 		ARCHIVE,
 		CONVERT,
 		CONVERT_S,
@@ -115,20 +107,14 @@ private:
 
 	int m_analysisType;
 
-	std::ostream* m_stream;
-
 	std::vector<TString> m_currentFiles;
 
 	RunCollector grabber;
 
+	TGProgressBar* m_pb;
+
 	bool CollectRuns(std::string& dir, std::string prefix, std::string suffix, int min, int max, bool ranged=true);
 	bool GetRun(int runno);
-
-	void BuildFullEvents();
-	void BuildSlowEvents();
-	void BuildFastEvents();
-	void AnalyzeSlowEvents();
-	void AnalyzeFastEvents();
 
 };
 

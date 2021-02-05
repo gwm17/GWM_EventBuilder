@@ -67,6 +67,7 @@ bool ChannelMap::FillMap(std::string& name) {
 			else if(partname == "CATHODE") this_chan.detectorPart = CATHODE;
 			else if(partname == "ANODEFRONT") this_chan.detectorPart = ANODEFRONT;
 			else if(partname == "ANODEBACK") this_chan.detectorPart = ANODEBACK;
+			else if(partname == "MONITOR") this_chan.detectorPart = MONITOR;
 		}
 
 		cmap[gchan] = this_chan;

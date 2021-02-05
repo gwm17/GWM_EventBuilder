@@ -14,11 +14,6 @@ int main(int argc, char** argv) {
 
 
 	/* DEFAULT Operation Types:
-		buildSlow (through slowSort and then analyze) DEPRECATED
-		buildFast (start with slowSorted and then fast and analyze) DEPRECATED
-		buildAll (all steps through analyze) DEPRECATED
-		analyzeSlow (analyze from slowSorted) DEPRECATED
-		analyzeFast (analyze from fastSorted) DEPRECATED
 		archive (make an archive of raw binary data)
 		convert (convert binary archive to root data)
 		convertSlow (convert binary arhcive to event slow data)
@@ -35,27 +30,7 @@ int main(int argc, char** argv) {
 	}
 	Stopwatch timer;
 	timer.Start();
-	if(operation == "buildAll") {
-		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
-		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_ALL);
-		theBuilder.BuildEvents();
-	} else if(operation == "buildSlow") {
-		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
-		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_SLOW);
-		theBuilder.BuildEvents();
-	} else if(operation == "buildFast") {
-		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
-		theBuilder.SetAnalysisType(GWMEventBuilder::BUILD_FAST);
-		theBuilder.BuildEvents();
-	} else if(operation == "analyzeSlow") {
-		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
-		theBuilder.SetAnalysisType(GWMEventBuilder::ANALYZE_SLOW);
-		theBuilder.BuildEvents();
-	} else if(operation == "analyzeFast") {
-		std::cout<<"DEPRECATED option, do not use unless you know what you're doing"<<std::endl;
-		theBuilder.SetAnalysisType(GWMEventBuilder::ANALYZE_FAST);
-		theBuilder.BuildEvents();
-	} else if(operation == "archive") {
+	if(operation == "archive") {
 		int runNum;
 		theBuilder.SetAnalysisType(GWMEventBuilder::ARCHIVE);
 		std::cout<<"Enter the run number to be archived: ";
@@ -64,7 +39,7 @@ int main(int argc, char** argv) {
 		theBuilder.ArchiveBinaryFiles(runNum);
 	} else if(operation == "convert") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT);
-		theBuilder.ConvertBin2ROOT();
+		theBuilder.Convert2RawRoot();
 	} else if(operation == "merge") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::MERGE);
 		theBuilder.MergeROOTFiles();

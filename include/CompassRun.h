@@ -13,8 +13,10 @@
 #include "CompassFile.h"
 #include "DataStructs.h"
 #include "RunCollector.h"
-#include "NewShiftMap.h"
+#include "ShiftMap.h"
 #include <TParameter.h>
+#include <TGProgressBar.h>
+#include <TSystem.h>
 
 class CompassRun {
 public:
@@ -37,16 +39,19 @@ public:
 	void Convert2FastAnalyzedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window,
 							  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
 
+	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
+
 private:
 	bool GetBinaryFiles();
 	bool GetHitsFromFiles();
 	void SetScalers();
 	void ReadScalerData();
+	void SetProgressBar();
 
 	std::string directory, m_scalerinput;
 	std::vector<CompassFile> m_datafiles, m_scalerfiles;
 	unsigned int startIndex; //this is the file we start looking at; increases as we finish files.
-	NewShiftMap m_smap;
+	ShiftMap m_smap;
 	std::unordered_map<std::string, TParameter<Long64_t>> m_scaler_map; //maps scaler files to the TParameter to be saved
 
 	//Potential branch variables
@@ -56,9 +61,13 @@ private:
 
 	//what run is this
 	int runNum;
+	unsigned int m_totalHits;
 
 	//Scaler switch
 	bool m_scaler_flag;
+
+	//GUI progress bar, if attached
+	TGProgressBar* m_pb;
 };
 
 #endif

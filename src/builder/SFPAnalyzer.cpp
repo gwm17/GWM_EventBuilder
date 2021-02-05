@@ -79,29 +79,40 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
   }
   if(!event.focalPlane.scintL.empty()) {
     pevent.scintLeft = event.focalPlane.scintL[0].Long;
+    pevent.scintLeftShort = event.focalPlane.scintL[0].Short;
     pevent.scintLeftTime = event.focalPlane.scintL[0].Time;
   }
   if(!event.focalPlane.scintR.empty()) {
     pevent.scintRight = event.focalPlane.scintR[0].Long;
+    pevent.scintRightShort = event.focalPlane.scintR[0].Short;
     pevent.scintRightTime = event.focalPlane.scintR[0].Time;
   }
   if(!event.focalPlane.cathode.empty()) {
     pevent.cathode = event.focalPlane.cathode[0].Long;
     pevent.cathodeTime = event.focalPlane.cathode[0].Time;
   }
+  if(!event.focalPlane.monitor.empty()) {
+    pevent.monitorE = event.focalPlane.monitor[0].Long;
+    pevent.monitorShort = event.focalPlane.monitor[0].Short;
+    pevent.monitorTime = event.focalPlane.monitor[0].Time;
+  }
 
   /*Delay lines and all that*/
   if(!event.focalPlane.delayFR.empty()) {
     pevent.delayFrontRightE = event.focalPlane.delayFR[0].Long;
+    pevent.delayFrontRightTime = event.focalPlane.delayFR[0].Time;
   }
   if(!event.focalPlane.delayFL.empty()) {
     pevent.delayFrontLeftE = event.focalPlane.delayFL[0].Long;
+    pevent.delayFrontLeftTime = event.focalPlane.delayFL[0].Time;
   }
   if(!event.focalPlane.delayBR.empty()) {
     pevent.delayBackRightE = event.focalPlane.delayBR[0].Long;
+    pevent.delayBackRightTime = event.focalPlane.delayBR[0].Time;
   }
   if(!event.focalPlane.delayBL.empty()) {
     pevent.delayBackLeftE = event.focalPlane.delayBL[0].Long;
+    pevent.delayBackLeftTime = event.focalPlane.delayBL[0].Time;
   }
   if(!event.focalPlane.delayFL.empty() && !event.focalPlane.delayFR.empty()) { 
     pevent.fp1_tdiff = (event.focalPlane.delayFL[0].Time-event.focalPlane.delayFR[0].Time)*0.5;
@@ -165,38 +176,4 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
 ProcessedEvent SFPAnalyzer::GetProcessedEvent(CoincEvent& event) {
   AnalyzeEvent(event);
   return pevent;
-}
-
-/*Bulk of the work done here*/
-void SFPAnalyzer::Run(const char *input, const char *output) {
-  TFile* inputFile = new TFile(input, "READ");
-  TTree* inputTree = (TTree*) inputFile->Get("SortTree");
-  inputTree->SetBranchAddress("event", &event_address);
-
-  TFile* outputFile = new TFile(output, "RECREATE");
-  TTree* outputTree = new TTree("SPSTree", "SPSTree");
-  rootObj->SetOwner(false);//Stops THashTable from owning its members; prevents double delete
-
-  outputTree->Branch("event", "ProcessedEvent", &pevent);
-  Float_t place;
-  Float_t blentries = inputTree->GetEntries();
-  cout<<"Number of entries: "<<blentries<<endl;
-  cout<<setprecision(2);
-  for(long double i=0; i<inputTree->GetEntries(); i++) {
-    inputTree->GetEntry(i);
-    place = ((long double)i)/blentries*100;
-    /*Non-continuous progress update*/
-    if(fmod(place, 10.0) == 0) cout<<"\rPercent of file processed: "<<ceil(place)<<"%"<<flush;
-    AnalyzeEvent(*event_address);
-    outputTree->Fill();
-  }
-  cout<<endl;
-  outputFile->cd();
-  rootObj->Write();
-  rootObj->Clear();
-  outputTree->Write(outputTree->GetName(), TObject::kOverwrite);
-  outputFile->Close();
-  inputFile->Close();
-  delete outputFile;
-  delete inputFile;
 }
