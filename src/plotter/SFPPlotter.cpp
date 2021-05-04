@@ -200,8 +200,8 @@ void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
 
 /*Makes histograms with cuts & gates implemented*/
 void SFPPlotter::MakeCutHistograms(ProcessedEvent ev) {
-  if(EdECut->IsInside(ev.scintLeft, ev.delayBackRightE) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
-    MyFill("x1_bothplanes_edecut",600,-300,300,ev.x2);
+  if(EdECut->IsInside(ev.scintLeft, ev.cathode) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
+    MyFill("x1_bothplanes_edecut",600,-300,300,ev.x1);
     MyFill("x2_bothplanes_edecut",600,-300,300,ev.x2);
     MyFill("xavg_bothplanes_edecut",600,-300,300,ev.xavg);
     MyFill("x1_x2_edecut",600,-300,300,ev.x1, 600,-300,300,ev.x2);
