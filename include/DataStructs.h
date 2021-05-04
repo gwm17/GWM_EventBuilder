@@ -50,6 +50,8 @@ struct ProcessedEvent {
   
   Double_t delayFrontRightE = -1, delayFrontLeftE = -1;
   Double_t delayBackRightE = -1, delayBackLeftE = -1;
+  Double_t delayFrontRightShort = -1, delayFrontLeftShort = -1;
+  Double_t delayBackRightShort = -1, delayBackLeftShort = -1;
   Double_t anodeFrontTime = -1, anodeBackTime = -1;
   Double_t scintRightTime = -1, scintLeftTime = -1;
   Double_t delayFrontMaxTime = -1, delayBackMaxTime = -1;

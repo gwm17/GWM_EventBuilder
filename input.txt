@@ -1,32 +1,32 @@
 -------Data Locations----------
-ROOTDirectory: /data1/gwm17/50Tidp/
-BinaryArchiveDirectory: /data1/gwm17/50Tidp/raw_binary/
+ROOTDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/
+BinaryArchiveDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/raw_binary/
 BinaryFileDirectory: none
-MergeInputDirectory: /data1/gwm17/50Tidp/analyzed/
-MergeOutputFile: /data1/gwm17/50Tidp/merged_25deg_runs.root
-PlotOutputFile: /data1/gwm17/50Tidp/histograms/run_70.root
+MergeInputDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/analyzed/
+MergeOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/runs_240_258_merged_delayPSD.root
+PlotOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021//histograms/run_47_47_histos.root
 -------------------------------
 ------Experimental Inputs------
-ChannelMapFile: ./etc/ChannelMap_Nov2020_50Tidp.txt
-ScalerFile: ./etc/ScalerFile.txt
-CutListFile: ./etc/CutList_Nov2020_50Tidp.txt
-ZT: 22
-AT: 50
-ZP: 1
-AP: 2
-ZE: 1
-AE: 1
-BField(G): 8030.0
-BeamKE(MeV): 16
-Theta(deg): 25
+ChannelMapFile: /home/gordon/GWM_EventBuilder/etc/ChannelMap_Feb2021_SABRE.txt
+ScalerFile: /home/gordon/GWM_EventBuilder/etc/ScalerFile_Feb2021_SABRE.txt
+CutListFile: /home/gordon/GWM_EventBuilder/etc/CutList_Feb2021_10B3hea.txt
+ZT: 5
+AT: 10
+ZP: 2
+AP: 3
+ZE: 2
+AE: 4
+BField(G): 8925
+BeamKE(MeV): 24
+Theta(deg): 15
 -------------------------------
 -------Timing Information------
-BoardOffsetFile: ./etc/ShiftMap_Nov2020_50Tidp.txt
-SlowCoincidenceWindow(ps): 1.5e6
-FastCoincidenceWindow_IonCh(ps): 0.15e6
-FastCoincidenceWindow_SABRE(ps): 0.25e6
+BoardOffsetFile: /home/gordon/GWM_EventBuilder/etc/ShiftMap_Feb2021_SABRE.txt
+SlowCoincidenceWindow(ps): 1.5e+06
+FastCoincidenceWindow_IonCh(ps): 250000
+FastCoincidenceWindow_SABRE(ps): 150000
 -------------------------------
 --------Run Information--------
-MinRun: 81
-MaxRun: 81
+MinRun: 47
+MaxRun: 159
 -------------------------------
