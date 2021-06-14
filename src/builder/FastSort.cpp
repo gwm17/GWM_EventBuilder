@@ -81,35 +81,6 @@ void FastSort::ProcessSABRE(unsigned int scint_index) {
       }
     }
   
-    /*Now we need to dump unpaired SABRE (i.e. require both ring and wedge for good hit)
-     *Since SABRE is sorted by descending enrgy and the standard method of pairing is to pair
-     *highest energy front to highest energy back and so forth, all we need to do is dump the extras
-     *from either vector
-     */
-    int unpairedSi = rings.size() -wedges.size(); 
-    if(unpairedSi<0) { //too many wedges
-      int depth = rings.size();
-      if(depth == 0) {
-        wedges.resize(0);
-      } else {
-        wedges.erase(wedges.begin()+depth, wedges.end()); //erase is [start, stop)
-      }
-      /*if(wedges.size() != rings.size()) {
-        std::cerr<<endl<<"Failed si vector at wedge reduction!"<<endl;
-        std::cerr<<"Ring size: "<<rings.size()<<" wedge size: "<<wedges.size()<<endl;
-      }*/
-    } else if (unpairedSi>0) { //too many rings
-      int depth = wedges.size();
-      if(depth == 0) {
-        rings.resize(0);
-      } else {
-        rings.erase(rings.begin()+depth, rings.end());
-      }
-      /*if(rings.size() != wedges.size()) {
-        std::cerr<<endl<<"Failed si vector at ring reduction!"<<endl;
-        std::cerr<<"Ring size: "<<rings.size()<<" wedge size: "<<wedges.size()<<endl;
-      }*/
-    }
     fastEvent.sabreArray[i].rings = rings;
     fastEvent.sabreArray[i].wedges = wedges;
   }

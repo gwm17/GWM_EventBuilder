@@ -265,7 +265,9 @@ void EVBMainFrame::DoRun() {
 		}
 		case GWMEventBuilder::PLOT :
 		{
-			new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, PLOTF);
+			//new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, PLOTF);
+			std::string plotname = std::string(fBuilder.GetROOTDirectory()) + "/histograms/run_" + std::to_string(fBuilder.GetRunMin()) + "_" + std::to_string(fBuilder.GetRunMax()) + "_histos.root";
+			RunPlot(plotname.c_str());
 			break;
 		}
 		case GWMEventBuilder::CONVERT :
