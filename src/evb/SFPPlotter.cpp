@@ -15,22 +15,13 @@ SFPPlotter::SFPPlotter() {
   rootObj = new THashTable();
   rootObj->SetOwner(false);//THashTable doesnt own members; avoid double delete
   event_address = new ProcessedEvent();
-  edefile = NULL;
-  dexfile = NULL;
-  exfile = NULL;
-  xxfile = NULL;
-  EdECut = NULL, ExCut = NULL, dExCut = NULL, x1x2Cut = NULL;
   chain = new TChain("SPSTree");
-  m_pb = NULL;
   cutFlag = false;
+  m_pb = NULL;
 }
 
 SFPPlotter::~SFPPlotter() {
   delete event_address;
-  if(edefile != NULL && edefile->IsOpen()) edefile->Close();
-  if(dexfile != NULL && dexfile->IsOpen()) dexfile->Close();
-  if(exfile != NULL && exfile->IsOpen()) exfile->Close();
-  if(xxfile != NULL && xxfile->IsOpen()) xxfile->Close();
 }
 
 /*2D histogram fill wrapper*/
@@ -58,58 +49,9 @@ void SFPPlotter::MyFill(const string& name, int binsx, double minx, double maxx,
   }
 }
 
-void SFPPlotter::Reset() {
-  event = empty;
-}
-
-/*Function for user to set the cutfiles; 
- *has to be used in current design!
- *User will probably want to change number of cuts and their names
- */
-int SFPPlotter::SetCuts(const string& edename, const string& dexname, const string& exname, const string& xxname) {
-  edefile = new TFile(edename.c_str(), "READ");
-  if(edefile->IsOpen()) {
-    EdECut = (TCutG*) edefile->Get("CUTG");
-    EdECut->SetName("EdECut");
-    rootObj->Add(EdECut);
-  }
-  dexfile = new TFile(dexname.c_str(), "READ");
-  if(dexfile->IsOpen()) {
-    dExCut = (TCutG*) dexfile->Get("CUTG");
-    dExCut->SetName("dExCut");
-    rootObj->Add(dExCut);
-  }
-  exfile = new TFile(exname.c_str(), "READ");
-  if(exfile->IsOpen()) {
-    ExCut = (TCutG*) exfile->Get("CUTG");
-    ExCut->SetName("ExCut");
-    rootObj->Add(ExCut);
-  }
-  xxfile = new TFile(xxname.c_str(), "READ");
-  if(xxfile->IsOpen()) {
-    x1x2Cut = (TCutG*) xxfile->Get("CUTG");
-    x1x2Cut->SetName("x1x2Cut");
-    rootObj->Add(x1x2Cut);
-  }
-  if(EdECut != NULL && dExCut != NULL && x1x2Cut != NULL && ExCut != NULL) {
-    cutFlag = true;
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-int SFPPlotter::ReadCutlist(const string& listname) {
-  ifstream input(listname);
-  string junk, edename, dexname, exname, xxname;
-  if(!input.is_open()) return 0;
-
-  input>>junk>>edename>>junk>>dexname>>junk>>exname>>junk>>xxname;
-
-  input.close();
-
-  return SetCuts(edename, dexname, exname, xxname);
-
+void SFPPlotter::ApplyCutlist(const string& listname) {
+  cutter.SetCuts(listname);
+  cutFlag = true;
 }
 
 /*Makes histograms where only rejection is unset data*/
@@ -216,80 +158,81 @@ void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
 
 /*Makes histograms with cuts & gates implemented*/
 void SFPPlotter::MakeCutHistograms(ProcessedEvent ev) {
-  if(EdECut->IsInside(ev.scintLeft, ev.cathode) && x1x2Cut->IsInside(ev.x1, ev.x2)) {
-    MyFill("x1_bothplanes_edecut",600,-300,300,ev.x1);
-    MyFill("x2_bothplanes_edecut",600,-300,300,ev.x2);
-    MyFill("xavg_bothplanes_edecut",600,-300,300,ev.xavg);
-    MyFill("x1_x2_edecut",600,-300,300,ev.x1, 600,-300,300,ev.x2);
-    MyFill("xavg_theta_edecut_bothplanes",600,-300,300,ev.xavg,100,0,TMath::Pi()/2.,ev.theta);
+  if(!cutter.IsValid()) return;
+  if(cutter.IsInside(&ev)) {
+    MyFill("x1_bothplanes_Cut",600,-300,300,ev.x1);
+    MyFill("x2_bothplanes_Cut",600,-300,300,ev.x2);
+    MyFill("xavg_bothplanes_Cut",600,-300,300,ev.xavg);
+    MyFill("x1_x2_Cut",600,-300,300,ev.x1, 600,-300,300,ev.x2);
+    MyFill("xavg_theta_Cut_bothplanes",600,-300,300,ev.xavg,100,0,TMath::Pi()/2.,ev.theta);
     
-    MyFill("x1_delayBackRightE_edecut",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
-    MyFill("x2_delayBackRightE_edecut",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
-    MyFill("xavg_delayBackRightE_edecut",600,-300,300,ev.xavg,512,0,4096,ev.delayBackRightE);
+    MyFill("x1_delayBackRightE_Cut",600,-300,300,ev.x1,512,0,4096,ev.delayBackRightE);
+    MyFill("x2_delayBackRightE_Cut",600,-300,300,ev.x2,512,0,4096,ev.delayBackRightE);
+    MyFill("xavg_delayBackRightE_Cut",600,-300,300,ev.xavg,512,0,4096,ev.delayBackRightE);
 
     Double_t delayBackAvgE = (ev.delayBackRightE+ev.delayBackLeftE)/2.0;
-    MyFill("x1_delayBackAvgE_edecut",600,-300,300,ev.x1,512,0,4096,delayBackAvgE);
-    MyFill("x2_delayBackAvgE_edecut",600,-300,300,ev.x2,512,0,4096,delayBackAvgE);
-    MyFill("xavg_delayBackAvgE_edecut",600,-300,300,ev.xavg,512,0,4096,delayBackAvgE);
+    MyFill("x1_delayBackAvgE_Cut",600,-300,300,ev.x1,512,0,4096,delayBackAvgE);
+    MyFill("x2_delayBackAvgE_Cut",600,-300,300,ev.x2,512,0,4096,delayBackAvgE);
+    MyFill("xavg_delayBackAvgE_Cut",600,-300,300,ev.xavg,512,0,4096,delayBackAvgE);
     Double_t delayFrontAvgE = (ev.delayFrontRightE+ev.delayFrontLeftE)/2.0;
-    MyFill("x1_delayFrontAvgE_edecut",600,-300,300,ev.x1,512,0,4096,delayFrontAvgE);
-    MyFill("x2_delayFrontAvgE_edecut",600,-300,300,ev.x2,512,0,4096,delayFrontAvgE);
-    MyFill("xavg_delayFrontAvgE_edecut",600,-300,300,ev.xavg,512,0,4096,delayFrontAvgE);
+    MyFill("x1_delayFrontAvgE_Cut",600,-300,300,ev.x1,512,0,4096,delayFrontAvgE);
+    MyFill("x2_delayFrontAvgE_Cut",600,-300,300,ev.x2,512,0,4096,delayFrontAvgE);
+    MyFill("xavg_delayFrontAvgE_Cut",600,-300,300,ev.xavg,512,0,4096,delayFrontAvgE);
 
-    MyFill("scintLeft_anodeBack_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
-    MyFill("scintLeft_anodeFront_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
-    MyFill("scintLeft_cathode_edecut",512,0,4096,ev.scintLeft,512,0,4096,ev.cathode);
+    MyFill("scintLeft_anodeBack_Cut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeBack);
+    MyFill("scintLeft_anodeFront_Cut",512,0,4096,ev.scintLeft,512,0,4096,ev.anodeFront);
+    MyFill("scintLeft_cathode_Cut",512,0,4096,ev.scintLeft,512,0,4096,ev.cathode);
 
-    MyFill("x1_scintLeft_edecut",600,-300,300,ev.x1,512,0,4096,ev.scintLeft);
-    MyFill("x2_scintLeft_edecut",600,-300,300,ev.x2,512,0,4096,ev.scintLeft);
-    MyFill("xavg_scintLeft_edecut",600,-300,300,ev.xavg,512,0,4096,ev.scintLeft);
+    MyFill("x1_scintLeft_Cut",600,-300,300,ev.x1,512,0,4096,ev.scintLeft);
+    MyFill("x2_scintLeft_Cut",600,-300,300,ev.x2,512,0,4096,ev.scintLeft);
+    MyFill("xavg_scintLeft_Cut",600,-300,300,ev.xavg,512,0,4096,ev.scintLeft);
 
-    MyFill("x1_anodeBack_edecut",600,-300,300,ev.x1,512,0,4096,ev.anodeBack);
-    MyFill("x2_anodeBack_edecut",600,-300,300,ev.x2,512,0,4096,ev.anodeBack);
-    MyFill("xavg_anodeBack_edecut",600,-300,300,ev.xavg,512,0,4096,ev.anodeBack);
+    MyFill("x1_anodeBack_Cut",600,-300,300,ev.x1,512,0,4096,ev.anodeBack);
+    MyFill("x2_anodeBack_Cut",600,-300,300,ev.x2,512,0,4096,ev.anodeBack);
+    MyFill("xavg_anodeBack_Cut",600,-300,300,ev.xavg,512,0,4096,ev.anodeBack);
   
-    MyFill("x1_anodeFront_edecut",600,-300,300,ev.x1,512,0,4096,ev.anodeFront);
-    MyFill("x2_anodeFront_edecut",600,-300,300,ev.x2,512,0,4096,ev.anodeFront);
-    MyFill("xavg_anodeFront_edecut",600,-300,300,ev.xavg,512,0,4096,ev.anodeFront);
+    MyFill("x1_anodeFront_Cut",600,-300,300,ev.x1,512,0,4096,ev.anodeFront);
+    MyFill("x2_anodeFront_Cut",600,-300,300,ev.x2,512,0,4096,ev.anodeFront);
+    MyFill("xavg_anodeFront_Cut",600,-300,300,ev.xavg,512,0,4096,ev.anodeFront);
   
-    MyFill("x1_cathode_edecut",600,-300,300,ev.x1,512,0,4096,ev.cathode);
-    MyFill("x2_cathode_edecut",600,-300,300,ev.x2,512,0,4096,ev.cathode);
-    MyFill("xavg_cathode_edecut",600,-300,300,ev.xavg,512,0,4096,ev.cathode);
+    MyFill("x1_cathode_Cut",600,-300,300,ev.x1,512,0,4096,ev.cathode);
+    MyFill("x2_cathode_Cut",600,-300,300,ev.x2,512,0,4096,ev.cathode);
+    MyFill("xavg_cathode_Cut",600,-300,300,ev.xavg,512,0,4096,ev.cathode);
 
     /****Timing relative to back anode****/
     if(ev.anodeBackTime != -1 && ev.scintLeftTime != -1) {
       Double_t anodeRelFT = ev.anodeFrontTime - ev.anodeBackTime;
       Double_t anodeRelBT = ev.anodeBackTime - ev.anodeBackTime;
       Double_t anodeRelFT_toScint = ev.anodeFrontTime-ev.scintLeftTime;
-      MyFill("anodeRelBackTime_edecut",1000,-3000,3500, anodeRelBT);
-      MyFill("anodeRelFrontTime_edecut",1000,-3000,3500, anodeRelFT);
-      MyFill("anodeRelTime_toScint_edecut",1000,-3000,3500,anodeRelFT_toScint);
+      MyFill("anodeRelBackTime_Cut",1000,-3000,3500, anodeRelBT);
+      MyFill("anodeRelFrontTime_Cut",1000,-3000,3500, anodeRelFT);
+      MyFill("anodeRelTime_toScint_Cut",1000,-3000,3500,anodeRelFT_toScint);
       for(int i=0; i<5; i++) {
         if(ev.sabreRingE[i] != -1) {
           Double_t sabreRelRT = ev.sabreRingTime[i] - ev.anodeBackTime;
           Double_t sabreRelWT = ev.sabreWedgeTime[i] - ev.anodeBackTime;
-          MyFill("sabreRelRingTime_edecut",1000,-3000,3500, sabreRelRT);
-          MyFill("sabreRelWedgeTime_edecut",1000,-3000,3500, sabreRelWT);
+          MyFill("sabreRelRingTime_Cut",1000,-3000,3500, sabreRelRT);
+          MyFill("sabreRelWedgeTime_Cut",1000,-3000,3500, sabreRelWT);
         } 
       }
     } else {
-      MyFill("noscinttime_counter_edecut",2,0,1,1);
+      MyFill("noscinttime_counter_Cut",2,0,1,1);
     }
     
     int count = 0;
     for(int i=0; i<5; i++) {
       if(ev.sabreRingE[i] != -1) {
-        MyFill("sabreRingE_edecut",2000,0,20,ev.sabreRingE[i]);
-        MyFill("xavg_edecut_sabrefcoinc",600,-300,300,ev.xavg);
-        MyFill("xavg_sabreRingE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreRingE[i]);
-        MyFill("sabreWedgeE_edecut",2000,0,20,ev.sabreWedgeE[i]);
-        MyFill("xavg_sabreWedgeE_edecut",600,-300,300,ev.xavg,200,0,20,ev.sabreWedgeE[i]);
+        MyFill("sabreRingE_Cut",2000,0,20,ev.sabreRingE[i]);
+        MyFill("xavg_Cut_sabrefcoinc",600,-300,300,ev.xavg);
+        MyFill("xavg_sabreRingE_Cut",600,-300,300,ev.xavg,200,0,20,ev.sabreRingE[i]);
+        MyFill("sabreWedgeE_Cut",2000,0,20,ev.sabreWedgeE[i]);
+        MyFill("xavg_sabreWedgeE_Cut",600,-300,300,ev.xavg,200,0,20,ev.sabreWedgeE[i]);
       } else {
         count++;
       }
     }
     if(count == 80) {
-      MyFill("xavg_bothplanes_sabreanticoinc_edecut",600,-300,300,ev.xavg);
+      MyFill("xavg_bothplanes_sabreanticoinc_Cut",600,-300,300,ev.xavg);
     }
   }
 }
@@ -303,7 +246,10 @@ void SFPPlotter::Run(vector<TString> files, const string& output) {
   long blentries = chain->GetEntries();
   if(m_pb) SetProgressBar(blentries);
   cout<<"Total number of events: "<<blentries<<endl;
-  long count=0, flush=blentries*0.1, nflushes=0;
+
+  long count=0, flush=blentries*0.01, nflushes=0;
+  if(flush == 0) flush = 1;
+
   for(long double i=0; i<chain->GetEntries(); i++) {
     count++;
     if(count == flush) {
@@ -324,6 +270,12 @@ void SFPPlotter::Run(vector<TString> files, const string& output) {
   cout<<endl;
   outfile->cd();
   rootObj->Write();
+  if(cutFlag && cutter.IsValid()) {
+    auto clist = cutter.GetCuts();
+    for(unsigned int i=0; i<clist.size(); i++) {
+      clist[i]->Write();
+    }
+  }
   delete rootObj;
   outfile->Close();
   delete outfile;

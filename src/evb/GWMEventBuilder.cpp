@@ -117,12 +117,7 @@ void GWMEventBuilder::PlotHistograms() {
 	std::string analyze_dir = m_workspace+"/analyzed/";
 	std::string plot_file = m_workspace+"/histograms/run_"+to_string(m_rmin)+"_"+to_string(m_rmax)+".root";
 	SFPPlotter grammer;
-	if(m_cutList != "none") {
-		if(!grammer.ReadCutlist(m_cutList)) {
-			std::cout<<"Bad cutlist at PlotHistograms"<<std::endl;
-			return;
-		}
-	}
+	grammer.ApplyCutlist(m_cutList);
 	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
 	std::cout<<"Generating a histogram file from analyzed files"<<std::endl;
 	std::cout<<"Analyzed directory: "<<analyze_dir<<std::endl;

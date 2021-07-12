@@ -10,6 +10,7 @@
 #define SFPCLEANER_H
 
 #include "DataStructs.h"
+#include "CutHandler.h"
 #include <TGProgressBar.h>
 
 using namespace std;
@@ -19,13 +20,11 @@ class SFPPlotter {
     SFPPlotter();
     SFPPlotter(bool tf);
     ~SFPPlotter();
-    int SetCuts(const string& edename, const string& dexname, const string& exname, const string& xxname);
     inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
-    int ReadCutlist(const string& listname);
+    void ApplyCutlist(const string& listname);
     void Run(vector<TString> files, const string& output);
 
   private:
-    void Reset();
     void SetProgressBar(long total);
     void Chain(vector<TString> files); //Form TChain
     void MakeUncutHistograms(ProcessedEvent ev);
@@ -36,18 +35,15 @@ class SFPPlotter {
                              int binsy, double miny, double maxy, double valuey);
     void MyFill(const string& name, int binsx, double minx, double maxx, double valuex);
 
-    ProcessedEvent *event_address, event, empty;
+    ProcessedEvent *event_address;
 
     /*ROOT Storage*/
     THashTable *rootObj;
 
-    /*Files containing cuts, and actaul cuts... Names should be customized for
-     *each individual experiment
-     */
-    TFile *edefile, *dexfile, *exfile, *xxfile;
-    TCutG *EdECut, *dExCut, *x1x2Cut, *ExCut;
+    /*Cuts*/
+    CutHandler cutter;
     bool cutFlag;
-
+    
     TChain *chain;
 
     TGProgressBar* m_pb; //GUI progress
