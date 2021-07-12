@@ -26,27 +26,16 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGVerticalFrame *NameFrame = new TGVerticalFrame(InputFrame, w, h*0.4);
 
-	TGHorizontalFrame *ROOTFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
-	TGLabel* rootLabel = new TGLabel(ROOTFrame, "ROOT Directory:");
-	fROOTField = new TGTextEntry(ROOTFrame, new TGTextBuffer(120), ROOTDIR);
-	fROOTField->Resize(w*0.25, fROOTField->GetDefaultHeight());
-	fROOTField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateROOTdir()");
-	fOpenROOTButton = new TGTextButton(ROOTFrame, "Open");
-	fOpenROOTButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenROOTdir()");
-	ROOTFrame->AddFrame(rootLabel, lhints);
-	ROOTFrame->AddFrame(fROOTField, fhints);
-	ROOTFrame->AddFrame(fOpenROOTButton, bhints);
-
-	TGHorizontalFrame *BINFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
-	TGLabel* binlabel = new TGLabel(BINFrame, "BIN Archive Directory:");
-	fBINField = new TGTextEntry(BINFrame, new TGTextBuffer(120), BINDIR);
-	fBINField->Resize(w*0.25, fBINField->GetDefaultHeight());
-	fBINField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateBINdir()");
-	fOpenBINButton = new TGTextButton(BINFrame, "Open");
-	fOpenBINButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenBINdir()");
-	BINFrame->AddFrame(binlabel, lhints);
-	BINFrame->AddFrame(fBINField, fhints);
-	BINFrame->AddFrame(fOpenBINButton, bhints);
+	TGHorizontalFrame *WorkFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGLabel* workLabel = new TGLabel(WorkFrame, "Workspace Directory:");
+	fWorkField = new TGTextEntry(WorkFrame, new TGTextBuffer(120), WORKDIR);
+	fWorkField->Resize(w*0.25, fWorkField->GetDefaultHeight());
+	fWorkField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateWorkdir()");
+	fOpenWorkButton = new TGTextButton(WorkFrame, "Open");
+	fOpenWorkButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenWorkdir()");
+	WorkFrame->AddFrame(workLabel, lhints);
+	WorkFrame->AddFrame(fWorkField, fhints);
+	WorkFrame->AddFrame(fOpenWorkButton, bhints);
 
 	TGHorizontalFrame *CMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* cmaplabel = new TGLabel(CMapFrame, "Channel Map File:");
@@ -90,8 +79,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	CutFrame->AddFrame(fCutField, fhints);
 	CutFrame->AddFrame(fOpenCutButton, bhints);
 
-	NameFrame->AddFrame(ROOTFrame, fhints);
-	NameFrame->AddFrame(BINFrame, fhints);
+	NameFrame->AddFrame(WorkFrame, fhints);
 	NameFrame->AddFrame(CMapFrame, fhints);
 	NameFrame->AddFrame(SMapFrame, fhints);
 	NameFrame->AddFrame(ScalerFrame, fhints);
@@ -159,7 +147,6 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	fTypeBox->AddEntry("Convert SlowA", GWMEventBuilder::CONVERT_SA);
 	fTypeBox->AddEntry("Convert FastA", GWMEventBuilder::CONVERT_FA);
 	fTypeBox->AddEntry("Convert", GWMEventBuilder::CONVERT);
-	fTypeBox->AddEntry("Archive BIN", GWMEventBuilder::ARCHIVE);
 	fTypeBox->AddEntry("Merge ROOT", GWMEventBuilder::MERGE);
 	fTypeBox->AddEntry("Plot", GWMEventBuilder::PLOT);
 	fTypeBox->Resize(200,20);
@@ -225,12 +212,8 @@ void EVBMainFrame::HandleMenuSelection(int id) {
 	else if(id == M_LOAD_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_LOAD_CONFIG);
 }
 
-void EVBMainFrame::DoOpenROOTdir() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, ROOTDIR);
-}
-
-void EVBMainFrame::DoOpenBINdir() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, BINDIR);
+void EVBMainFrame::DoOpenWorkdir() {
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, WORKDIR);
 }
 
 void EVBMainFrame::DoOpenCMapfile() {
@@ -259,15 +242,9 @@ void EVBMainFrame::DoRun() {
 	fBuilder.SetAnalysisType(type);
 
 	switch(type) {
-		case GWMEventBuilder::ARCHIVE : 
-		{
-			break;
-		}
 		case GWMEventBuilder::PLOT :
 		{
-			//new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, PLOTF);
-			std::string plotname = std::string(fBuilder.GetROOTDirectory()) + "/histograms/run_" + std::to_string(fBuilder.GetRunMin()) + "_" + std::to_string(fBuilder.GetRunMax()) + "_histos.root";
-			RunPlot(plotname.c_str());
+			RunPlot();
 			break;
 		}
 		case GWMEventBuilder::CONVERT :
@@ -277,6 +254,7 @@ void EVBMainFrame::DoRun() {
 		}
 		case GWMEventBuilder::MERGE :
 		{
+			fBuilder.MergeROOTFiles();
 			break;
 		}
 		case GWMEventBuilder::CONVERT_S :
@@ -313,6 +291,11 @@ bool EVBMainFrame::SetParameters() {
 	fBuilder.SetSlowCoincidenceWindow(fSlowWindowField->GetNumber());
 	fBuilder.SetFastWindowIonChamber(fFastICField->GetNumber());
 	fBuilder.SetFastWindowSABRE(fFastSABREField->GetNumber());
+	UpdateWorkdir();
+	UpdateSMap();
+	UpdateCMap();
+	UpdateScaler();
+	UpdateCut();
 	bool test = fBuilder.SetKinematicParameters(fZTField->GetIntNumber(), fATField->GetIntNumber(),
 												fZPField->GetIntNumber(), fAPField->GetIntNumber(),
 												fZEField->GetIntNumber(), fAEField->GetIntNumber(),
@@ -321,14 +304,9 @@ bool EVBMainFrame::SetParameters() {
 	return test;
 }
 
-void EVBMainFrame::DisplayROOTdir(const char* dir) {
-	fROOTField->SetText(dir);
-	fBuilder.SetROOTDirectory(dir);
-}
-
-void EVBMainFrame::DisplayBINdir(const char* dir) {
-	fBINField->SetText(dir);
-	fBuilder.SetBinaryDirectory(dir);
+void EVBMainFrame::DisplayWorkdir(const char* dir) {
+	fWorkField->SetText(dir);
+	fBuilder.SetWorkDirectory(dir);
 }
 
 void EVBMainFrame::DisplayCMap(const char* file) {
@@ -360,12 +338,11 @@ void EVBMainFrame::LoadConfig(const char* file) {
 	std::string filename = file;
 	fBuilder.ReadConfigFile(filename);
 
-	fROOTField->SetText(fBuilder.GetROOTDirectory());
-	fBINField->SetText(fBuilder.GetBinaryDirectory());
-	fCMapField->SetText(fBuilder.GetChannelMap());
-	fSMapField->SetText(fBuilder.GetBoardShiftFile());
-	fCutField->SetText(fBuilder.GetCutList());
-	fScalerField->SetText(fBuilder.GetScalerFile());
+	fWorkField->SetText(fBuilder.GetWorkDirectory().c_str());
+	fCMapField->SetText(fBuilder.GetChannelMap().c_str());
+	fSMapField->SetText(fBuilder.GetBoardShiftFile().c_str());
+	fCutField->SetText(fBuilder.GetCutList().c_str());
+	fScalerField->SetText(fBuilder.GetScalerFile().c_str());
 	
 	fZTField->SetIntNumber(fBuilder.GetTargetZ());
 	fATField->SetIntNumber(fBuilder.GetTargetA());
@@ -386,14 +363,9 @@ void EVBMainFrame::LoadConfig(const char* file) {
 
 }
 
-void EVBMainFrame::UpdateROOTdir() {
-	const char* dir = fROOTField->GetText();
-	fBuilder.SetROOTDirectory(dir);
-}
-
-void EVBMainFrame::UpdateBINdir() {
-	const char* dir = fBINField->GetText();
-	fBuilder.SetBinaryDirectory(dir);
+void EVBMainFrame::UpdateWorkdir() {
+	const char* dir = fWorkField->GetText();
+	fBuilder.SetWorkDirectory(dir);
 }
 
 void EVBMainFrame::UpdateSMap() {
@@ -416,11 +388,7 @@ void EVBMainFrame::UpdateCut() {
 	fBuilder.SetCutList(file);
 }
 
-void EVBMainFrame::RunArchive(const char* dir, int number) {}
-
-void EVBMainFrame::RunPlot(const char* file) {
-	std::string plotfile = file;
-	fBuilder.SetPlotFile(plotfile.c_str());
+void EVBMainFrame::RunPlot() {
 	fBuilder.PlotHistograms();
 }
 
@@ -428,15 +396,13 @@ void EVBMainFrame::RunMerge(const char* file, const char* dir) {}
 
 void EVBMainFrame::DisableAllInput() {
 	fRunButton->SetState(kButtonDisabled);
-	fOpenROOTButton->SetState(kButtonDisabled);
-	fOpenBINButton->SetState(kButtonDisabled);
+	fOpenWorkButton->SetState(kButtonDisabled);
 	fOpenCMapButton->SetState(kButtonDisabled);
 	fOpenSMapButton->SetState(kButtonDisabled);
 	fOpenScalerButton->SetState(kButtonDisabled);
 	fOpenCutButton->SetState(kButtonDisabled);
 
-	fROOTField->SetState(false);
-	fBINField->SetState(false);
+	fWorkField->SetState(false);
 	fCMapField->SetState(false);
 	fSMapField->SetState(false);
 	fScalerField->SetState(false);
@@ -465,15 +431,13 @@ void EVBMainFrame::DisableAllInput() {
 
 void EVBMainFrame::EnableAllInput() {
 	fRunButton->SetState(kButtonUp);
-	fOpenROOTButton->SetState(kButtonUp);
-	fOpenBINButton->SetState(kButtonUp);
+	fOpenWorkButton->SetState(kButtonUp);
 	fOpenCMapButton->SetState(kButtonUp);
 	fOpenSMapButton->SetState(kButtonUp);
 	fOpenScalerButton->SetState(kButtonUp);
 	fOpenCutButton->SetState(kButtonUp);
 
-	fROOTField->SetState(true);
-	fBINField->SetState(true);
+	fWorkField->SetState(true);
 	fCMapField->SetState(true);
 	fSMapField->SetState(true);
 	fScalerField->SetState(true);

@@ -12,20 +12,14 @@ LIBDIR=./lib
 CPPFLAGS= -I$(INCLDIR)
 LDFLAGS=$(ROOTGLIBS)
 
-BUSRCDIR=$(SRCDIR)/builder
-PSRCDIR=$(SRCDIR)/plotter
-BISRCDIR=$(SRCDIR)/binary2root
+EVBSRCDIR=$(SRCDIR)/evb
 GUISRCDIR=$(SRCDIR)/gui
 
 OBJDIR=./objs
 
-BUSRC=$(wildcard $(BUSRCDIR)/*.cpp)
-PSRC=$(wildcard $(PSRCDIR)/*.cpp)
-BISRC=$(wildcard $(BISRCDIR)/*.cpp)
+EVBSRC=$(wildcard $(EVBSRCDIR)/*.cpp)
 GUISRC=$(wildcard $(GUISRCDIR)/*.cpp)
-BUOBJS=$(BUSRC:$(BUSRCDIR)/%.cpp=$(OBJDIR)/%.o)
-POBJS=$(PSRC:$(PSRCDIR)/%.cpp=$(OBJDIR)/%.o)
-BIOBJS=$(BISRC:$(BISRCDIR)/%.cpp=$(OBJDIR)/%.o)
+EVBOBJS=$(EVBSRC:$(EVBSRCDIR)/%.cpp=$(OBJDIR)/%.o)
 GUIOBJS=$(GUISRC:$(GUISRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 DICT_PAGES= $(INCLDIR)/DataStructs.h $(INCLDIR)/LinkDef_sps.h
@@ -36,15 +30,6 @@ DICTLIB=$(LIBDIR)/libSPSDict
 GDICT_PAGES=$(INCLDIR)/EVBMainFrame.h $(INCLDIR)/FileViewFrame.h $(INCLDIR)/LinkDef_Gui.h
 GDICT=$(SRCDIR)/gui_dict.cxx
 GDICTOBJ=$(OBJDIR)/gui_dict.o
-
-RCSRC=$(SRCDIR)/RunCollector.cpp
-RCOBJ=$(OBJDIR)/RunCollector.o
-
-SWSRC=$(SRCDIR)/Stopwatch.cpp
-SWOBJ=$(OBJDIR)/Stopwatch.o
-
-EVBSRC=$(SRCDIR)/GWMEventBuilder.cpp
-EVBOBJ=$(OBJDIR)/GWMEventBuilder.o
 
 #entry points
 EVBGUIMSRC=$(SRCDIR)/gui_main.cpp
@@ -59,8 +44,8 @@ PCH=$(INCLDIR)/EventBuilder.h.gch
 EVBEXE=$(BINDIR)/GWMEVB
 EVBCLEXE=$(BINDIR)/GWMEVB_CL
 
-EXES = $(BUEXE) $(PEXE) $(BIEXE) $(EVBEXE) $(EVBCLEXE)
-OBJS = $(BUOBJS) $(POBJS) $(BIOBJS) $(GUIOBJS) $(DICTOBJ) $(GDICTOBJ) $(RCOBJ) $(SWOBJ) $(EVBOBJ) $(EVBGUIMAIN) $(EVBMAIN)
+EXES = $(EVBEXE) $(EVBCLEXE)
+OBJS = $(EVBOBJS) $(GUIOBJS) $(DICTOBJ) $(GDICTOBJ) $(EVBGUIMAIN) $(EVBMAIN)
 
 
 .PHONY: all clean clean_header
@@ -70,10 +55,10 @@ all: $(PCH) $(EVBEXE) $(EVBCLEXE)
 $(PCH): $(PCH_FILE)
 	$(CC) $(CFLAGS) -x c++-header $^
 
-$(EVBEXE): $(DICTOBJ) $(GDICTOBJ) $(RCOBJ) $(SWOBJ) $(BUOBJS) $(MOBJS) $(BIOBJS) $(GUIOBJS) $(POBJS) $(EVBOBJ) $(EVBGUIMAIN)
+$(EVBEXE): $(DICTOBJ) $(GDICTOBJ) $(EVBOBJS) $(GUIOBJS) $(EVBGUIMAIN)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(EVBCLEXE): $(DICTOBJ) $(RCOBJ) $(SWOBJ) $(BUOBJS) $(MOBJS) $(BIOBJS) $(POBJS) $(EVBOBJ) $(EVBMAIN)
+$(EVBCLEXE): $(DICTOBJ) $(EVBOBJS) $(EVBMAIN)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(DICTOBJ): $(DICT)
@@ -105,7 +90,7 @@ clean:
 clean_header:
 	$(RM) $(PCH)
 
-VPATH= $(SRCDIR):$(BUSRCDIR):$(BISRCDIR):$(PSRCDIR):$(GUISRCDIR)
+VPATH= $(SRCDIR):$(EVBSRCDIR):$(GUISRCDIR)
 
 $(OBJDIR)/%.o: %.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^

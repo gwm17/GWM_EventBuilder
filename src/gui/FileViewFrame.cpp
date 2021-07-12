@@ -23,7 +23,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	bool dirFlag = false;
 	bool rootFlag = false;
 	suffix = ".txt";
-	if(type == EVBMainFrame::ROOTDIR || type == EVBMainFrame::BINDIR) {
+	if(type == EVBMainFrame::WORKDIR) {
 		dirFlag = true;
 		suffix = ".NOTHING";
 	} else if(type == EVBMainFrame::PLOTF) {
@@ -69,8 +69,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fMain->AddFrame(ButtonFrame, fbhints);
 
 	/*Send signal to appropriate location*/
-	if(type == EVBMainFrame::ROOTDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayROOTdir(const char*)");
-	else if(type == EVBMainFrame::BINDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayBINdir(const char*)");
+	if(type == EVBMainFrame::WORKDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayWorkdir(const char*)");
 	else if(type == EVBMainFrame::CMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCMap(const char*)");
 	else if(type == EVBMainFrame::SMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplaySMap(const char*)");
 	else if(type == EVBMainFrame::SCALER) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayScaler(const char*)");

@@ -14,7 +14,6 @@ int main(int argc, char** argv) {
 
 
 	/* DEFAULT Operation Types:
-		archive (make an archive of raw binary data)
 		convert (convert binary archive to root data)
 		convertSlow (convert binary arhcive to event slow data)
 		convertFast (convert binary archive to event fast data)
@@ -30,14 +29,7 @@ int main(int argc, char** argv) {
 	}
 	Stopwatch timer;
 	timer.Start();
-	if(operation == "archive") {
-		int runNum;
-		theBuilder.SetAnalysisType(GWMEventBuilder::ARCHIVE);
-		std::cout<<"Enter the run number to be archived: ";
-		std::cin>>runNum;
-		std::cout<<std::endl;
-		theBuilder.ArchiveBinaryFiles(runNum);
-	} else if(operation == "convert") {
+	if(operation == "convert") {
 		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT);
 		theBuilder.Convert2RawRoot();
 	} else if(operation == "merge") {

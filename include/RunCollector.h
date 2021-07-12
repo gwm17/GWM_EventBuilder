@@ -22,18 +22,18 @@ using namespace std;
 class RunCollector {
   public:
     RunCollector();
-    RunCollector(string dirname, string prefix, string suffix);
-    RunCollector(string dirname, string prefix, string suffix, int min, int max);
+    RunCollector(const string& dirname, const string& prefix, const string& suffix);
+    RunCollector(const string& dirname, const string& prefix, const string& suffix, int min, int max);
     ~RunCollector();
-    void SetSearchParams(string& dirname, string prefix, string suffix, int min, int max);
-    int Merge_hadd(string outname);
-    int Merge_TChain(string outname);
+    void SetSearchParams(const string& dirname, const string& prefix, const string& suffix, int min, int max);
+    int Merge_hadd(const string& outname);
+    int Merge_TChain(const string& outname);
     int GrabAllFiles();
     int GrabFilesInRange();
     std::string GrabFile(int runNum);
-    inline const char*  GetSearchDir() {return dir.Data();};
-    inline const char*  GetSearchPrefix() {return run.Data();};
-    inline const char* GetSearchSuffix() {return end.Data();};
+    inline std::string GetSearchDir() {return dir.Data();};
+    inline std::string GetSearchPrefix() {return run.Data();};
+    inline std::string GetSearchSuffix() {return end.Data();};
     inline int GetRunMin() {return MinRun;};
     inline int GetRunMax() {return MaxRun;};
     vector<TString> filelist;

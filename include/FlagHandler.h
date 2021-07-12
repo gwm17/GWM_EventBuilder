@@ -27,7 +27,7 @@ struct FlagCount {
 class FlagHandler {
 public:
 	FlagHandler();
-	FlagHandler(std::string& filename);
+	FlagHandler(const std::string& filename);
 	~FlagHandler();
 	void CheckFlag(int board, int channel, int flag);
 

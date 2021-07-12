@@ -12,7 +12,7 @@ class OrderChecker {
 public:
 	OrderChecker();
 	~OrderChecker();
-	bool IsOrdered(std::string& filename);
+	bool IsOrdered(const std::string& filename);
 };
 
 #endif

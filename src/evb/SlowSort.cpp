@@ -22,7 +22,7 @@ SlowSort::SlowSort() :
   event_stats = new TH2F("coinc_event_stats","coinc_events_stats;global channel;number of coincident hits;counts",144,0,144,20,0,20);
 }
 
-SlowSort::SlowSort(double windowSize, string& mapfile) :
+SlowSort::SlowSort(double windowSize, const string& mapfile) :
   coincWindow(windowSize), eventFlag(false), event(), cmap(mapfile)
 {
   event_stats = new TH2F("coinc_event_stats","coinc_events_stats;global channel;number of coincident hits;counts",144,0,144,20,0,20);
@@ -149,8 +149,13 @@ void SlowSort::ProcessEvent() {
       }
 
     } else {
-      std::cerr<<"bleh"<<std::endl;
-      std::cout<<"info: "<<channel_info->second.detectorType<<std::endl;
+      std::cout<<std::endl;
+      std::cout<<"------Data Assignment Error!-------"<<std::endl;
+      std::cout<<"Channel is present in channel map, but does not have a variable assigned in variable map!"<<std::endl;
+      std::cout<<"global channel number: "<<gchan<<" channel detector type: "<<channel_info->second.detectorType<<std::endl;
+      std::cout<<"Skipping this hit..."<<std::endl;
+      std::cout<<"-----------------------------------"<<std::endl;
+
     }
   }
   //Organize the SABRE data in descending energy order

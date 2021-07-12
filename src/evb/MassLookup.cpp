@@ -47,13 +47,6 @@ double MassLookup::FindMass(int Z, int A) {
     return 0;
   }
   return data->second;
-  /*try {
-    double mass = massTable.at(key);
-    return mass;
-  } catch (std::out_of_range& oor) {
-    std::cerr<<"Mass of "<<key<<" (Z,A) not found in Mass Table! Returning 1"<<std::endl;
-    return 1;
-  }*/
 }
 
 //returns element symbol
@@ -65,14 +58,4 @@ std::string MassLookup::FindSymbol(int Z, int A) {
   }
   std::string fullsymbol = std::to_string(A) + data->second;
   return fullsymbol;
-
-  /*try {
-    std::string element = elementTable.at(Z);
-    std::string fullsymbol = std::to_string(A) + element;
-    return fullsymbol;
-  } catch (std::out_of_range& oor) {
-    std::cerr<<"Atomic number: "<<Z<<" not found in Element Table! Returning void."<<std::endl;
-    std::string element = "void";
-    return element;
-  }*/
 }

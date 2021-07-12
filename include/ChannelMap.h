@@ -40,10 +40,9 @@ public:
 	typedef std::unordered_map<int, Channel>::iterator Iterator;
 
 	ChannelMap();
-	ChannelMap(std::string& filename);
-	ChannelMap(const char* filename);
+	ChannelMap(const std::string& filename);
 	~ChannelMap();
-	bool FillMap(std::string& filename);
+	bool FillMap(const std::string& filename);
 	inline const Containter* GetCMap() { return &cmap; };
 	inline Iterator FindChannel(int key) { return cmap.find(key); };
 	inline Iterator End() { return cmap.end(); };

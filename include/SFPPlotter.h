@@ -19,10 +19,10 @@ class SFPPlotter {
     SFPPlotter();
     SFPPlotter(bool tf);
     ~SFPPlotter();
-    int SetCuts(string edename, string dexname, string exname, string xxname);
+    int SetCuts(const string& edename, const string& dexname, const string& exname, const string& xxname);
     inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
-    int ReadCutlist(string& listname);
-    void Run(vector<TString> files, string output);
+    int ReadCutlist(const string& listname);
+    void Run(vector<TString> files, const string& output);
 
   private:
     void Reset();
@@ -32,9 +32,9 @@ class SFPPlotter {
     void MakeCutHistograms(ProcessedEvent ev);
 
     /*Histogram fill wrapper functions*/
-    void MyFill(string name, int binsx, double minx, double maxx, double valuex,
+    void MyFill(const string& name, int binsx, double minx, double maxx, double valuex,
                              int binsy, double miny, double maxy, double valuey);
-    void MyFill(string name, int binsx, double minx, double maxx, double valuex);
+    void MyFill(const string& name, int binsx, double minx, double maxx, double valuex);
 
     ProcessedEvent *event_address, event, empty;
 

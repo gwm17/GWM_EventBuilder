@@ -23,13 +23,7 @@ CompassRun::CompassRun() :
 
 }
 
-CompassRun::CompassRun(std::string& dir) :
-	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
-{
-
-}
-
-CompassRun::CompassRun(const char* dir) :
+CompassRun::CompassRun(const std::string& dir) :
 	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
@@ -64,7 +58,6 @@ bool CompassRun::GetBinaryFiles() {
 	grabber.GrabAllFiles();
 
 	m_datafiles.clear(); //so that the CompassRun can be reused
-	m_scalerfiles.clear();
 	m_datafiles.reserve(grabber.filelist.size());
 	bool scalerd;
 	m_totalHits = 0; //reset total run size
@@ -75,7 +68,7 @@ bool CompassRun::GetBinaryFiles() {
 			scalerd = false;
 			for(auto& scaler_pair : m_scaler_map) {
 				if(std::string(entry.Data()) == scaler_pair.first) {
-					m_scalerfiles.emplace_back(entry.Data());
+					ReadScalerData(entry.Data());
 					scalerd = true;
 					break;
 				}
@@ -99,20 +92,19 @@ bool CompassRun::GetBinaryFiles() {
 	Pure counting of scalers. Potential upgrade path to something like
 	average count rate etc. 
 */
-void CompassRun::ReadScalerData() {
+void CompassRun::ReadScalerData(const std::string& filename) {
 	if(!m_scaler_flag) return;
 
 	Long64_t count;
-	for(auto& file: m_scalerfiles) {
-		count = 0;
-		auto& this_param = m_scaler_map[file.GetName()];
-		while(true) {
-			file.GetNextHit();
-			if(file.IsEOF()) break;
-			count++;
-		}
-		this_param.SetVal(count);
+	count = 0;
+	CompassFile file(filename);
+	auto& this_param = m_scaler_map[file.GetName()];
+	while(true) {
+		file.GetNextHit();
+		if(file.IsEOF()) break;
+		count++;
 	}
+	this_param.SetVal(count);
 }
 
 /*
@@ -148,7 +140,7 @@ bool CompassRun::GetHitsFromFiles() {
 	return true;
 }
 
-void CompassRun::Convert2RawRoot(std::string& name) {
+void CompassRun::Convert2RawRoot(const std::string& name) {
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("Data", "Data");
 
@@ -193,8 +185,6 @@ void CompassRun::Convert2RawRoot(std::string& name) {
 		outtree->Fill();
 	}
 
-	ReadScalerData();
-
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
 	for(auto& entry : m_scaler_map) {
@@ -203,7 +193,7 @@ void CompassRun::Convert2RawRoot(std::string& name) {
 	output->Close();
 }
 
-void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, double window) {
+void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window) {
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("SortTree", "SortTree");
 
@@ -255,8 +245,6 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 		}
 	}
 
-	ReadScalerData();
-
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
 	for(auto& entry : m_scaler_map) {
@@ -266,7 +254,7 @@ void CompassRun::Convert2SortedRoot(std::string& name, std::string& mapfile, dou
 	output->Close();
 }
 
-void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window) {
+void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window) {
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("SortTree", "SortTree");
 
@@ -330,8 +318,6 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 		}
 	}
 
-	ReadScalerData();
-
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
 	for(auto& entry : m_scaler_map) {
@@ -342,7 +328,7 @@ void CompassRun::Convert2FastSortedRoot(std::string& name, std::string& mapfile,
 }
 
 
-void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfile, double window,
+void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
 									  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) {
 
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
@@ -412,8 +398,6 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 		}
 	}
 
-	ReadScalerData();
-
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
 	for(auto& entry : m_scaler_map) {
@@ -428,7 +412,7 @@ void CompassRun::Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfil
 	output->Close();
 }
 
-void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window,
+void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
 									  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) {
 
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
@@ -506,8 +490,6 @@ void CompassRun::Convert2FastAnalyzedRoot(std::string& name, std::string& mapfil
 			if(killFlag) break;
 		}
 	}
-
-	ReadScalerData();
 
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);

@@ -8,23 +8,19 @@ RunCollector::RunCollector():
 {
 }
 
-RunCollector::RunCollector(string dirname, string prefix, string suffix) {
+RunCollector::RunCollector(const string& dirname, const string& prefix, const string& suffix) {
   dir = dirname.c_str();
   run = prefix.c_str();
   end = suffix.c_str();
-  cout<<"Searching directory: "<<dir.Data()<<" for files starting with: "<<run.Data()
-      <<" and ending with: "<<end.Data()<<endl;
 
   MinRun = 0; MaxRun = LITERALMAX;
   initFlag = true;
 }
 
-RunCollector::RunCollector(string dirname, string prefix, string suffix, int min, int max) {
+RunCollector::RunCollector(const string& dirname, const string& prefix, const string& suffix, int min, int max) {
   dir = dirname.c_str();
   run = prefix.c_str();
   end = suffix.c_str();
-  cout<<"Searching directory: "<<dir.Data()<<" for files starting with: "<<run.Data()
-      <<" and ending with: "<<end.Data()<<" from run no. "<<min<<" to run no. "<<max<<endl;
 
   MinRun = min; MaxRun = max;
   initFlag = true;
@@ -32,7 +28,7 @@ RunCollector::RunCollector(string dirname, string prefix, string suffix, int min
 
 RunCollector::~RunCollector() {}
 
-void RunCollector::SetSearchParams(string& dirname, string prefix, string suffix, int min, int max) {
+void RunCollector::SetSearchParams(const string& dirname, const string& prefix, const string& suffix, int min, int max) {
   dir = dirname.c_str();
   run = prefix.c_str();
   end = suffix.c_str();
@@ -134,7 +130,7 @@ int RunCollector::GrabFilesInRange() {
   }
 }
 
-int RunCollector::Merge_hadd(string outname) {
+int RunCollector::Merge_hadd(const string& outname) {
   if(!initFlag) {return 0;}
   if(MaxRun == LITERALMAX) {
     if(GrabAllFiles()) { 
@@ -165,7 +161,7 @@ int RunCollector::Merge_hadd(string outname) {
   }
 }
 
-int RunCollector::Merge_TChain(string outname) {
+int RunCollector::Merge_TChain(const string& outname) {
   if(!initFlag) {return 0;}
   TFile *output = new TFile(outname.c_str(), "RECREATE");
   TChain *chain = new TChain("SPSTree", "SPSTree");

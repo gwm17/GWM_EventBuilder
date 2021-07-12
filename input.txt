@@ -1,15 +1,15 @@
 -------Data Locations----------
-ROOTDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/
-BinaryArchiveDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/raw_binary/
+ROOTDirectory: /data1/gwm17/10B3He/Feb2021/
+BinaryArchiveDirectory: /data1/gwm17/10B3He/Feb2021/raw_binary/
 BinaryFileDirectory: none
-MergeInputDirectory: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/analyzed/
-MergeOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021/runs_240_258_merged_delayPSD.root
-PlotOutputFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/9BFeb2021//histograms/run_47_47_histos.root
+MergeInputDirectory: /data1/gwm17/10B3He/Feb2021/analyzed/
+MergeOutputFile: /data1/gwm17/10B3He/Feb2021/runs_47_159_merged_delayPSD.root
+PlotOutputFile: /data1/gwm17/10B3He/Feb2021/histograms/run_47_47_histos.root
 -------------------------------
 ------Experimental Inputs------
-ChannelMapFile: /home/gordon/GWM_EventBuilder/etc/ChannelMap_Feb2021_SABRE.txt
-ScalerFile: /home/gordon/GWM_EventBuilder/etc/ScalerFile_Feb2021_SABRE.txt
-CutListFile: /home/gordon/GWM_EventBuilder/etc/CutList_Feb2021_10B3hea.txt
+ChannelMapFile: /home/gwm17/GWM_EventBuilder/etc/ChannelMap_Feb2021_SABRE.txt
+ScalerFile: /home/gwm17/GWM_EventBuilder/etc/ScalerFile_Feb2021_SABRE.txt
+CutListFile: /home/gwm17/GWM_EventBuilder/etc/CutList_Feb2021_10B3hea.txt
 ZT: 5
 AT: 10
 ZP: 2
@@ -21,12 +21,12 @@ BeamKE(MeV): 24
 Theta(deg): 15
 -------------------------------
 -------Timing Information------
-BoardOffsetFile: /home/gordon/GWM_EventBuilder/etc/ShiftMap_Feb2021_SABRE.txt
+BoardOffsetFile: /home/gwm17/GWM_EventBuilder/etc/ShiftMap_Feb2021_SABRE.txt
 SlowCoincidenceWindow(ps): 1.5e+06
 FastCoincidenceWindow_IonCh(ps): 250000
 FastCoincidenceWindow_SABRE(ps): 150000
 -------------------------------
 --------Run Information--------
 MinRun: 47
-MaxRun: 159
+MaxRun: 47
 -------------------------------

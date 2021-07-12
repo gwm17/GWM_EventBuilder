@@ -17,13 +17,7 @@ ShiftMap::ShiftMap() :
 {
 }
 
-ShiftMap::ShiftMap(std::string& filename) :
-	m_filename(filename), is_set(false)
-{
-	ParseFile();
-}
-
-ShiftMap::ShiftMap(const char* filename) :
+ShiftMap::ShiftMap(const std::string& filename) :
 	m_filename(filename), is_set(false)
 {
 	ParseFile();
@@ -31,12 +25,7 @@ ShiftMap::ShiftMap(const char* filename) :
 
 ShiftMap::~ShiftMap() {}
 
-void ShiftMap::SetFile(std::string& filename) {
-	m_filename = filename;
-	ParseFile();
-}
-
-void ShiftMap::SetFile(const char* filename) {
+void ShiftMap::SetFile(const std::string& filename) {
 	m_filename = filename;
 	ParseFile();
 }

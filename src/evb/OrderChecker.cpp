@@ -16,7 +16,7 @@ OrderChecker::~OrderChecker() {
 
 }
 
-bool OrderChecker::IsOrdered(std::string& filename)  {
+bool OrderChecker::IsOrdered(const std::string& filename)  {
 	TFile* file = TFile::Open(filename.c_str(), "READ");
 	TTree* tree = (TTree*) file->Get("Data");
 
