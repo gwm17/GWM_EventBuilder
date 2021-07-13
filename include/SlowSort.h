@@ -21,10 +21,10 @@ class SlowSort {
 
   public:
     SlowSort();
-    SlowSort(double windowSize, string& mapfile);
+    SlowSort(double windowSize, const string& mapfile);
     ~SlowSort();
     inline void SetWindowSize(double window) { coincWindow = window; };
-    inline bool SetMapFile(std::string& mapfile) { return cmap.FillMap(mapfile); };
+    inline bool SetMapFile(const std::string& mapfile) { return cmap.FillMap(mapfile); };
     bool AddHitToEvent(CompassHit& mhit);
     CoincEvent GetEvent();
     inline TH2F* GetEventStats() { return event_stats; };

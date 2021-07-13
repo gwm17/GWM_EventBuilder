@@ -40,6 +40,7 @@ private:
 	TGFileContainer *fContents;
 	TGListView *fViewer;
 	std::string suffix;
+	bool dirFlag;
 };
 
 #endif

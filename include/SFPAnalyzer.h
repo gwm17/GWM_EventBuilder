@@ -31,9 +31,9 @@ class SFPAnalyzer {
     void AnalyzeEvent(CoincEvent& event);
 
     /*Fill wrappers for use with THashTable*/
-    void MyFill(string name, int binsx, double minx, double maxx, double valuex,
+    void MyFill(const string& name, int binsx, double minx, double maxx, double valuex,
                              int binsy, double miny, double maxy, double valuey);
-    void MyFill(string name, int binsx, double minx, double maxx, double valuex);
+    void MyFill(const string& name, int binsx, double minx, double maxx, double valuex);
 
     CoincEvent *event_address; //Input branch address
     ProcessedEvent pevent, blank; //output branch and reset

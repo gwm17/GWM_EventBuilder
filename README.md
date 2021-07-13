@@ -1,23 +1,18 @@
 # SPS-SABRE Data Analysis Package
-Version 2
+Version 3
 This is a software package designed to help experimenters analyze data from SPS-SABRE at FSU. 
 It can convert CoMPASS data to ROOT, sort the data in time, build events, perform preliminary analysis and provide basic plots. Programs are built using make, and a make file is included. Simply using the command make will build all programs.
 
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
 ## GWMEVB vs. GWMEVB_CL
-There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. The GUI currently supports all conversion methods and the plotting tool, however it does not currently perform merging or archiving.
-
-### Binary2ROOT
-The binary2root operation takes binary CoMPASS data and converts it into a `ROOT` file with a tree.
-The conversion orgainzes the data in time and applies any shifts to the timestamps. It requires that
-the user gives a directory which contains an archive of binary data. It is then temporarily unpacked and converted. The unpacked data is then deleted. This is no longer a process independent of the event building; event building is done at conversion time. A bash tool, `archivist` is included in the `bin` directory to perform quick generation of archived data from the raw CoMPASS directory. Simply modify the script to reflect your directory structure.
+There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
 
 ### Building Events
 The event building operation is the bulk of the analysis process. As files are being converted to ROOT from the raw CoMPASS binary, events are built using information given by the user. 
 
 #### Types of Event Building
-1. All: Does the whole shebang.
+1. Convert: simply sends data from CoMPASS format to ROOT format and time orders the data.
 2. Slow Events: This perfoms the event building of slow events and then analyzes the slow data. Note that in this option, if there are unresolved multiplicities in data, the analyzer assumes the earliest datum is relevant one.
 3. Fast Events: This performs the event building of fast events, assuming that slow event data has already been created and EXISTS in the proper directory. The fast event data is then analyzed.
 4. Analyze Slow Events: This performs analysis of slow event data, without performing any fast sorting.
@@ -64,7 +59,7 @@ The program is capable of merging several root files together using either `hadd
 The plotting is intended to be the final leg of the analysis pipeline. The goal of this program
 is to take a collection of analyzed files and produce a file containing relevant histograms,
 graphs, and other such data measures. As it is currently built, this program has no ability to
-save any data of its own, it merely makes data measures. It is a quick and dirty analysis, and is not intended to be increased beyond merely checking some TCutGs and making some histograms.
+save any data of its own, it merely makes data measures. It is a quick and dirty analysis, and is not intended to be increased beyond merely checking some TCutGs and making some histograms. Cuts can be applied using a cut list. The cut list should contain a name for the cut, the name of the file containing the TCutG ROOT object (named CUTG), and then names for the x and y variables. The x and y variables must be initialized in the variable map. By default x1, x2, xavg, scintLeft, anodeBack, and cathode are all initialized. Any other variables will have to be added by the user by modifiying the CutHandler::InitVariableMap() function. 
 
 #### Determining Shifts and Windows
 The plotting already provides most of the histograms one would need to determine the shifts and windows
@@ -88,5 +83,5 @@ Only compatible with MacOSX and Linux
 
 ## Compliling and Running
 To compile use the command `make`
-It is recommended to make a simple shell script that runs the full pipeline if using the command line version.
-
+To clean run `make clean` and then run `make`
+For a complete rebuild use `make clean_header` as well as `make clean`.

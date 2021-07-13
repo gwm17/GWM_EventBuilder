@@ -21,8 +21,7 @@ public:
 	virtual ~EVBMainFrame();
 	void CloseWindow();
 	void HandleMenuSelection(int id);
-	void DoOpenROOTdir();
-	void DoOpenBINdir();
+	void DoOpenWorkdir();
 	void DoOpenCMapfile();
 	void DoOpenSMapfile();
 	void DoOpenScalerfile();
@@ -30,30 +29,26 @@ public:
 	void DoRun();
 	void HandleTypeSelection(int box, int entry);
 	bool SetParameters();
-	void DisplayROOTdir(const char* dir);
-	void DisplayBINdir(const char* dir);
+	void DisplayWorkdir(const char* dir);
 	void DisplayCMap(const char* file);
 	void DisplaySMap(const char* file);
 	void DisplayScaler(const char* file);
 	void DisplayCut(const char* file);
 	void SaveConfig(const char* file);
 	void LoadConfig(const char* file);
-	void UpdateROOTdir();
-	void UpdateBINdir();
+	void UpdateWorkdir();
 	void UpdateCMap();
 	void UpdateSMap();
 	void UpdateScaler();
 	void UpdateCut();
-	void RunArchive(const char* dir, int number);
-	void RunPlot(const char* file);
+	void RunPlot();
 	void RunMerge(const char* dir, const char* file);
 	void DisableAllInput();
 	void EnableAllInput();
 
 
 	enum WidgetId {
-		ROOTDIR,
-		BINDIR,
+		WORKDIR,
 		CMAP,
 		SMAP,
 		SCALER,
@@ -75,14 +70,15 @@ public:
 		RMIN,
 		RMAX,
 		M_LOAD_CONFIG,
-		M_SAVE_CONFIG
+		M_SAVE_CONFIG,
+		M_EXIT
 	};
 
 	ClassDef(EVBMainFrame, 0);
 
 private:
-	TGTextButton *fRunButton, *fOpenROOTButton, *fOpenBINButton, *fOpenCMapButton, *fOpenSMapButton, *fOpenScalerButton, *fOpenCutButton;
-	TGTextEntry *fROOTField, *fBINField;
+	TGTextButton *fRunButton, *fOpenWorkButton, *fOpenCMapButton, *fOpenSMapButton, *fOpenScalerButton, *fOpenCutButton;
+	TGTextEntry *fWorkField;
 	TGTextEntry *fCMapField, * fSMapField;
 	TGTextEntry *fScalerField, *fCutField;
 	TGComboBox *fTypeBox;

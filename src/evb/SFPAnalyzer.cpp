@@ -43,7 +43,7 @@ void SFPAnalyzer::GetWeights() {
 }
 
 /*2D histogram fill wrapper for use with THashTable (faster)*/
-void SFPAnalyzer::MyFill(string name, int binsx, double minx, double maxx, double valuex,
+void SFPAnalyzer::MyFill(const string& name, int binsx, double minx, double maxx, double valuex,
                                       int binsy, double miny, double maxy, double valuey) {
   TH2F *histo = (TH2F*) rootObj->FindObject(name.c_str());
   if(histo != NULL) {
@@ -56,7 +56,7 @@ void SFPAnalyzer::MyFill(string name, int binsx, double minx, double maxx, doubl
 }
 
 /*1D histogram fill wrapper for use with THashTable (faster)*/
-void SFPAnalyzer::MyFill(string name, int binsx, double minx, double maxx, double valuex) {
+void SFPAnalyzer::MyFill(const string& name, int binsx, double minx, double maxx, double valuex) {
   TH1F *histo = (TH1F*) rootObj->FindObject(name.c_str());
   if(histo != NULL) {
     histo->Fill(valuex);

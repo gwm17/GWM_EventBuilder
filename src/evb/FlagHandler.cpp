@@ -6,7 +6,7 @@ log("./event_log.txt")
 {
 }
 
-FlagHandler::FlagHandler(std::string& filename) :
+FlagHandler::FlagHandler(const std::string& filename) :
 log(filename)
 {
 }

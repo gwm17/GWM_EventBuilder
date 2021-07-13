@@ -21,22 +21,18 @@
 class CompassRun {
 public:
 	CompassRun();
-	CompassRun(std::string& dir);
-	CompassRun(const char* dir);
+	CompassRun(const std::string& dir);
 	~CompassRun();
-	inline void SetDirectory(std::string& dir) { directory = dir; };
-	inline void SetDirectory(const char* dir) { directory = dir; };
-	inline void SetScalerInput(std::string& filename) { m_scalerinput = filename; };
-	inline void SetScalerInput(const char* filename) { m_scalerinput = filename; };
+	inline void SetDirectory(const std::string& dir) { directory = dir; };
+	inline void SetScalerInput(const std::string& filename) { m_scalerinput = filename; };
 	inline void SetRunNumber(int n) { runNum = n; };
-	inline void SetShiftMap(const char* filename) { m_smap.SetFile(filename); };
-	inline void SetShiftMap(std::string& filename) { m_smap.SetFile(filename); };
-	void Convert2RawRoot(std::string& name);
-	void Convert2SortedRoot(std::string& name, std::string& mapfile, double window);
-	void Convert2FastSortedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window);
-	void Convert2SlowAnalyzedRoot(std::string& name, std::string& mapfile, double window,
+	inline void SetShiftMap(const std::string& filename) { m_smap.SetFile(filename); };
+	void Convert2RawRoot(const std::string& name);
+	void Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window);
+	void Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window);
+	void Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
 							  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
-	void Convert2FastAnalyzedRoot(std::string& name, std::string& mapfile, double window, double fsi_window, double fic_window,
+	void Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
 							  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
 
 	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
@@ -45,11 +41,11 @@ private:
 	bool GetBinaryFiles();
 	bool GetHitsFromFiles();
 	void SetScalers();
-	void ReadScalerData();
+	void ReadScalerData(const std::string& filename);
 	void SetProgressBar();
 
 	std::string directory, m_scalerinput;
-	std::vector<CompassFile> m_datafiles, m_scalerfiles;
+	std::vector<CompassFile> m_datafiles;
 	unsigned int startIndex; //this is the file we start looking at; increases as we finish files.
 	ShiftMap m_smap;
 	std::unordered_map<std::string, TParameter<Long64_t>> m_scaler_map; //maps scaler files to the TParameter to be saved

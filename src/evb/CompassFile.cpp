@@ -12,20 +12,26 @@
 #include "CompassFile.h"
 
 CompassFile::CompassFile() :
-	m_filename(""), hitBuffer(bufsize,0), bufferIter(nullptr), bufferEnd(nullptr), m_smap(nullptr), hitUsedFlag(true), m_file(std::make_shared<std::ifstream>()), eofFlag(false)
+	m_filename(""), bufferIter(nullptr), bufferEnd(nullptr), m_smap(nullptr), hitUsedFlag(true), m_file(std::make_shared<std::ifstream>()), eofFlag(false)
 {
-
+	m_buffersize = bufsize*hitsize;
+	hitBuffer.resize(m_buffersize);
 }
 
-CompassFile::CompassFile(std::string& filename) :
-	m_filename(""), hitBuffer(bufsize,0), bufferIter(nullptr), bufferEnd(nullptr), m_smap(nullptr), hitUsedFlag(true), m_file(std::make_shared<std::ifstream>()), eofFlag(false)
+CompassFile::CompassFile(const std::string& filename) :
+	m_filename(""), bufferIter(nullptr), bufferEnd(nullptr), m_smap(nullptr), hitUsedFlag(true), m_file(std::make_shared<std::ifstream>()), eofFlag(false)
 {
+	m_buffersize = bufsize*hitsize;
+	hitBuffer.resize(m_buffersize);
 	Open(filename);
 }
 
-CompassFile::CompassFile(const char* filename) :
-	m_filename(""), hitBuffer(bufsize,0), bufferIter(nullptr), bufferEnd(nullptr), m_smap(nullptr), hitUsedFlag(true), m_file(std::make_shared<std::ifstream>()), eofFlag(false)
+CompassFile::CompassFile(const std::string& filename, int bsize) :
+	m_filename(""), bufferIter(nullptr), bufferEnd(nullptr), m_smap(nullptr), hitUsedFlag(true),
+	bufsize(bsize), m_file(std::make_shared<std::ifstream>()), eofFlag(false)
 {
+	m_buffersize = bufsize*hitsize;
+	hitBuffer.resize(m_buffersize);
 	Open(filename);
 }
 
@@ -33,23 +39,7 @@ CompassFile::~CompassFile() {
 	Close();
 }
 
-void CompassFile::Open(std::string& filename) {
-	eofFlag = false;
-	hitUsedFlag = true;
-	m_filename = filename;
-	m_file->open(m_filename, std::ios::binary | std::ios::in);
-
-	m_file->seekg(0, std::ios_base::end);
-	m_size = m_file->tellg();
-	m_nHits = m_size/24;
-	if(m_size == 0) {
-		eofFlag = true;
-	} else {
-		m_file->seekg(0, std::ios_base::beg);
-	}
-}
-
-void CompassFile::Open(const char* filename) {
+void CompassFile::Open(const std::string& filename) {
 	eofFlag = false;
 	hitUsedFlag = true;
 	m_filename = filename;
@@ -69,6 +59,27 @@ void CompassFile::Close() {
 	if(IsOpen()) {
 		m_file->close();
 	}
+}
+
+int CompassFile::GetHitSize() {
+	if(!IsOpen()) {
+		std::cerr<<"Unable to get hit size due to file not being open!"<<std::endl;
+		return 0;
+	}
+
+	char* firstHit = new char[24]; //A compass hit by default has 24 bytes (at least in our setup)
+
+	m_file->read(firstHit, 24);
+
+	firstHit += 16;
+	int nsamples = *((uint32_t*) firstHit);
+
+	m_file->seekg(0, std::ios_base::beg);
+
+	delete firstHit;
+
+	return 24 + nsamples*16; 
+
 }
 
 /*

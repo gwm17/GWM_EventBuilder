@@ -14,22 +14,15 @@ ChannelMap::ChannelMap() :
 {
 }
 
-ChannelMap::ChannelMap(std::string& name) :
+ChannelMap::ChannelMap(const std::string& name) :
 	is_valid(false)
 {
 	FillMap(name);
 }
 
-ChannelMap::ChannelMap(const char* name) :
-	is_valid(false)
-{
-	std::string filename = name;
-	FillMap(filename);
-}
-
 ChannelMap::~ChannelMap() {}
 
-bool ChannelMap::FillMap(std::string& name) {
+bool ChannelMap::FillMap(const std::string& name) {
 	std::ifstream input(name);
 	if(!input.is_open()) {
 		is_valid = false;

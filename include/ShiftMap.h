@@ -15,13 +15,11 @@
 class ShiftMap {
 public:
 	ShiftMap();
-	ShiftMap(std::string& filename);
-	ShiftMap(const char* filename);
+	ShiftMap(const std::string& filename);
 	~ShiftMap();
-	void SetFile(std::string& filename);
-	void SetFile(const char* filename);
+	void SetFile(const std::string& filename);
 	inline bool IsSet() { return is_set; };
-	inline const char* GetFilename() { return m_filename.c_str(); };
+	inline std::string GetFilename() { return m_filename; };
 	Long64_t GetShift(int gchan);
 
 private:
