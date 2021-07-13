@@ -112,7 +112,9 @@ void FileViewFrame::DoOk() {
 	fCancelButton->SetState(kButtonDisabled);
 
 	TString filename = fNameField->GetText();
-	TString fullpath = TString(fContents->GetDirectory()) + "/" + filename;
+	TString fullpath;
+	if(!dirFlag) fullpath = TString(fContents->GetDirectory()) + "/" + filename;
+	else fullpath = filename;
 	if(fullpath == "") { //check validity
 		std::cerr<<"Need to give a name!"<<std::endl;
 		fOkButton->SetState(kButtonUp);
@@ -155,7 +157,7 @@ void FileViewFrame::DoDoubleClick(TGLVEntry *entry, int id) {
 	} else {
 		DisplayDir(entryname);
 		if(dirFlag) {
-			fNameField->SetText((dirname+"/"+entryname).Data());
+			fNameField->SetText(fContents->GetDirectory());
 		}
 	}
 }
