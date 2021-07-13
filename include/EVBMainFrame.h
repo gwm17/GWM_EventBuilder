@@ -70,7 +70,8 @@ public:
 		RMIN,
 		RMAX,
 		M_LOAD_CONFIG,
-		M_SAVE_CONFIG
+		M_SAVE_CONFIG,
+		M_EXIT
 	};
 
 	ClassDef(EVBMainFrame, 0);

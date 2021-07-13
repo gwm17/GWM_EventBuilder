@@ -166,7 +166,8 @@ void CompassRun::Convert2RawRoot(const std::string& name) {
 	if(m_pb) SetProgressBar();
 
 	startIndex = 0; //Reset the startIndex
-	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
+	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
+	if(flush == 0) flush = 1;
 	while(true) {
 		count++;
 		if(count == flush) { //Progress Log
@@ -216,7 +217,8 @@ void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& 
 	startIndex = 0;
 	SlowSort coincidizer(window, mapfile);
 	bool killFlag = false;
-	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
+	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
+	if(flush == 0) flush = 1;
 	while(true) {
 		count++;
 		if(count == flush) {
@@ -283,7 +285,8 @@ void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::stri
 	FlagHandler flagger;
 
 	bool killFlag = false;
-	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
+	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
+	if(flush == 0) flush = 1;
 	while(true) {
 		count++;
 		if(count == flush) {
@@ -368,7 +371,8 @@ void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::st
 	parvec.emplace_back("Theta", theta);
 
 	bool killFlag = false;
-	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
+	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
+	if(flush == 0) flush = 1;
 	while(true) {
 		count++;
 		if(count == flush) {
@@ -456,7 +460,8 @@ void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::st
 	FlagHandler flagger;
 
 	bool killFlag = false;
-	unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
+	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
+	if(flush == 0) flush = 1;
 	while(true) {
 		count++;
 		if(count == flush) {

@@ -20,7 +20,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fMain->SetCleanup(kDeepCleanup); //delete all child frames
 	fMain->DontCallClose(); //Close button on window disabled
 
-	bool dirFlag = false;
+	dirFlag = false;
 	bool rootFlag = false;
 	suffix = ".txt";
 	if(type == EVBMainFrame::WORKDIR) {
@@ -33,6 +33,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 
 	/*Layout orgainization hints*/
 	TGLayoutHints *fhints = new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,5,5,5,5);
+	TGLayoutHints *thints = new TGLayoutHints(kLHintsExpandX|kLHintsCenterY,5,5,5,5);
 	TGLayoutHints *fchints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5);
 	TGLayoutHints *lhints = new TGLayoutHints(kLHintsLeft|kLHintsTop,5,5,5,5);
 	TGLayoutHints *fbhints = new TGLayoutHints(kLHintsCenterX|kLHintsBottom,5,5,5,5);
@@ -53,7 +54,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fNameField = new TGTextEntry(NameFrame, fNameBuffer = new TGTextBuffer(50));
 	fNameField->Resize(w*0.5, fNameField->GetDefaultHeight());
 	NameFrame->AddFrame(nameLabel, lhints);
-	NameFrame->AddFrame(fNameField, fhints);
+	NameFrame->AddFrame(fNameField, thints);
 
 	/*Buttons for ok and cancel*/
 	TGHorizontalFrame *ButtonFrame = new TGHorizontalFrame(fMain, w, h*0.25);
@@ -65,7 +66,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	ButtonFrame->AddFrame(fCancelButton, fhints);
 
 	fMain->AddFrame(fViewer, fchints);
-	fMain->AddFrame(NameFrame, fbhints);
+	fMain->AddFrame(NameFrame, thints);
 	fMain->AddFrame(ButtonFrame, fbhints);
 
 	/*Send signal to appropriate location*/
@@ -153,6 +154,9 @@ void FileViewFrame::DoDoubleClick(TGLVEntry *entry, int id) {
 		fNameField->SetText(name.Data());
 	} else {
 		DisplayDir(entryname);
+		if(dirFlag) {
+			fNameField->SetText((dirname+"/"+entryname).Data());
+		}
 	}
 }
 

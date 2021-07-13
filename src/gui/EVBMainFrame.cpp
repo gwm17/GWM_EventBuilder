@@ -180,10 +180,11 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	PBFrame->AddFrame(pbLabel, lhints);
 	PBFrame->AddFrame(fProgressBar, fhints);
 
-	TGMenuBar* menuBar = new TGMenuBar(this, w, h*0.1, kHorizontalFrame);
+	TGMenuBar* menuBar = new TGMenuBar(this, w, h*0.1);
 	fFileMenu = new TGPopupMenu(gClient->GetRoot());
 	fFileMenu->AddEntry("Load...", M_LOAD_CONFIG);
 	fFileMenu->AddEntry("Save...", M_SAVE_CONFIG);
+	fFileMenu->AddEntry("Exit", M_EXIT);
 	fFileMenu->Connect("Activated(Int_t)","EVBMainFrame", this, "HandleMenuSelection(Int_t)");
 	menuBar->AddPopup("File", fFileMenu, mhints);
 
@@ -210,6 +211,7 @@ void EVBMainFrame::CloseWindow() {
 void EVBMainFrame::HandleMenuSelection(int id) {
 	if(id == M_SAVE_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_SAVE_CONFIG);
 	else if(id == M_LOAD_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_LOAD_CONFIG);
+	else if(id == M_EXIT) CloseWindow();
 }
 
 void EVBMainFrame::DoOpenWorkdir() {
