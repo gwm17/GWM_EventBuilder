@@ -156,7 +156,6 @@ void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
 
 /*Makes histograms with cuts & gates implemented*/
 void SFPPlotter::MakeCutHistograms(ProcessedEvent ev) {
-  if(!cutter.IsValid()) return;
   if(cutter.IsInside(&ev)) {
     MyFill("x1_bothplanes_Cut",600,-300,300,ev.x1);
     MyFill("x2_bothplanes_Cut",600,-300,300,ev.x2);
