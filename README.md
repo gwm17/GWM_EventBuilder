@@ -1,3 +1,5 @@
+# DEPRECATED
+Please see the SE-SPS github page for the maintained event builder and event builder skeleton ([here](https://github.com/sesps))
 # SPS-SABRE Data Analysis Package
 Version 3
 This is a software package designed to help experimenters analyze data from SPS-SABRE at FSU. 
